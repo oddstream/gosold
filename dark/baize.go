@@ -4,6 +4,7 @@ package dark
 
 import (
 	"errors"
+	"hash/crc32"
 	"log"
 
 	"oddstream.games/gosold/util"
@@ -26,20 +27,24 @@ type Baize struct {
 	undoStack  []*savableBaize
 }
 
+// NewBaize creates a new Baize object
 func (d *dark) NewBaize(variant string) (*Baize, error) {
-	var b *Baize = &Baize{variant: variant}
+	var script scripter
 	var ok bool
-	if b.script, ok = variants[variant]; !ok {
+	if script, ok = variants[variant]; !ok {
 		return nil, errors.New("unknown variant " + variant)
 	}
-	return b, nil
+	return &Baize{variant: variant, script: script}, nil
 }
 
-// LoadBaize loads variant.saved.json
+// LoadBaize creates a new Baize object and loads variant.saved.json
 func (d *dark) LoadBaize(variant string) (*Baize, error) {
-	var b *Baize = &Baize{variant: variant}
-	b.load()
-	return b, nil
+	var b *Baize
+	var err error
+	if b, err = d.NewBaize(variant); b != nil {
+		b.load()
+	}
+	return b, err
 }
 
 // Baize public interface ////////////////////////////////////////////////////////////
@@ -49,11 +54,16 @@ func (b *Baize) Bookmark() int {
 }
 
 func (b *Baize) Complete() bool {
-	return false
+	return b.script.Complete()
 }
 
 func (b *Baize) Conformant() bool {
-	return false
+	for _, p := range b.piles {
+		if !p.vtable.Conformant() {
+			return false
+		}
+	}
+	return true
 }
 
 func (b *Baize) LoadPosition() (bool, error) {
@@ -77,6 +87,7 @@ func (b *Baize) LoadPosition() (bool, error) {
 	return true, nil
 }
 
+// PercentComplete used to display in status bar
 func (b *Baize) PercentComplete() int {
 	var pairs, unsorted, percent int
 	for _, p := range b.piles {
@@ -89,12 +100,18 @@ func (b *Baize) PercentComplete() int {
 	return percent
 }
 
+// Piles returns the slice of Piles
 func (b *Baize) Piles() []*Pile {
 	return b.piles
 }
 
-func (b *Baize) PileTapped(pile *Pile) (bool, error) {
-	return false, errors.New("not implemented")
+// PileTapped called by client when a pile - usually stock - has been tapped
+func (b *Baize) PileTapped(pile *Pile) {
+	crc := b.crc()
+	b.script.PileTapped(pile)
+	if crc != b.crc() {
+		b.afterUserMove()
+	}
 }
 
 func (b *Baize) Recycles() int {
@@ -103,10 +120,10 @@ func (b *Baize) Recycles() int {
 
 func (b *Baize) NewDeal() (bool, error) {
 	// a virgin game has one state on the undo stack
-	// if len(b.undoStack) > 1 && !b.Complete() {
-	// percent := b.PercentComplete()
-	// theDark.statistics.RecordLostGame(b.variant, percent)
-	// }
+	if len(b.undoStack) > 1 && !b.Complete() {
+		percent := b.PercentComplete()
+		theDark.stats.recordLostGame(b.variant, percent)
+	}
 
 	b.reset()
 
@@ -142,11 +159,12 @@ func (b *Baize) RestartDeal() (bool, error) {
 	return true, nil
 }
 
-func (b *Baize) SaveGame() (bool, error) {
+func (b *Baize) Save() (bool, error) {
 	b.save()
 	return true, nil
 }
 
+// SavePosition sets the bookmark to the current baize position
 func (b *Baize) SavePosition() (bool, error) {
 	if b.Complete() {
 		return false, errors.New("Cannot bookmark a completed game") // otherwise the stats can be cooked
@@ -162,16 +180,46 @@ func (b *Baize) SetPowerMoves(value bool) {
 	b.powerMoves = value
 }
 
-func (b *Baize) Statistics() []string {
-	return []string{}
+// TailDragged called by client when a tail of cards has been dragged from one pile to another.
+// If this func returns false, the client should animate the tail back to where it came from
+// and toast any error message.
+func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
+	if src == dst {
+		return false, nil // put the tail back, but don't make a fuss about it
+	}
+	var ok bool
+	var err error
+	if ok, err = src.canMoveTail(tail); !ok {
+		return false, err
+	} else {
+		if ok, err = dst.vtable.CanAcceptTail(tail); !ok {
+			return false, err
+		} else {
+			if ok, err = b.script.TailMoveError(tail); !ok {
+				return false, err
+			} else {
+				crc := b.crc()
+				if len(tail) == 1 {
+					moveCard(src, dst)
+				} else {
+					moveTail(tail[0], dst)
+				}
+				if crc != b.crc() {
+					b.afterUserMove()
+				}
+			}
+		}
+	}
+	return true, nil
 }
 
-func (b *Baize) TailDragged(src *Pile, card *Card, dst *Pile) (bool, error) {
-	return false, errors.New("not implemented")
-}
-
-func (b *Baize) TailTapped(pile *Pile, card *Card) (bool, error) {
-	return false, errors.New("not implemented")
+// TailTapped called by client when a card/tail has been tapped
+func (b *Baize) TailTapped(tail []*Card) {
+	crc := b.crc()
+	b.script.TailTapped(tail)
+	if crc != b.crc() {
+		b.afterUserMove()
+	}
 }
 
 func (b *Baize) Undo() (bool, error) {
@@ -204,11 +252,86 @@ func (b *Baize) Moves() (int, int) {
 	return b.moves, b.fmoves
 }
 
+// collectFromPile is a helper function for Collect()
+func (b *Baize) collectFromPile(pile *Pile, safe bool) int {
+	if pile == nil {
+		return 0
+	}
+	var cardsMoved int = 0
+	for _, fp := range b.script.Foundations() {
+		for {
+			var card *Card = pile.peek()
+			if card == nil {
+				return cardsMoved
+			}
+			ok, _ := fp.vtable.CanAcceptTail([]*Card{card})
+			if !ok {
+				break // done with this foundation, try another
+			}
+			if safe {
+				if ok, safeOrd := b.doingSafeCollect(); ok {
+					if card.Ordinal() > safeOrd {
+						// can't toast here, collect all will create a lot of toasts
+						// TheGame.UI.Toast("Glass", fmt.Sprintf("Unsafe to collect %s", card.String()))
+						break // done with this foundation, try another
+					}
+				}
+			}
+			moveCard(pile, fp)
+			b.afterUserMove() // does an undoPush()
+			cardsMoved += 1
+		}
+	}
+	return cardsMoved
+}
+
+// Collect should be exactly the same as the user tapping repeatedly on the
+// waste, cell, reserve and tableau piles.
+// nb there is no collecting to discard piles, they are optional and presence of
+// cards in them does not signify a complete game.
+func (b *Baize) Collect(safe bool) {
+	for {
+		var cardsMoved int = b.collectFromPile(b.script.Waste(), safe)
+		for _, pile := range b.script.Cells() {
+			cardsMoved += b.collectFromPile(pile, safe)
+		}
+		for _, pile := range b.script.Reserves() {
+			cardsMoved += b.collectFromPile(pile, safe)
+		}
+		for _, pile := range b.script.Tableaux() {
+			cardsMoved += b.collectFromPile(pile, safe)
+		}
+		if cardsMoved == 0 {
+			break
+		}
+	}
+}
+
 // Baize private functions
 
 func (b *Baize) reset() {
 	b.undoStack = nil
 	b.bookmark = 0
+}
+
+func (b *Baize) crc() uint32 {
+	/*
+		var crc uint = 0xFFFFFFFF
+		var mask uint
+		for _, p := range b.piles {
+			crc = crc ^ uint(p.Len())
+			for j := 7; j >= 0; j-- {
+				mask = -(crc & 1)
+				crc = (crc >> 1) ^ (0xEDB88320 & mask)
+			}
+		}
+		return ^crc // bitwise NOT
+	*/
+	var lens []byte
+	for _, p := range b.piles {
+		lens = append(lens, byte(p.Len()))
+	}
+	return crc32.ChecksumIEEE(lens)
 }
 
 func (b *Baize) addPile(pile *Pile) {
@@ -217,6 +340,16 @@ func (b *Baize) addPile(pile *Pile) {
 
 func (b *Baize) setRecycles(recycles int) {
 	b.recycles = recycles
+}
+
+func (b *Baize) afterUserMove() {
+	b.script.AfterMove()
+	b.undoPush()
+	b.findDestinations()
+	if b.Complete() {
+		theDark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
+	}
+	// LIGHT can do a Collect() now if it likes
 }
 
 func (b *Baize) setUndoStack(undoStack []*savableBaize) {
@@ -248,6 +381,37 @@ func (b *Baize) calcPowerMoves(pDraggingTo *Pile) int {
 	n := (1 + emptyCells) * util.Pow(2, emptyCols)
 	// println(emptyCells, "emptyCells,", emptyCols, "emptyCols,", n, "powerMoves")
 	return n
+}
+
+// DoingSafeCollect returns true (if we are doing safe collect)
+// and the safe ordinal to collect next
+func (b *Baize) doingSafeCollect() (bool, int) {
+	if !b.script.SafeCollect() {
+		return false, 0
+	}
+	var fs []*Pile = b.script.Foundations()
+	if fs == nil {
+		return false, 0
+	}
+	var f0 *Pile = fs[0]
+	if f0 == nil {
+		return false, 0
+	}
+	if f0.Label() != "A" {
+		return false, 0 // eg Duchess
+	}
+	var lowest int = 99
+	for _, f := range fs {
+		if f.Empty() {
+			// it's okay to collect aces and twos to start with
+			return true, 2
+		}
+		var card *Card = f.peek()
+		if card.Ordinal() < lowest {
+			lowest = card.Ordinal()
+		}
+	}
+	return true, lowest + 1
 }
 
 func (b *Baize) findHomesForTail(tail []*Card) []*Pile {

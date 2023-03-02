@@ -22,6 +22,19 @@ type VariantStatistics struct {
 	// average % is (sum of Percents) + (100 * Won) / (Won+Lost)
 }
 
+// Public functions ///////////////////////////////////////////////////////////
+
+func (d *dark) VariantStatistics(variant string) []string {
+	stats := d.stats.findVariant(variant)
+	return stats.strings(variant)
+}
+
+func (d *dark) AllStatistics() []string {
+	return d.stats.strings()
+}
+
+// Private functions //////////////////////////////////////////////////////////
+
 // newStatistics creates a new Statistics object (a map)
 // and loads the saved statistics into it from file
 func newStatistics() *Statistics {
@@ -97,15 +110,6 @@ func (s *Statistics) strings() []string {
 	return strs
 }
 
-func (d *dark) VariantStatistics(variant string) []string {
-	stats := d.stats.findVariant(variant)
-	return stats.strings(variant)
-}
-
-func (d *dark) AllStatistics() []string {
-	return d.stats.strings()
-}
-
 func (s *Statistics) findVariant(v string) *VariantStatistics {
 	vstats, ok := s.StatsMap[v]
 	if !ok {
@@ -116,7 +120,7 @@ func (s *Statistics) findVariant(v string) *VariantStatistics {
 	return vstats
 }
 
-func (s *Statistics) Played(v string) int {
+func (s *Statistics) played(v string) int {
 	vstats := s.findVariant(v)
 	return vstats.Won + vstats.Lost
 }

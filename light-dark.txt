@@ -9,12 +9,8 @@ DARK knows nothing of ebiten or gg
 LIGHT is really stupid. It's passed an entire baize of cards,
 and lerps the difference between old and new.
 
-Q. CardLibrary?
-A. Just a slice of sol.CardID.
-	Does DARK even need this, if length of pack is known when creating stock?
-
 Q. Is the Baize transport object going to be *Baize or Baize?
-A.
+A. *Baize
 
 Q. Pile.Placeholder()
 A. In LIGHT, this needs recreating everytime Pile.Label/Baize.Recycles is updated
@@ -35,6 +31,15 @@ A. They are LIGHT
 
 Q. MirrorBaize?
 A. Entirely up to LIGHT, as the relative positions of piles don't change, only slot positions
+
+Q. Start a new deal?
+A.
+
+Q. Change variant?
+A.
+
+Q. AutoCollect?
+A. LIGHT can call Baize.Collect(safe bool) (replaces sol.Baize.AfterAfterUserMove)
 
 DARKER INTERFACE
 ========
