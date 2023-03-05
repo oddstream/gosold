@@ -5,6 +5,9 @@ import (
 	"image"
 	"log"
 	"math"
+	"os"
+	"path"
+	"runtime"
 	"time"
 )
 
@@ -304,3 +307,101 @@ func Duration(invocation time.Time, name string) {
 // 	}
 // 	return false
 // }
+
+func fullConfigPath(fname string) (string, error) {
+	// os.Getenv("HOME") == "" on WASM
+	// could use something like errors.New("math: square root of negative number")
+	userConfigDir, err := os.UserConfigDir()
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	// println("UserConfigDir", userConfigDir) // /home/gilbert/.config
+	return path.Join(userConfigDir, "oddstream.games", "gosold", fname), nil
+}
+
+func makeConfigDir() {
+	userConfigDir, err := os.UserConfigDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dir := path.Join(userConfigDir, "oddstream.games", "gosold")
+	err = os.MkdirAll(dir, 0755) // https://stackoverflow.com/questions/14249467/os-mkdir-and-os-mkdirall-permission-value
+	if err != nil {
+		log.Fatal(err)
+	}
+	// if path is already a directory, MkdirAll does nothing and returns nil
+}
+
+func LoadBytesFromFile(fname string, leaveNoTrace bool) ([]byte, int, error) {
+
+	if runtime.GOARCH == "wasm" {
+		log.Fatal("WASM detected")
+	}
+
+	path, err := fullConfigPath(fname)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	file, err := os.Open(path)
+	if err == nil && file != nil {
+		var bytes []byte
+		var count int
+		fi, err := file.Stat()
+		if err != nil {
+			log.Fatal(err, " getting FileInfo ", path)
+		}
+		if fi.Size() == 0 {
+			log.Print("empty file ", path)
+		} else {
+			bytes = make([]byte, fi.Size()+8)
+			count, err = file.Read(bytes)
+			if err != nil {
+				log.Fatal(err, " reading ", path)
+			}
+		}
+		err = file.Close()
+		if err != nil {
+			log.Fatal(err, " closing ", path)
+		}
+		log.Println("loaded", path)
+		if leaveNoTrace {
+			os.Remove(path)
+		}
+		return bytes, count, nil
+	}
+	// log.Print(err, path)
+	return nil, 0, nil // file does not exist (which is ok)
+}
+
+func SaveBytesToFile(bytes []byte, fname string) {
+
+	if runtime.GOARCH == "wasm" {
+		log.Fatal("WASM detected")
+	}
+
+	path, err := fullConfigPath(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	makeConfigDir()
+
+	file, err := os.Create(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = file.Write(bytes)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("saved", path)
+}

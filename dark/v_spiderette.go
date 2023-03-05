@@ -6,7 +6,6 @@ package dark
 import (
 	"errors"
 	"image"
-	"log"
 )
 
 type Spiderette struct {
@@ -35,20 +34,20 @@ func (self *Spiderette) BuildPiles() {
 }
 
 func (self *Spiderette) StartGame() {
-	var dealDown int = 0
+	var dealDown int = 1
 	for _, pile := range self.tableaux {
 		for i := 0; i < dealDown; i++ {
-			moveCard(self.stock, pile).flipDown()
+			if c := moveCard(self.stock, pile); c != nil {
+				c.flipDown()
+			}
 		}
 		dealDown++
 		moveCard(self.stock, pile)
 	}
 	for _, pile := range self.tableaux {
-		c := pile.peek()
-		if c == nil {
-			log.Panic("empty tableau")
+		if c := pile.peek(); c != nil {
+			c.flipUp()
 		}
-		c.flipUp()
 	}
 	theDark.baize.setRecycles(0)
 }
