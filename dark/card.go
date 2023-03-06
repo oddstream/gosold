@@ -53,6 +53,10 @@ func (c *Card) TapWeight() int {
 	return c.tapWeight
 }
 
+func (c *Card) SetProne(prone bool) {
+	c.id.SetProne(prone)
+}
+
 // Private functions, only visible inside DARK
 
 func (c *Card) owner() *Pile {

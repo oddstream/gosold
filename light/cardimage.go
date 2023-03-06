@@ -100,10 +100,10 @@ var pips [13][]pipInfo = [13][]pipInfo{
 	{},
 }
 
-func (g *Game) cardColor(cid cardid.CardID) color.RGBA {
+func (g *Game) pipColor(cid cardid.CardID) color.RGBA {
 	suit := cid.Suit()
 	if g.settings.ColorfulCards {
-		switch g.baize.script.CardColors() {
+		switch g.baize.darkBaize.CardColors() {
 		case 4:
 			switch suit {
 			case cardid.NOSUIT:
@@ -143,7 +143,7 @@ func (g *Game) cardColor(cid cardid.CardID) color.RGBA {
 }
 
 // createFaceImage tries to draw an image for this card that looks like kenney.nl playingCards.png
-func createFaceImage(faceColor color.Color, ID cardid.CardID) *ebiten.Image {
+func createFaceImage(faceColor color.Color, pipColor color.Color, ID cardid.CardID) *ebiten.Image {
 	w := float64(CardWidth)
 	h := float64(CardHeight)
 
@@ -164,14 +164,13 @@ func createFaceImage(faceColor color.Color, ID cardid.CardID) *ebiten.Image {
 
 	var cardOrdinal = ID.Ordinal()
 	var suitRune rune = ID.SuitRune()
-	var cardColor color.RGBA = cardColor(ID)
 	// if ID.Joker() {
 	// 	// if a joker is pretending to be a certain card, then show it's pretend ordinal and suit, but faded
 	// 	cardColor.A = 64
 	// }
 
 	// draw the card ordinals in top left and bottom right corners
-	dc.SetColor(cardColor)
+	dc.SetColor(pipColor)
 	if cardOrdinal == 10 {
 		dc.SetFontFace(schriftbank.CardOrdinalSmall)
 	} else {
@@ -198,7 +197,7 @@ func createFaceImage(faceColor color.Color, ID cardid.CardID) *ebiten.Image {
 			// so the suit can be seen when fanned
 			// they also get purdy rectangles in the middle
 			dc.SetFontFace(schriftbank.CardSymbolRegular)
-			dc.SetColor(cardColor)
+			dc.SetColor(pipColor)
 			dc.DrawStringAnchored(string(suitRune), w*COTRX, h*COTRY, 0.5, 0.4)
 			dc.RotateAbout(gg.Radians(180), w*COBLX, h*COBRY)
 			dc.DrawStringAnchored(string(suitRune), w*COBLX, h*COBLY, 0.5, 0.4)
@@ -211,13 +210,13 @@ func createFaceImage(faceColor color.Color, ID cardid.CardID) *ebiten.Image {
 			dc.DrawRectangle(w*0.25, h*0.25, w*0.5, h*0.5)
 			dc.Fill()
 
-			dc.SetColor(cardColor)
+			dc.SetColor(pipColor)
 			dc.SetFontFace(schriftbank.CardSymbolLarge)
 			dc.DrawStringAnchored(string(suitRune), w*0.5, h*0.44, 0.5, 0.5)
 
 		} else if cardOrdinal > 0 {
 			// a blank joker will have an ordinal of zero
-			dc.SetColor(cardColor)
+			dc.SetColor(pipColor)
 			// TODO would really like to draw some crown-ish symbols here
 			// the chess glyphs only have king and queen, and would look a bit off
 			// so using J Q K will have to do for now
@@ -332,8 +331,9 @@ func (g *Game) createCardImages() {
 	faceColor := ExtendedColors[g.settings.CardFaceColor]
 	for _, suit := range []int{cardid.NOSUIT, cardid.CLUB, cardid.DIAMOND, cardid.HEART, cardid.SPADE} {
 		for ord := 1; ord < 14; ord++ {
-			ID := cardid.NewCardID(0, suit, ord)
-			TheCardFaceImageLibrary[(suit*13)+(ord-1)] = createFaceImage(faceColor, ID)
+			cid := cardid.NewCardID(0, suit, ord)
+			pipColor := g.pipColor(cid)
+			TheCardFaceImageLibrary[(suit*13)+(ord-1)] = createFaceImage(faceColor, pipColor, cid)
 		}
 	}
 	CardBackImage = createCardBackImage(g.settings.CardBackColor)

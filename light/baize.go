@@ -70,14 +70,14 @@ func (b *baize) startFreshGame(variant string) {
 	// copy piles from dark to light
 	// the pile structure will remain constant
 	// the labels and cards in each pile will change
+	// so are rebuilt after every move
 	b.piles = []*pile{}
 	b.cardMap = make(map[cardid.CardID]*card)
 	for _, dp := range b.darkBaize.Piles() {
 		b.piles = append(b.piles, newPile(b, dp))
 		for _, dc := range dp.Cards() {
 			c := newCard(dc)
-			id := c.id.PackSuitOrdinal() // ignore prone flag
-			b.cardMap[id] = c
+			b.cardMap[c.darkCard.ID().PackSuitOrdinal()] = c
 		}
 	}
 
@@ -159,10 +159,10 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 			// b.clearFlag(dirtyCardImages)
 		}
 		if b.flagSet(dirtyPilePositions) {
-			for _, p := range b.darkBaize.Piles() {
+			for _, p := range b.piles {
 				p.setBaizePos(image.Point{
-					X: LeftMargin + (p.Slot().X * (CardWidth + PilePaddingX)),
-					Y: TopMargin + (p.Slot().Y * (CardHeight + PilePaddingY)),
+					X: LeftMargin + (p.darkPile.Slot().X * (CardWidth + PilePaddingX)),
+					Y: TopMargin + (p.darkPile.Slot().Y * (CardHeight + PilePaddingY)),
 				})
 			}
 			// b.clearFlag(dirtyPilePositions)
@@ -194,10 +194,18 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (b *baize) update() error {
+	// TODO stroke
+	for _, p := range b.piles {
+		p.update()
+	}
+	// TODO keys
 	return nil
 }
 
 func (b *baize) draw(screen *ebiten.Image) {
-
 	screen.Fill(ExtendedColors["BaizeGreen"])
+	for _, p := range b.piles {
+		p.draw(screen)
+	}
+	// TODO draw static, lerping, dragging cards
 }

@@ -68,6 +68,16 @@ type Pile struct {
 
 // Public functions, visible to LIGHT
 
+// func (self *Pile) IsCell() bool {
+// 	_, ok := self.vtable.(*Cell)
+// 	return ok
+// }
+
+func (self *Pile) IsStock() bool {
+	_, ok := self.vtable.(*Stock)
+	return ok
+}
+
 func (p *Pile) Category() string {
 	return p.category
 }
@@ -132,16 +142,6 @@ func newPile(category string, slot image.Point, fanType FanType, moveType MoveTy
 
 func (self *Pile) reset() {
 	self.cards = self.cards[:0]
-}
-
-// func (self *Pile) isCell() bool {
-// 	_, ok := self.vtable.(*Cell)
-// 	return ok
-// }
-
-func (self *Pile) isStock() bool {
-	_, ok := self.vtable.(*Stock)
-	return ok
 }
 
 func (self *Pile) setLabel(label string) {
@@ -216,14 +216,14 @@ func (self *Pile) pop() *Card {
 // push a Card onto the end of this Pile (a stack)
 func (self *Pile) push(c *Card) {
 	self.cards = append(self.cards, c)
-	if self.isStock() {
+	if self.IsStock() {
 		c.flipDown()
 	}
 	c.setOwner(self)
 }
 
 func (self *Pile) flipUpExposedCard() {
-	if !self.isStock() {
+	if !self.IsStock() {
 		if c := self.peek(); c != nil {
 			c.flipUp()
 		}
@@ -258,7 +258,7 @@ func (self *Pile) buryCards(ordinal int) {
 // canMoveTail filters out cases where a tail can be moved from a given pile type
 // eg if only one card can be moved at a time
 func (self *Pile) canMoveTail(tail []*Card) (bool, error) {
-	if !self.isStock() {
+	if !self.IsStock() {
 		if anyCardsProne(tail) {
 			return false, errors.New("Cannot move a face down card")
 		}

@@ -118,6 +118,10 @@ func (b *Baize) Recycles() int {
 	return b.recycles
 }
 
+func (b *Baize) CardColors() int {
+	return b.script.CardColors()
+}
+
 func (b *Baize) NewDeal() (bool, error) {
 	// a virgin game has one state on the undo stack
 	if len(b.undoStack) > 1 && !b.Complete() {
@@ -522,27 +526,27 @@ func (b *Baize) findDestinations() {
 			var weight int
 			switch dst.vtable.(type) {
 			case *Cell:
-				weight = 0
+				weight = 1
 			case *Tableau:
 				if dst.Empty() {
 					if dst.Label() != "" {
-						weight = 1
+						weight = 2
 					} else {
-						weight = 0
+						weight = 1
 					}
 				} else if dst.peek().Suit() == card.Suit() {
 					// Simple Simon, Spider
-					weight = 2
+					weight = 3
 				} else {
-					weight = 1
+					weight = 2
 				}
 			case *Foundation, *Discard:
 				// moves to Foundation get priority when card is tapped
-				weight = 3
+				weight = 4
 			default:
-				weight = 0
+				weight = 1
 			}
-			if card.tapDestination == nil || weight > card.tapWeight {
+			if weight > card.tapWeight {
 				card.tapDestination = dst
 				card.tapWeight = weight
 			}
