@@ -66,6 +66,22 @@ func (p *pile) peek() *card {
 	return p.cards[len(p.cards)-1]
 }
 
+func (p *pile) makeTail(c *card) []*card {
+	if c.pile != p {
+		log.Panic("Pile.makeTail called with a card that is not of this pile")
+	}
+	if c == p.peek() {
+		return []*card{c}
+	}
+	for i, pc := range p.cards {
+		if pc == c {
+			return p.cards[i:]
+		}
+	}
+	log.Panic("Pile.makeTail made an empty tail")
+	return nil
+}
+
 func (p *pile) updateCards() {
 	// darkPile should not change
 	p.cards = nil // several piles will be empty

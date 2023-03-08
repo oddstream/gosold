@@ -38,17 +38,10 @@ func (d *dark) NewBaize(variant string) (*Baize, error) {
 	b := &Baize{dark: d, variant: variant, script: script}
 	b.script.SetBaize(b)
 	b.script.BuildPiles()
+	b.script.StartGame()
+	b.undoPush()
+	b.findDestinations()
 	return b, nil
-}
-
-// LoadBaize creates a new Baize object and loads variant.saved.json
-func (d *dark) LoadBaize(variant string) (*Baize, error) {
-	var b *Baize
-	var err error
-	if b, err = d.NewBaize(variant); b != nil {
-		b.load()
-	}
-	return b, err
 }
 
 // Baize public interface ////////////////////////////////////////////////////////////
@@ -110,12 +103,15 @@ func (b *Baize) Piles() []*Pile {
 }
 
 // PileTapped called by client when a pile - usually stock - has been tapped
-func (b *Baize) PileTapped(pile *Pile) {
+func (b *Baize) PileTapped(pile *Pile) bool {
+	cardsMoved := false
 	crc := b.crc()
 	b.script.PileTapped(pile)
 	if crc != b.crc() {
 		b.afterUserMove()
+		cardsMoved = true
 	}
+	return cardsMoved
 }
 
 func (b *Baize) Recycles() int {
@@ -139,7 +135,6 @@ func (b *Baize) NewDeal() (bool, error) {
 		p.reset()
 	}
 
-	// Stock.Fill() needs parameters
 	b.cardCount = b.script.Stock().fill(b.script.Packs(), b.script.Suits())
 	b.script.Stock().shuffle()
 	b.script.StartGame()
@@ -167,9 +162,12 @@ func (b *Baize) RestartDeal() (bool, error) {
 	return true, nil
 }
 
-func (b *Baize) Save() (bool, error) {
+func (b *Baize) Load() {
+	b.load()
+}
+
+func (b *Baize) Save() {
 	b.save()
-	return true, nil
 }
 
 // SavePosition sets the bookmark to the current baize position
@@ -221,13 +219,27 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 	return true, nil
 }
 
-// TailTapped called by client when a card/tail has been tapped
-func (b *Baize) TailTapped(tail []*Card) {
+func (b *Baize) CardDragged(src *Pile, card *Card, dst *Pile) (bool, error) {
+	tail := card.owningPile.makeTail(card)
+	return b.TailDragged(src, tail, dst)
+}
+
+// TailTapped called by client when a card/tail has been tapped.
+// returns true if cards have been moved.
+func (b *Baize) TailTapped(tail []*Card) bool {
+	cardsMoved := false
 	crc := b.crc()
 	b.script.TailTapped(tail)
 	if crc != b.crc() {
 		b.afterUserMove()
+		cardsMoved = true
 	}
+	return cardsMoved
+}
+
+func (b *Baize) CardTapped(card *Card) bool {
+	tail := card.owningPile.makeTail(card)
+	return b.TailTapped(tail)
 }
 
 func (b *Baize) Undo() (bool, error) {

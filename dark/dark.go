@@ -18,7 +18,6 @@ type Darker interface {
 	ListVariantGroups() []string
 	ListVariants(string) []string
 	NewBaize(string) (*Baize, error)
-	LoadBaize(string) (*Baize, error)
 	VariantStatistics(string) []string
 	AllStatistics() []string
 }

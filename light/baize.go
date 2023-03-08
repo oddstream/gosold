@@ -1,10 +1,12 @@
 package light
 
 import (
+	"fmt"
 	"image"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"oddstream.games/gosold/cardid"
 	"oddstream.games/gosold/dark"
 	"oddstream.games/gosold/sound"
@@ -52,6 +54,13 @@ func (b *baize) setFlag(flag uint32) {
 	b.dirtyFlags |= flag
 }
 
+func (b *baize) refresh() {
+	for _, lp := range b.piles {
+		lp.updateCards()
+		lp.createPlaceholder()
+	}
+}
+
 // startGame starts a new game, either an old one loaded from json,
 // or a fresh game with a new seed
 func (b *baize) startGame(variant string) {
@@ -96,10 +105,7 @@ func (b *baize) startGame(variant string) {
 
 func (b *baize) newDeal() {
 	b.darkBaize.NewDeal()
-	for _, lp := range b.piles {
-		lp.updateCards()
-		lp.createPlaceholder()
-	}
+	b.refresh()
 }
 
 func (b *baize) restartDeal() {
@@ -108,10 +114,7 @@ func (b *baize) restartDeal() {
 		println(err)
 		return
 	}
-	for _, lp := range b.piles {
-		lp.updateCards()
-		lp.createPlaceholder()
-	}
+	b.refresh()
 }
 
 func (b *baize) changeVariant(variant string) {
@@ -121,10 +124,7 @@ func (b *baize) changeVariant(variant string) {
 
 func (b *baize) collect() {
 	b.darkBaize.Collect(b.game.settings.SafeCollect)
-	for _, lp := range b.piles {
-		lp.updateCards()
-		lp.createPlaceholder()
-	}
+	b.refresh()
 }
 
 func (b *baize) undo() {
@@ -133,10 +133,7 @@ func (b *baize) undo() {
 		println(err)
 		return
 	}
-	for _, lp := range b.piles {
-		lp.updateCards()
-		lp.createPlaceholder()
-	}
+	b.refresh()
 }
 
 func (b *baize) loadPosition() {
@@ -145,10 +142,7 @@ func (b *baize) loadPosition() {
 		println(err)
 		return
 	}
-	for _, lp := range b.piles {
-		lp.updateCards()
-		lp.createPlaceholder()
-	}
+	b.refresh()
 }
 
 func (b *baize) savePosition() {
@@ -364,11 +358,9 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 			if b.ScaleCards() {
 				b.setFlag(dirtyCardImages | dirtyPilePositions | dirtyPileBackgrounds)
 			}
-			// b.clearFlag(dirtyCardSizes)
 		}
 		if b.flagSet(dirtyCardImages) {
 			b.game.createCardImages()
-			// b.clearFlag(dirtyCardImages)
 		}
 		if b.flagSet(dirtyPilePositions) {
 			for _, p := range b.piles {
@@ -377,7 +369,6 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 					Y: TopMargin + (p.slot.Y * (CardHeight + PilePaddingY)),
 				})
 			}
-			// b.clearFlag(dirtyPilePositions)
 		}
 		if b.flagSet(dirtyPileBackgrounds) {
 			if !(CardWidth == 0 || CardHeight == 0) {
@@ -387,17 +378,14 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 					}
 				}
 			}
-			// b.clearFlag(dirtyPileBackgrounds)
 		}
 		if b.flagSet(dirtyWindowSize) {
 			// b.game.ui.Layout(outsideWidth, outsideHeight)
-			// b.clearFlag(dirtyWindowSize)
 		}
 		if b.flagSet(dirtyCardPositions) {
 			for _, p := range b.piles {
 				p.scrunch()
 			}
-			// b.clearFlag(dirtyCardPositions)
 		}
 		b.dirtyFlags = 0
 	}
@@ -405,12 +393,243 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
 
+// foreachCard applys a function to each card
+func (b *baize) foreachCard(fn func(*card)) {
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			fn(c)
+		}
+	}
+}
+
+// ApplyToTail applies a method func to this card and all the others after it in the tail
+func (b *baize) applyToTail(tail []*card, fn func(*card)) {
+	// https://golang.org/ref/spec#Method_expressions
+	// (*Card).CancelDrag yields a function with the signature func(*Card)
+	// fn passed as a method expression so add the receiver explicitly
+	for _, c := range tail {
+		fn(c)
+	}
+}
+
+// DragTailBy repositions all the cards in the tail: dx, dy is the position difference from the start of the drag
+func (b *baize) dragTailBy(tail []*card, dx, dy int) {
+	// println("Baize.DragTailBy(", dx, dy, ")")
+	for _, c := range tail {
+		c.dragBy(dx, dy)
+	}
+}
+
+func (b *baize) startTailDrag(tail []*card) {
+	// hiding the mouse cursor creates flickering when tapping
+	// ebiten.SetCursorMode(ebiten.CursorModeHidden)
+	b.applyToTail(tail, (*card).startDrag)
+}
+
+func (b *baize) stopTailDrag(tail []*card) {
+	// ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	b.applyToTail(tail, (*card).stopDrag)
+}
+
+func (b *baize) cancelTailDrag(tail []*card) {
+	// ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	b.applyToTail(tail, (*card).cancelDrag)
+}
+
+func (b *baize) strokeStart(v stroke.StrokeEvent) {
+	b.stroke = v.Stroke
+
+	// TODO UI findContainerAt(v.X, v.Y)
+
+	pt := image.Pt(v.X, v.Y)
+	if card := b.findLowestCardAt(pt); card != nil {
+		if card.lerping() {
+			// TheGame.UI.Toast("Glass", "Confusing to move a moving card")
+			v.Stroke.Cancel()
+		} else {
+			tail := card.pile.makeTail(card)
+			b.startTailDrag(tail)
+			b.stroke.SetDraggedObject(tail)
+		}
+	} else {
+		if p := b.findPileAt(pt); p != nil {
+			b.stroke.SetDraggedObject(p)
+		} else {
+			if b.startDrag() {
+				b.stroke.SetDraggedObject(b)
+			} else {
+				v.Stroke.Cancel()
+			}
+		}
+	}
+
+}
+
+func (b *baize) strokeMove(v stroke.StrokeEvent) {
+	if v.Stroke.DraggedObject() == nil {
+		return
+		// log.Panic("*** move stroke with nil dragged object ***")
+	}
+	// for _, p := range b.piles {
+	// 	p.target = false
+	// }
+	switch obj := v.Stroke.DraggedObject().(type) {
+	// case ui.Containery:
+	// 	obj.DragBy(v.Stroke.PositionDiff())
+	// case ui.Widgety:
+	// 	obj.Parent().DragBy(v.Stroke.PositionDiff())
+	case []*card:
+		dx, dy := v.Stroke.PositionDiff()
+		b.dragTailBy(obj, dx, dy)
+		// if c, ok := v.Stroke.DraggedObject().(*Card); ok {
+		// 	if p := b.LargestIntersection(c); p != nil {
+		// 		p.target = true
+		// 	}
+		// }
+	case *pile:
+		// do nothing
+	case *baize:
+		b.dragBy(v.Stroke.PositionDiff())
+	default:
+		log.Panic("*** unknown move dragging object ***")
+	}
+}
+
+func (b *baize) strokeStop(v stroke.StrokeEvent) {
+	if v.Stroke.DraggedObject() == nil {
+		return
+		// log.Panic("*** stop stroke with nil dragged object ***")
+	}
+	switch obj := v.Stroke.DraggedObject().(type) {
+	// case ui.Containery:
+	// 	obj.StopDrag()
+	// case ui.Widgety:
+	// 	obj.Parent().StopDrag()
+	case []*card:
+		tail := obj     // alias for readability
+		card := tail[0] // for readability
+		if card.wasDragged() {
+			if dst := b.largestIntersection(card); dst == nil {
+				// println("no intersection for", c.String())
+				b.cancelTailDrag(tail)
+			} else {
+				src := card.pile
+				if ok, err := b.darkBaize.CardDragged(src.darkPile, card.darkCard, dst.darkPile); !ok {
+					// TODO toast err
+					fmt.Println(err)
+					b.cancelTailDrag(tail)
+				} else {
+					b.refresh()
+				}
+			}
+		}
+	case *pile:
+		// do nothing
+	case *baize:
+		// println("stop dragging baize")
+		b.stopDrag()
+	default:
+		log.Panic("*** stop dragging unknown object ***")
+	}
+}
+
+func (b *baize) strokeCancel(v stroke.StrokeEvent) {
+	if v.Stroke.DraggedObject() == nil {
+		log.Print("*** cancel stroke with nil dragged object ***")
+		return
+	}
+	switch obj := v.Stroke.DraggedObject().(type) { // type switch
+	// case ui.Containery:
+	// 	obj.CancelDrag()
+	// case ui.Widgety:
+	// 	obj.Parent().CancelDrag()
+	case []*card:
+		b.cancelTailDrag(obj)
+	case *pile:
+		// p := v.Stroke.DraggedObject().(*Pile)
+		// println("stop dragging pile", p.Class)
+		// do nothing
+	case *baize:
+		// println("stop dragging baize")
+		b.stopDrag()
+	default:
+		log.Panic("*** cancel dragging unknown object ***")
+	}
+}
+
+func (b *baize) strokeTap(v stroke.StrokeEvent) {
+	// stroke sends a tap event, and later sends a cancel event
+	// println("Baize.NotifyCallback() tap", v.X, v.Y)
+	switch obj := v.Stroke.DraggedObject().(type) {
+	// case ui.Containery:
+	// 	obj.Tapped()
+	// case ui.Widgety:
+	// 	obj.Tapped()
+	case []*card:
+		// offer TailTapped to the script first
+		// to implement things like Stock.TailTapped
+		// if the script doesn't want to do anything, it can call pile.vtable.TailTapped
+		// which will either ignore it (eg Foundation, Discard)
+		// or use Pile.DefaultTailTapped
+		if b.darkBaize.CardTapped(obj[0].darkCard) {
+			sound.Play("Slide")
+			b.refresh()
+		}
+	case *pile:
+		if b.darkBaize.PileTapped(obj.darkPile) {
+			sound.Play("Shove")
+			b.refresh()
+		}
+	// case *baize:
+	// 	pt := image.Pt(v.X, v.Y)
+	// 	// a tap outside any open ui drawer (ie on the baize) closes the drawer
+	// 	if con := TheGame.UI.VisibleDrawer(); con != nil && !pt.In(image.Rect(con.Rect())) {
+	// 		con.Hide()
+	// 	}
+	default:
+		log.Panic("*** tap unknown object ***")
+	}
+}
+
+// NotifyCallback is called by the Subject (Input/Stroke) when something interesting happens
+func (b *baize) NotifyCallback(v stroke.StrokeEvent) {
+	switch v.Event {
+	case stroke.Start:
+		b.strokeStart(v)
+	case stroke.Move:
+		b.strokeMove(v)
+	case stroke.Stop:
+		b.strokeStop(v)
+	case stroke.Cancel:
+		b.strokeCancel(v)
+	case stroke.Tap:
+		b.strokeTap(v)
+	default:
+		log.Panic("*** unknown stroke event ***", v.Event)
+	}
+}
+
 func (b *baize) update() error {
-	// TODO stroke
+
+	if b.stroke == nil {
+		stroke.StartStroke(b) // this will set b.stroke when "start" received
+	} else {
+		b.stroke.Update()
+		if b.stroke.IsReleased() || b.stroke.IsCancelled() {
+			b.stroke = nil
+		}
+	}
+
 	for _, p := range b.piles {
 		p.update()
 	}
-	// TODO keys
+
+	for k := ebiten.Key(0); k <= ebiten.KeyMax; k++ {
+		if inpututil.IsKeyJustReleased(k) {
+			b.game.execute(k)
+		}
+	}
+
 	return nil
 }
 
