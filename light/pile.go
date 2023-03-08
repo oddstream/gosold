@@ -41,17 +41,22 @@ type pile struct {
 	pos1      image.Point // waste pos #1
 	pos2      image.Point // waste pos #1
 	fanFactor float64
+	slot      image.Point  // local copy for mirror baize
+	fanType   dark.FanType // local copy for mirror baize
 	img       *ebiten.Image
 }
 
 func newPile(baize *baize, darkPile *dark.Pile) *pile {
 	return &pile{baize: baize,
+		darkPile:  darkPile,
+		slot:      darkPile.Slot(),
+		fanType:   darkPile.FanType(),
 		fanFactor: defaultFanFactor[darkPile.FanType()]}
 }
 
 func (p *pile) reset() {
 	p.cards = p.cards[:0]
-	p.fanFactor = defaultFanFactor[p.darkPile.FanType()]
+	p.fanFactor = defaultFanFactor[p.fanType]
 }
 
 func (p *pile) peek() *card {
@@ -61,24 +66,28 @@ func (p *pile) peek() *card {
 	return p.cards[len(p.cards)-1]
 }
 
-func (p *pile) updateCardsAndLabel(dp *dark.Pile) {
-	p.darkPile = dp // TODO in case this has changed - it shouldn't?
-	p.cards = nil   // several piles will be empty
-	for _, dc := range dp.Cards() {
+func (p *pile) updateCards() {
+	// darkPile should not change
+	p.cards = nil // several piles will be empty
+	for _, dc := range p.darkPile.Cards() {
 		id := dc.ID().PackSuitOrdinal() // ignore prone flag
 		if c, ok := p.baize.cardMap[id]; !ok {
 			log.Panicf("Card %s not found in card map", id.String())
 		} else {
 			c.pile = p // make a note of the pile that (now) owns this card
 			p.cards = append(p.cards, c)
+			if c.darkCard.Prone() {
+				c.flipDown()
+			} else {
+				c.flipUp()
+			}
+			c.lerpTo(c.pos)
 		}
-		// lerp card to it's pos
-		// flip up or down
 	}
-	p.createPlaceholder()
 }
 
 func (p *pile) createPlaceholder() {
+	// BEWARE the card fonts may not yet be loaded
 	switch p.darkPile.Category() {
 	case "Cell":
 		// basic empty rounded rect
@@ -106,7 +115,7 @@ func (p *pile) createPlaceholder() {
 		dc.SetLineWidth(2)
 		// draw the RoundedRect entirely INSIDE the context
 		dc.DrawRoundedRectangle(1, 1, float64(CardWidth-2), float64(CardHeight-2), CardCornerRadius)
-		if p.darkPile.Label() != "" {
+		if p.darkPile.Label() != "" && schriftbank.CardOrdinalLarge != nil {
 			dc.SetFontFace(schriftbank.CardOrdinalLarge)
 			dc.DrawStringAnchored(p.darkPile.Label(), float64(CardWidth)*0.5, float64(CardHeight)*0.4, 0.5, 0.5)
 		}
@@ -126,14 +135,16 @@ func (p *pile) createPlaceholder() {
 		// but they were 48x48 and got fuzzy when scaled
 		// and were stubbornly white
 
-		var label rune // gimmie a ternery operator
-		if p.baize.darkBaize.Recycles() == 0 {
-			label = NORECYCLE_RUNE
-		} else {
-			label = RECYCLE_RUNE
+		if schriftbank.CardSymbolHuge != nil {
+			var label rune // gimmie a ternery operator
+			if p.baize.darkBaize.Recycles() == 0 {
+				label = NORECYCLE_RUNE
+			} else {
+				label = RECYCLE_RUNE
+			}
+			dc.SetFontFace(schriftbank.CardSymbolHuge)
+			dc.DrawStringAnchored(string(label), float64(CardWidth)*0.5, float64(CardHeight)*0.4, 0.5, 0.5)
 		}
-		dc.SetFontFace(schriftbank.CardSymbolHuge)
-		dc.DrawStringAnchored(string(label), float64(CardWidth)*0.5, float64(CardHeight)*0.4, 0.5, 0.5)
 
 		dc.Stroke()
 		p.img = ebiten.NewImageFromImage(dc.Image())
@@ -277,7 +288,7 @@ func (p *pile) posAfter(c *card) image.Point {
 	return pos
 }
 
-func (p *pile) Refan() {
+func (p *pile) refan() {
 	// TODO trying set pos instead of transition
 	var doFan3 bool = false
 	switch p.darkPile.FanType() {
@@ -323,13 +334,13 @@ func (p *pile) Refan() {
 // applyToCards applies a function to each card in the pile
 // caller must use a method expression, eg (*Card).StartSpinning, yielding a function value
 // with a regular first parameter taking the place of the receiver
-func (p *pile) ApplyToCards(fn func(*card)) {
+func (p *pile) applyToCards(fn func(*card)) {
 	for _, c := range p.cards {
 		fn(c)
 	}
 }
 
-func (p *pile) DrawStaticCards(screen *ebiten.Image) {
+func (p *pile) drawStaticCards(screen *ebiten.Image) {
 	for _, c := range p.cards {
 		if c.static() {
 			c.draw(screen)
@@ -337,7 +348,7 @@ func (p *pile) DrawStaticCards(screen *ebiten.Image) {
 	}
 }
 
-func (p *pile) DrawAnimatingCards(screen *ebiten.Image) {
+func (p *pile) drawAnimatingCards(screen *ebiten.Image) {
 	for _, c := range p.cards {
 		if c.lerping() || c.flipping() {
 			c.draw(screen)
@@ -345,7 +356,7 @@ func (p *pile) DrawAnimatingCards(screen *ebiten.Image) {
 	}
 }
 
-func (p *pile) DrawDraggingCards(screen *ebiten.Image) {
+func (p *pile) drawDraggingCards(screen *ebiten.Image) {
 	for _, c := range p.cards {
 		if c.dragging() {
 			c.draw(screen)

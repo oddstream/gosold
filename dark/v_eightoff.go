@@ -13,23 +13,23 @@ type EightOff struct {
 
 func (self *EightOff) BuildPiles() {
 
-	self.stock = NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
 
 	self.cells = nil
 	for x := 0; x < 8; x++ {
-		self.cells = append(self.cells, NewCell(image.Point{x, 0}))
+		self.cells = append(self.cells, self.baize.NewCell(image.Point{x, 0}))
 	}
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
-		pile := NewFoundation(image.Point{9, y})
+		pile := self.baize.NewFoundation(image.Point{9, y})
 		self.foundations = append(self.foundations, pile)
 		pile.setLabel("A")
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 8; x++ {
-		pile := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ONE_PLUS)
+		pile := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ONE_PLUS)
 		self.tableaux = append(self.tableaux, pile)
 		pile.setLabel("K")
 	}

@@ -14,11 +14,11 @@ type Yukon struct {
 
 func (self *Yukon) BuildPiles() {
 
-	self.stock = NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
-		f := NewFoundation(image.Point{8, y})
+		f := self.baize.NewFoundation(image.Point{8, y})
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
@@ -26,14 +26,14 @@ func (self *Yukon) BuildPiles() {
 	self.cells = nil
 	y := 4
 	for i := 0; i < self.extraCells; i++ {
-		c := NewCell(image.Point{8, y})
+		c := self.baize.NewCell(image.Point{8, y})
 		self.cells = append(self.cells, c)
 		y += 1
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := NewTableau(image.Point{x, 0}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 0}, FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 		t.setLabel("K")
 	}

@@ -1,7 +1,11 @@
 package light
 
 import (
+	"errors"
+	"log"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"oddstream.games/gosold/dark"
 	"oddstream.games/gosold/sound"
 )
 
@@ -44,13 +48,14 @@ var (
 )
 
 type Game struct {
-	baize    *baize
-	settings *Settings
+	darker       dark.Darker
+	baize        *baize
+	settings     *Settings
+	commandTable map[ebiten.Key]func()
 }
 
 func NewGame() *Game {
-	g := &Game{}
-	g.baize = newBaize(g)
+	g := &Game{darker: dark.NewDark()}
 	g.settings = NewSettings()
 	g.settings.load()
 	if g.settings.Mute {
@@ -58,8 +63,33 @@ func NewGame() *Game {
 	} else {
 		sound.SetVolume(g.settings.Volume)
 	}
+	g.baize = newBaize(g)
+	g.baize.startGame(g.settings.Variant)
 
+	g.commandTable = map[ebiten.Key]func(){
+		ebiten.KeyC: func() { g.baize.collect() },
+		ebiten.KeyN: func() { g.baize.newDeal() },
+		ebiten.KeyR: func() { g.baize.restartDeal() },
+		ebiten.KeyU: func() { g.baize.undo() },
+		ebiten.KeyB: func() { g.baize.savePosition() },
+		ebiten.KeyL: func() { g.baize.loadPosition() },
+		ebiten.KeyS: func() { g.baize.savePosition() },
+		ebiten.KeyX: func() { ExitRequested = true },
+	}
+
+	// TODO toast version bump
 	return g
+}
+
+func (g *Game) execute(cmd any) {
+	switch v := cmd.(type) {
+	case ebiten.Key:
+		if fn, ok := g.commandTable[v]; ok {
+			fn()
+		}
+	default:
+		log.Panicf("Game.execute unknown command type %v", cmd)
+	}
 }
 
 // Layout implements ebiten.Game's Layout
@@ -70,6 +100,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func (g *Game) Update() error {
 	g.baize.update()
+	// g.ui.update()
+	if ExitRequested {
+		g.baize.darkBaize.Save()
+		g.settings.save()
+		return errors.New("exit requested")
+	}
 	return nil
 }
 
@@ -78,5 +114,5 @@ func (g *Game) Update() error {
 // https://ebitencookbook.vercel.app/blog
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.baize.draw(screen)
-	// g.UI.Draw(screen)
+	// g.ui.draw(screen)
 }

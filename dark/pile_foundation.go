@@ -12,8 +12,8 @@ type Foundation struct {
 	pile *Pile
 }
 
-func NewFoundation(slot image.Point) *Pile {
-	pile := newPile("Foundation", slot, FAN_NONE, MOVE_NONE)
+func (b *Baize) NewFoundation(slot image.Point) *Pile {
+	pile := b.newPile("Foundation", slot, FAN_NONE, MOVE_NONE)
 	pile.vtable = &Foundation{pile: pile}
 	return pile
 }
@@ -29,7 +29,7 @@ func (self *Foundation) CanAcceptTail(tail []*Card) (bool, error) {
 	if anyCardsProne(tail) {
 		return false, errors.New("Cannot add a face down card to a Foundation")
 	}
-	return theDark.baize.script.TailAppendError(self.pile, tail)
+	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
 func (*Foundation) TailTapped([]*Card) {}

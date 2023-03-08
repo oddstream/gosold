@@ -54,7 +54,7 @@ func (c *Card) TapWeight() int {
 }
 
 func (c *Card) SetProne(prone bool) {
-	c.id.SetProne(prone)
+	c.id = c.id.SetProne(prone)
 }
 
 // Private functions, only visible inside DARK

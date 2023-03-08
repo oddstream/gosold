@@ -8,6 +8,7 @@ import (
 // albeit several will be supplied by the embedded ScriptBase struct.
 // TODO for the moment, methods are published.
 type scripter interface {
+	SetBaize(*Baize)
 	BuildPiles()
 	StartGame()
 	AfterMove()
@@ -36,6 +37,7 @@ type scripter interface {
 }
 
 type scriptBase struct {
+	baize        *Baize
 	cells        []*Pile
 	discards     []*Pile
 	foundations  []*Pile
@@ -49,6 +51,10 @@ type scriptBase struct {
 }
 
 // Fallback/default methods for a scripter interface //////////////////////////
+
+func (sb *scriptBase) SetBaize(b *Baize) {
+	sb.baize = b
+}
 
 // no default for BuildPiles
 
@@ -104,7 +110,7 @@ func (sb scriptBase) Complete() bool {
 	for _, f := range sb.foundations {
 		n += len(f.cards)
 	}
-	return n == len(theDark.baize.pack)
+	return n == len(sb.baize.pack)
 }
 
 func (sb scriptBase) SpiderComplete() bool {
@@ -205,10 +211,10 @@ func moveTail(card *Card, dst *Pile) {
 }
 
 func recycleWasteToStock(waste *Pile, stock *Pile) {
-	if theDark.baize.Recycles() > 0 {
+	if stock.baize.Recycles() > 0 {
 		for waste.Len() > 0 {
 			moveCard(waste, stock)
 		}
-		theDark.baize.setRecycles(theDark.baize.Recycles() - 1)
+		stock.baize.setRecycles(stock.baize.Recycles() - 1)
 	}
 }

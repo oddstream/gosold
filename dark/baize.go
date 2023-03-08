@@ -14,6 +14,7 @@ import (
 // Baize is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Baize object as immutable, hence the unexported fields and getters.
 type Baize struct {
+	dark       *dark
 	variant    string
 	script     scripter
 	pack       []Card
@@ -34,7 +35,10 @@ func (d *dark) NewBaize(variant string) (*Baize, error) {
 	if script, ok = variants[variant]; !ok {
 		return nil, errors.New("unknown variant " + variant)
 	}
-	return &Baize{variant: variant, script: script}, nil
+	b := &Baize{dark: d, variant: variant, script: script}
+	b.script.SetBaize(b)
+	b.script.BuildPiles()
+	return b, nil
 }
 
 // LoadBaize creates a new Baize object and loads variant.saved.json
@@ -126,7 +130,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	// a virgin game has one state on the undo stack
 	if len(b.undoStack) > 1 && !b.Complete() {
 		percent := b.PercentComplete()
-		theDark.stats.recordLostGame(b.variant, percent)
+		b.dark.stats.recordLostGame(b.variant, percent)
 	}
 
 	b.reset()
@@ -351,7 +355,7 @@ func (b *Baize) afterUserMove() {
 	b.undoPush()
 	b.findDestinations()
 	if b.Complete() {
-		theDark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
+		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
 	}
 	// LIGHT can do a Collect() now if it likes
 }

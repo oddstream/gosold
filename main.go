@@ -25,7 +25,7 @@ func main() {
 	ebiten.SetWindowIcon(light.WindowIcons())
 	ebiten.SetWindowTitle("Go Solitaire")
 
-	g := &light.Game{}
+	g := light.NewGame()
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}

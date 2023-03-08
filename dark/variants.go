@@ -454,7 +454,7 @@ func (d *dark) ListVariants(group string) []string {
 	vnames = append(vnames, variantGroups[group]...)
 	if group == "> All by Played" {
 		sort.Slice(vnames, func(i, j int) bool {
-			return theDark.stats.played(vnames[i]) > theDark.stats.played(vnames[j])
+			return d.stats.played(vnames[i]) > d.stats.played(vnames[j])
 		})
 	} else {
 		sort.Slice(vnames, func(i, j int) bool { return vnames[i] < vnames[j] })

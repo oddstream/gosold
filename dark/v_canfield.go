@@ -21,21 +21,21 @@ type Canfield struct {
 
 func (self *Canfield) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
 
-	self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.reserves = nil
-	self.reserves = append(self.reserves, NewReserve(image.Point{0, 1}, FAN_DOWN))
+	self.reserves = append(self.reserves, self.baize.NewReserve(image.Point{0, 1}, FAN_DOWN))
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {
-		self.foundations = append(self.foundations, NewFoundation(image.Point{x, 0}))
+		self.foundations = append(self.foundations, self.baize.NewFoundation(image.Point{x, 0}))
 	}
 
 	self.tableaux = nil
 	for x := 3; x < 7; x++ {
-		self.tableaux = append(self.tableaux, NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ONE_OR_ALL))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ONE_OR_ALL))
 	}
 }
 
@@ -70,7 +70,7 @@ func (self *Canfield) StartGame() {
 		moveCard(self.stock, pile)
 	}
 
-	theDark.baize.setRecycles(self.recycles)
+	self.baize.setRecycles(self.recycles)
 }
 
 func (self *Canfield) AfterMove() {

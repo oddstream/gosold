@@ -13,18 +13,18 @@ type Blockade struct {
 
 func (self *Blockade) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
 
 	self.foundations = nil
 	for x := 4; x < 12; x++ {
-		f := NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(image.Point{x, 0})
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 12; x++ {
-		t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }
@@ -33,7 +33,7 @@ func (self *Blockade) StartGame() {
 	for _, pile := range self.tableaux {
 		moveCard(self.stock, pile)
 	}
-	theDark.baize.setRecycles(0)
+	self.baize.setRecycles(0)
 }
 
 func (self *Blockade) AfterMove() {

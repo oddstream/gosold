@@ -13,8 +13,8 @@ type Tableau struct {
 	pile *Pile
 }
 
-func NewTableau(slot image.Point, fanType FanType, moveType MoveType) *Pile {
-	pile := newPile("Tableau", slot, fanType, moveType)
+func (b *Baize) NewTableau(slot image.Point, fanType FanType, moveType MoveType) *Pile {
+	pile := b.newPile("Tableau", slot, fanType, moveType)
 	pile.vtable = &Tableau{pile: pile}
 	return pile
 }
@@ -31,8 +31,8 @@ func (self *Tableau) CanAcceptTail(tail []*Card) (bool, error) {
 	// because we didn't then know the destination pile
 	// which we need to know to calculate power moves
 	if self.pile.moveType == MOVE_ONE_PLUS {
-		if theDark.baize.powerMoves {
-			moves := theDark.baize.calcPowerMoves(self.pile)
+		if self.pile.baize.powerMoves {
+			moves := self.pile.baize.calcPowerMoves(self.pile)
 			if len(tail) > moves {
 				if moves == 1 {
 					return false, fmt.Errorf("Space to move 1 card, not %d", len(tail))
@@ -46,7 +46,7 @@ func (self *Tableau) CanAcceptTail(tail []*Card) (bool, error) {
 			}
 		}
 	}
-	return theDark.baize.script.TailAppendError(self.pile, tail)
+	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
 func (self *Tableau) TailTapped(tail []*Card) {
@@ -59,7 +59,7 @@ func (self *Tableau) Conformant() bool {
 }
 
 func (self *Tableau) unsortedPairs() int {
-	return theDark.baize.script.UnsortedPairs(self.pile)
+	return self.pile.baize.script.UnsortedPairs(self.pile)
 }
 
 func (self *Tableau) MovableTails() []*movableTail {
@@ -68,8 +68,8 @@ func (self *Tableau) MovableTails() []*movableTail {
 		for _, card := range self.pile.cards {
 			var tail = self.pile.makeTail(card)
 			if ok, _ := self.pile.canMoveTail(tail); ok {
-				if ok, _ := theDark.baize.script.TailMoveError(tail); ok {
-					var homes []*Pile = theDark.baize.findHomesForTail(tail)
+				if ok, _ := self.pile.baize.script.TailMoveError(tail); ok {
+					var homes []*Pile = self.pile.baize.findHomesForTail(tail)
 					for _, home := range homes {
 						tails = append(tails, &movableTail{dst: home, tail: tail})
 					}

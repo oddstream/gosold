@@ -25,19 +25,19 @@ func (self *Klondike) BuildPiles() {
 	if self.draw == 0 {
 		self.draw = 1
 	}
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, self.Packs(), 4, nil, 0)
-	self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, self.Packs(), 4, nil, 0)
+	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.foundations = []*Pile{}
 	for _, x := range self.founds {
-		f := NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(image.Point{x, 0})
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 
 	self.tableaux = []*Pile{}
 	for _, x := range self.tabs {
-		t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 		t.setLabel("K")
 		self.tableaux = append(self.tableaux, t)
 	}
@@ -59,7 +59,7 @@ func (self *Klondike) StartGame() {
 		dealDown++
 		moveCard(self.stock, pile)
 	}
-	theDark.baize.setRecycles(self.recycles)
+	self.baize.setRecycles(self.recycles)
 	for i := 0; i < self.draw; i++ {
 		moveCard(self.stock, self.waste)
 	}

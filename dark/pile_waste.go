@@ -12,8 +12,8 @@ type Waste struct {
 	pile *Pile
 }
 
-func NewWaste(slot image.Point, fanType FanType) *Pile {
-	pile := newPile("Waste", slot, fanType, MOVE_ONE)
+func (b *Baize) NewWaste(slot image.Point, fanType FanType) *Pile {
+	pile := b.newPile("Waste", slot, fanType, MOVE_ONE)
 	pile.vtable = &Waste{pile: pile}
 	return pile
 }
@@ -52,7 +52,7 @@ func (self *Waste) MovableTails() []*movableTail {
 	if self.pile.Len() > 0 {
 		var card *Card = self.pile.peek()
 		var tail []*Card = []*Card{card}
-		var homes []*Pile = theDark.baize.findHomesForTail(tail)
+		var homes []*Pile = self.pile.baize.findHomesForTail(tail)
 		for _, home := range homes {
 			tails = append(tails, &movableTail{dst: home, tail: tail})
 		}

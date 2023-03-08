@@ -13,19 +13,19 @@ type Whitehead struct {
 
 func (self *Whitehead) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
-	self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {
-		f := NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(image.Point{x, 0})
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }
@@ -38,7 +38,7 @@ func (self *Whitehead) StartGame() {
 		}
 		deal++
 	}
-	theDark.baize.setRecycles(0)
+	self.baize.setRecycles(0)
 	moveCard(self.stock, self.waste)
 }
 

@@ -1,4 +1,4 @@
-LIGHT-DARK
+LIGHT-DARK or USER-HOST or CLIENT-SERVER
 
 single-session
 
@@ -16,7 +16,7 @@ Q. Pile.Placeholder()
 A. In LIGHT, this needs recreating everytime Pile.Label/Baize.Recycles is updated
 	Stock is a special case (uses rune based on Baize.Recycles)
 	Cell, Reserve are special cases (they draw nothing)
-	Light is going to need a switch Pile.Category
+	LIGHT is going to need a switch Pile.Category
 
 Q. Is Statistics LIGHT or DARK?
 	Dark needs it for sorting "All by Played"
@@ -30,7 +30,8 @@ A. They are LIGHT
 	SafeCollect, AutoCollect, can be API calls from Light to DARK
 
 Q. MirrorBaize?
-A. Entirely up to LIGHT, as the relative positions of piles don't change, only slot positions
+A. Entirely up to LIGHT, as the relative positions of piles don't change, only slot positions and fan type
+	...implies need for LIGHT to hold copies of DARK Slot() and FanType()
 
 Q. Start a new deal?
 A.

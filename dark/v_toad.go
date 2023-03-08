@@ -16,28 +16,25 @@ type Toad struct {
 
 func (self *Toad) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
-	self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
+	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.reserves = nil
-	self.reserves = append(self.reserves, NewReserve(image.Point{3, 0}, FAN_RIGHT))
+	self.reserves = append(self.reserves, self.baize.NewReserve(image.Point{3, 0}, FAN_RIGHT))
 
 	self.foundations = nil
 	for x := 0; x < 8; x++ {
-		self.foundations = append(self.foundations, NewFoundation(image.Point{x, 1}))
+		self.foundations = append(self.foundations, self.baize.NewFoundation(image.Point{x, 1}))
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 8; x++ {
 		// When moving tableau piles, you must either move the whole pile or only the top card.
-		self.tableaux = append(self.tableaux, NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ONE_OR_ALL))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ONE_OR_ALL))
 	}
 }
 
 func (self *Toad) StartGame() {
-
-	theDark.baize.setRecycles(1)
-
 	for n := 0; n < 20; n++ {
 		moveCard(self.stock, self.reserves[0])
 		self.reserves[0].peek().flipDown()
@@ -53,6 +50,7 @@ func (self *Toad) StartGame() {
 		pile.setLabel(util.OrdinalToShortString(c.Ordinal()))
 	}
 	moveCard(self.stock, self.waste)
+	self.baize.setRecycles(1)
 }
 
 func (self *Toad) AfterMove() {

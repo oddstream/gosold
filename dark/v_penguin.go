@@ -15,25 +15,25 @@ type Penguin struct {
 func (pen *Penguin) BuildPiles() {
 
 	// hidden (off-screen) stock
-	pen.stock = NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	pen.stock = pen.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
 	pen.waste = nil
 
 	// the flipper, seven cells
 	pen.cells = nil
 	for x := 0; x < 7; x++ {
-		pile := NewCell(image.Point{x, 0})
+		pile := pen.baize.NewCell(image.Point{x, 0})
 		pen.cells = append(pen.cells, pile)
 	}
 
 	pen.foundations = nil
 	for y := 0; y < 4; y++ {
-		pile := NewFoundation(image.Point{8, y})
+		pile := pen.baize.NewFoundation(image.Point{8, y})
 		pen.foundations = append(pen.foundations, pile)
 	}
 
 	pen.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := pen.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 		pen.tableaux = append(pen.tableaux, t)
 	}
 }

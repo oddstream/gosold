@@ -57,6 +57,7 @@ type movableTail struct {
 // Pile is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Pile object as immutable, hence the unexported fields and getters.
 type Pile struct {
+	baize    *Baize
 	category string   // needed by LIGHT when creating Pile Placeholder (switch)
 	label    string   // needed by LIGHT when creating Pile Placeholder
 	moveType MoveType // needed by DARK, not visible to LIGHT
@@ -129,14 +130,15 @@ func (self *Pile) Hidden() bool {
 
 // Private functions
 
-func newPile(category string, slot image.Point, fanType FanType, moveType MoveType) *Pile {
+func (b *Baize) newPile(category string, slot image.Point, fanType FanType, moveType MoveType) *Pile {
 	var p *Pile = &Pile{
+		baize:    b,
 		category: category,
 		fanType:  fanType,
 		moveType: moveType,
 		slot:     slot,
 	}
-	theDark.baize.addPile(p)
+	b.addPile(p)
 	return p
 }
 

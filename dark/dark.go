@@ -27,17 +27,10 @@ type Darker interface {
 // from this package, making it opaque to the client.
 // All access to this struct is through the Darker interface.
 type dark struct {
-	baize *Baize
 	stats *Statistics
 }
 
-// theDark is a global handle to the dark object currently in use by the client.
-// Here be a kludge; it's used as a convenience, and stops multiple clients
-// from connecting.
-var theDark *dark
-
 // Darker returns an interface to a new dark object.
 func NewDark() Darker {
-	theDark = &dark{stats: newStatistics()}
-	return theDark
+	return &dark{stats: newStatistics()}
 }

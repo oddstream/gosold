@@ -12,8 +12,8 @@ type Reserve struct {
 	pile *Pile
 }
 
-func NewReserve(slot image.Point, fanType FanType) *Pile {
-	pile := newPile("Reserve", slot, fanType, MOVE_ONE)
+func (b *Baize) NewReserve(slot image.Point, fanType FanType) *Pile {
+	pile := b.newPile("Reserve", slot, fanType, MOVE_ONE)
 	pile.vtable = &Reserve{pile: pile}
 	return pile
 }
@@ -45,7 +45,7 @@ func (self *Reserve) MovableTails() []*movableTail {
 	if self.pile.Len() > 0 {
 		var card *Card = self.pile.peek()
 		var tail []*Card = []*Card{card}
-		var homes []*Pile = theDark.baize.findHomesForTail(tail)
+		var homes []*Pile = self.pile.baize.findHomesForTail(tail)
 		for _, home := range homes {
 			tails = append(tails, &movableTail{dst: home, tail: tail})
 		}

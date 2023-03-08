@@ -15,24 +15,24 @@ type Agnes struct {
 
 func (self *Agnes) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
 	self.waste = nil
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {
-		f := NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(image.Point{x, 0})
 		self.foundations = append(self.foundations, f)
 	}
 
 	self.reserves = nil
 	for x := 0; x < 7; x++ {
-		r := NewReserve(image.Point{x, 1}, FAN_NONE)
+		r := self.baize.NewReserve(image.Point{x, 1}, FAN_NONE)
 		self.reserves = append(self.reserves, r)
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }

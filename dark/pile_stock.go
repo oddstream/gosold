@@ -12,10 +12,10 @@ type Stock struct {
 	pile *Pile
 }
 
-func NewStock(slot image.Point, fanType FanType, packs int, suits int, cardFilter *[14]bool, jokersPerPack int) *Pile {
-	pile := newPile("Stock", slot, fanType, MOVE_ONE)
+func (b *Baize) NewStock(slot image.Point, fanType FanType, packs int, suits int, cardFilter *[14]bool, jokersPerPack int) *Pile {
+	pile := b.newPile("Stock", slot, fanType, MOVE_ONE)
 	pile.vtable = &Stock{pile: pile}
-	theDark.baize.cardCount = pile.fill(packs, suits)
+	b.cardCount = pile.fill(packs, suits)
 	pile.shuffle()
 	return pile
 }
@@ -45,7 +45,7 @@ func (self *Stock) MovableTails() []*movableTail {
 	if self.pile.Len() > 0 {
 		var card *Card = self.pile.peek()
 		var tail []*Card = []*Card{card}
-		var homes []*Pile = theDark.baize.findHomesForTail(tail)
+		var homes []*Pile = self.pile.baize.findHomesForTail(tail)
 		for _, home := range homes {
 			tails = append(tails, &movableTail{dst: home, tail: tail})
 		}

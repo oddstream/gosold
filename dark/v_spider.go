@@ -15,17 +15,17 @@ type Spider struct {
 
 func (self *Spider) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, self.packs, self.suits, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, self.packs, self.suits, nil, 0)
 
 	self.discards = nil
 	for x := 2; x < 10; x++ {
-		d := NewDiscard(image.Point{x, 0}, FAN_NONE)
+		d := self.baize.NewDiscard(image.Point{x, 0}, FAN_NONE)
 		self.discards = append(self.discards, d)
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 10; x++ {
-		t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }
@@ -53,7 +53,7 @@ func (self *Spider) StartGame() {
 		}
 		c.flipUp()
 	}
-	theDark.baize.setRecycles(0)
+	self.baize.setRecycles(0)
 }
 
 func (*Spider) TailMoveError(tail []*Card) (bool, error) {

@@ -16,26 +16,26 @@ type CanThieves struct {
 
 func (self *CanThieves) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
-	self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
+	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	if self.reserves != nil {
 		log.Println("*** reserves is not nil ***")
 	}
 	self.reserves = nil
-	self.reserves = append(self.reserves, NewReserve(image.Point{0, 1}, FAN_DOWN))
+	self.reserves = append(self.reserves, self.baize.NewReserve(image.Point{0, 1}, FAN_DOWN))
 
 	self.foundations = nil
 	for x := 3; x < 11; x++ {
-		self.foundations = append(self.foundations, NewFoundation(image.Point{x, 0}))
+		self.foundations = append(self.foundations, self.baize.NewFoundation(image.Point{x, 0}))
 	}
 
 	self.tableaux = nil
 	for x := 2; x < 6; x++ {
-		self.tableaux = append(self.tableaux, NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY))
 	}
 	for x := 7; x < 12; x++ {
-		self.tableaux = append(self.tableaux, NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY))
 	}
 }
 
@@ -61,7 +61,7 @@ func (self *CanThieves) StartGame() {
 		}
 	}
 
-	theDark.baize.setRecycles(2)
+	self.baize.setRecycles(2)
 }
 
 func (self *CanThieves) AfterMove() {

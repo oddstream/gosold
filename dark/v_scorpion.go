@@ -14,17 +14,17 @@ type Scorpion struct {
 
 func (self *Scorpion) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
 
 	self.discards = []*Pile{}
 	for x := 3; x < 7; x++ {
-		d := NewDiscard(image.Point{x, 0}, FAN_NONE)
+		d := self.baize.NewDiscard(image.Point{x, 0}, FAN_NONE)
 		self.discards = append(self.discards, d)
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 0; x < 7; x++ {
-		t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 		t.setLabel("K")
 		self.tableaux = append(self.tableaux, t)
 	}
@@ -46,7 +46,7 @@ func (self *Scorpion) StartGame() {
 			tab.cards[j].flipDown()
 		}
 	}
-	theDark.baize.setRecycles(0)
+	self.baize.setRecycles(0)
 }
 
 func (*Scorpion) TailMoveError(tail []*Card) (bool, error) {

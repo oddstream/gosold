@@ -20,7 +20,7 @@ type Usk struct {
 
 func (self *Usk) BuildPiles() {
 
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
 
 	self.layout = []UskPileInfo{
 		{x: 0, n: 8},
@@ -37,14 +37,14 @@ func (self *Usk) BuildPiles() {
 
 	self.foundations = nil
 	for x := 6; x < 10; x++ {
-		f := NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(image.Point{x, 0})
 		f.setLabel("A")
 		self.foundations = append(self.foundations, f)
 	}
 
 	self.tableaux = nil
 	for _, li := range self.layout {
-		t := NewTableau(image.Point{li.x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(image.Point{li.x, 1}, FAN_DOWN, MOVE_ANY)
 		t.setLabel(self.tableauLabel)
 		self.tableaux = append(self.tableaux, t)
 	}
@@ -61,7 +61,7 @@ func (self *Usk) dealCards() {
 
 func (self *Usk) StartGame() {
 	self.dealCards()
-	theDark.baize.setRecycles(1)
+	self.baize.setRecycles(1)
 	// if self.tableauLabel == "" {
 	// TheGame.UI.ToastInfo("Relaxed version - any card may be placed in an empty tableaux pile")
 	// }
@@ -109,7 +109,7 @@ func (self *Usk) PileTapped(pile *Pile) {
 	if pile != self.stock {
 		return
 	}
-	if theDark.baize.Recycles() == 0 {
+	if self.baize.Recycles() == 0 {
 		// TheGame.UI.ToastError("No more recycles")
 		return
 	}
@@ -135,5 +135,5 @@ func (self *Usk) PileTapped(pile *Pile) {
 	self.stock.reverseCards()
 	// redeal cards
 	self.dealCards()
-	theDark.baize.setRecycles(0)
+	self.baize.setRecycles(0)
 }

@@ -150,7 +150,7 @@ func (c *card) startFlip() {
 }
 
 // FlipUp flips the card face up
-func (c *card) FlipUp() {
+func (c *card) flipUp() {
 	if c.darkCard.Prone() {
 		c.darkCard.SetProne(false) // card is immediately face up, else fan isn't correct
 		c.startFlip()
@@ -158,7 +158,7 @@ func (c *card) FlipUp() {
 }
 
 // FlipDown flips the card face down
-func (c *card) FlipDown() {
+func (c *card) flipDown() {
 	if !c.darkCard.Prone() {
 		c.darkCard.SetProne(true) // card is immediately face down, else fan isn't correct
 		c.startFlip()
@@ -166,11 +166,11 @@ func (c *card) FlipDown() {
 }
 
 // SetFlip turns the card over
-func (c *card) SetFlip(prone bool) {
+func (c *card) setFlip(prone bool) {
 	if prone {
-		c.FlipDown()
+		c.flipDown()
 	} else {
-		c.FlipUp()
+		c.flipUp()
 	}
 }
 
@@ -187,7 +187,7 @@ func (c *card) startSpinning() {
 }
 
 // stopSpinning tells the card to stop spinning and return to it's upright state
-func (c *card) StopSpinning() {
+func (c *card) stopSpinning() {
 	c.directionX, c.directionY = 0, 0
 	c.angle, c.spin = 0, 0
 	// card may have spun off-screen slightly, and be -ve, which confuses Smoothstep

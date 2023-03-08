@@ -16,28 +16,27 @@ type Duchess struct {
 
 func (self *Duchess) BuildPiles() {
 
-	self.stock = NewStock(image.Point{1, 1}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{1, 1}, FAN_NONE, 1, 4, nil, 0)
 
 	self.reserves = []*Pile{}
 	for i := 0; i < 4; i++ {
-		self.reserves = append(self.reserves, NewReserve(image.Point{i * 2, 0}, FAN_RIGHT))
+		self.reserves = append(self.reserves, self.baize.NewReserve(image.Point{i * 2, 0}, FAN_RIGHT))
 	}
 
-	self.waste = NewWaste(image.Point{1, 2}, FAN_DOWN3)
+	self.waste = self.baize.NewWaste(image.Point{1, 2}, FAN_DOWN3)
 
 	self.foundations = []*Pile{}
 	for x := 3; x < 7; x++ {
-		self.foundations = append(self.foundations, NewFoundation(image.Point{x, 1}))
+		self.foundations = append(self.foundations, self.baize.NewFoundation(image.Point{x, 1}))
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 3; x < 7; x++ {
-		self.tableaux = append(self.tableaux, NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ANY))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ANY))
 	}
 }
 
 func (self *Duchess) StartGame() {
-	theDark.baize.setRecycles(1)
 	for _, pile := range self.foundations {
 		pile.setLabel("")
 	}
@@ -50,6 +49,7 @@ func (self *Duchess) StartGame() {
 	for _, pile := range self.tableaux {
 		moveCard(self.stock, pile)
 	}
+	self.baize.setRecycles(1)
 }
 
 func (self *Duchess) AfterMove() {

@@ -15,45 +15,45 @@ type Westcliff struct {
 }
 
 func (self *Westcliff) BuildPiles() {
-	self.stock = NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
 	switch self.variant {
 	case "Classic":
-		self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+		self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
-			f := NewFoundation(image.Point{x, 0})
+			f := self.baize.NewFoundation(image.Point{x, 0})
 			self.foundations = append(self.foundations, f)
 			f.setLabel("A")
 		}
 		self.tableaux = []*Pile{}
 		for x := 0; x < 7; x++ {
-			t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+			t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
 		}
 	case "American":
-		self.waste = NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+		self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 		self.foundations = []*Pile{}
 		for x := 6; x < 10; x++ {
-			f := NewFoundation(image.Point{x, 0})
+			f := self.baize.NewFoundation(image.Point{x, 0})
 			self.foundations = append(self.foundations, f)
 			f.setLabel("A")
 		}
 		self.tableaux = []*Pile{}
 		for x := 0; x < 10; x++ {
-			t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+			t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
 		}
 	case "Easthaven":
 		self.waste = nil
 		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
-			f := NewFoundation(image.Point{x, 0})
+			f := self.baize.NewFoundation(image.Point{x, 0})
 			self.foundations = append(self.foundations, f)
 			f.setLabel("A")
 		}
 		self.tableaux = []*Pile{}
 		for x := 0; x < 7; x++ {
-			t := NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+			t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
 			t.setLabel("K")
 		}
@@ -90,7 +90,7 @@ func (self *Westcliff) StartGame() {
 			moveCard(self.stock, self.waste)
 		}
 	}
-	theDark.baize.setRecycles(0)
+	self.baize.setRecycles(0)
 }
 
 func (self *Westcliff) AfterMove() {
