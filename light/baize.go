@@ -11,6 +11,7 @@ import (
 	"oddstream.games/gosold/dark"
 	"oddstream.games/gosold/sound"
 	"oddstream.games/gosold/stroke"
+	"oddstream.games/gosold/ui"
 )
 
 const (
@@ -59,6 +60,13 @@ func (b *baize) refresh() {
 		lp.updateCards()
 		lp.createPlaceholder()
 	}
+	b.refan()
+}
+
+func (b *baize) refeshUI() {
+	b.updateToolbar()
+	b.updateDrawers()
+	b.updateStatusbar()
 }
 
 // startGame starts a new game, either an old one loaded from json,
@@ -67,14 +75,14 @@ func (b *baize) startGame(variant string) {
 	// get a new baize from dark for this variant
 	var err error
 	if b.darkBaize, err = b.game.darker.NewBaize(variant); err != nil {
-		// TODO toast
-		println(err)
+		b.game.ui.ToastError(err.Error())
 		return
 	}
 
 	b.reset()
 
 	b.variant = variant
+	b.game.ui.SetTitle(variant)
 
 	// create card map
 	b.cardMap = make(map[cardid.CardID]*card)
@@ -83,7 +91,7 @@ func (b *baize) startGame(variant string) {
 			b.cardMap[dc.ID().PackSuitOrdinal()] = newCard(dc)
 		}
 	}
-	println(len(b.cardMap), "cards in baize card map")
+	log.Println(len(b.cardMap), "cards in baize card map")
 
 	// create LIGHT piles
 	b.piles = []*pile{}
@@ -93,7 +101,7 @@ func (b *baize) startGame(variant string) {
 		lp.updateCards()
 		lp.createPlaceholder()
 	}
-	println(len(b.piles), "piles created")
+	log.Println(len(b.piles), "piles created")
 
 	if b.game.settings.MirrorBaize {
 		b.mirrorSlots()
@@ -101,20 +109,22 @@ func (b *baize) startGame(variant string) {
 
 	sound.Play("Fan")
 	b.dirtyFlags = dirtyAll
+	b.refeshUI()
 }
 
 func (b *baize) newDeal() {
 	b.darkBaize.NewDeal()
 	b.refresh()
+	b.refeshUI()
 }
 
 func (b *baize) restartDeal() {
 	if ok, err := b.darkBaize.RestartDeal(); !ok {
-		// TODO toast err
-		println(err)
+		b.game.ui.ToastError(err.Error())
 		return
 	}
 	b.refresh()
+	b.refeshUI()
 }
 
 func (b *baize) changeVariant(variant string) {
@@ -125,30 +135,30 @@ func (b *baize) changeVariant(variant string) {
 func (b *baize) collect() {
 	b.darkBaize.Collect(b.game.settings.SafeCollect)
 	b.refresh()
+	b.refeshUI()
 }
 
 func (b *baize) undo() {
 	if ok, err := b.darkBaize.Undo(); !ok {
-		// TODO toast err
-		println(err)
+		b.game.ui.ToastError(err.Error())
 		return
 	}
 	b.refresh()
+	b.refeshUI()
 }
 
 func (b *baize) loadPosition() {
 	if ok, err := b.darkBaize.LoadPosition(); !ok {
-		// TODO toast err
-		println(err)
+		b.game.ui.ToastError(err.Error())
 		return
 	}
 	b.refresh()
+	b.refeshUI()
 }
 
 func (b *baize) savePosition() {
 	if ok, err := b.darkBaize.SavePosition(); !ok {
-		// TODO toast err
-		println(err)
+		b.game.ui.ToastError(err.Error())
 		return
 	}
 	// TODO recycles may have changed, so may need to recreate Stock placeholder
@@ -380,7 +390,7 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 			}
 		}
 		if b.flagSet(dirtyWindowSize) {
-			// b.game.ui.Layout(outsideWidth, outsideHeight)
+			b.game.ui.Layout(outsideWidth, outsideHeight)
 		}
 		if b.flagSet(dirtyCardPositions) {
 			for _, p := range b.piles {
@@ -439,30 +449,36 @@ func (b *baize) cancelTailDrag(tail []*card) {
 func (b *baize) strokeStart(v stroke.StrokeEvent) {
 	b.stroke = v.Stroke
 
-	// TODO UI findContainerAt(v.X, v.Y)
-
-	pt := image.Pt(v.X, v.Y)
-	if card := b.findLowestCardAt(pt); card != nil {
-		if card.lerping() {
-			// TheGame.UI.Toast("Glass", "Confusing to move a moving card")
-			v.Stroke.Cancel()
+	if con := b.game.ui.FindContainerAt(v.X, v.Y); con != nil {
+		if w := con.FindWidgetAt(v.X, v.Y); w != nil {
+			b.stroke.SetDraggedObject(w)
 		} else {
-			tail := card.pile.makeTail(card)
-			b.startTailDrag(tail)
-			b.stroke.SetDraggedObject(tail)
+			con.StartDrag()
+			b.stroke.SetDraggedObject(con)
 		}
 	} else {
-		if p := b.findPileAt(pt); p != nil {
-			b.stroke.SetDraggedObject(p)
-		} else {
-			if b.startDrag() {
-				b.stroke.SetDraggedObject(b)
-			} else {
+		pt := image.Pt(v.X, v.Y)
+		if card := b.findLowestCardAt(pt); card != nil {
+			if card.lerping() {
+				// TheGame.UI.Toast("Glass", "Confusing to move a moving card")
 				v.Stroke.Cancel()
+			} else {
+				tail := card.pile.makeTail(card)
+				b.startTailDrag(tail)
+				b.stroke.SetDraggedObject(tail)
+			}
+		} else {
+			if p := b.findPileAt(pt); p != nil {
+				b.stroke.SetDraggedObject(p)
+			} else {
+				if b.startDrag() {
+					b.stroke.SetDraggedObject(b)
+				} else {
+					v.Stroke.Cancel()
+				}
 			}
 		}
 	}
-
 }
 
 func (b *baize) strokeMove(v stroke.StrokeEvent) {
@@ -474,10 +490,10 @@ func (b *baize) strokeMove(v stroke.StrokeEvent) {
 	// 	p.target = false
 	// }
 	switch obj := v.Stroke.DraggedObject().(type) {
-	// case ui.Containery:
-	// 	obj.DragBy(v.Stroke.PositionDiff())
-	// case ui.Widgety:
-	// 	obj.Parent().DragBy(v.Stroke.PositionDiff())
+	case ui.Containery:
+		obj.DragBy(v.Stroke.PositionDiff())
+	case ui.Widgety:
+		obj.Parent().DragBy(v.Stroke.PositionDiff())
 	case []*card:
 		dx, dy := v.Stroke.PositionDiff()
 		b.dragTailBy(obj, dx, dy)
@@ -501,10 +517,10 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 		// log.Panic("*** stop stroke with nil dragged object ***")
 	}
 	switch obj := v.Stroke.DraggedObject().(type) {
-	// case ui.Containery:
-	// 	obj.StopDrag()
-	// case ui.Widgety:
-	// 	obj.Parent().StopDrag()
+	case ui.Containery:
+		obj.StopDrag()
+	case ui.Widgety:
+		obj.Parent().StopDrag()
 	case []*card:
 		tail := obj     // alias for readability
 		card := tail[0] // for readability
@@ -515,11 +531,12 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 			} else {
 				src := card.pile
 				if ok, err := b.darkBaize.CardDragged(src.darkPile, card.darkCard, dst.darkPile); !ok {
-					// TODO toast err
-					fmt.Println(err)
+					b.game.ui.ToastError(err.Error())
 					b.cancelTailDrag(tail)
 				} else {
+					b.stopTailDrag(tail)
 					b.refresh()
+					b.refeshUI()
 				}
 			}
 		}
@@ -539,10 +556,10 @@ func (b *baize) strokeCancel(v stroke.StrokeEvent) {
 		return
 	}
 	switch obj := v.Stroke.DraggedObject().(type) { // type switch
-	// case ui.Containery:
-	// 	obj.CancelDrag()
-	// case ui.Widgety:
-	// 	obj.Parent().CancelDrag()
+	case ui.Containery:
+		obj.CancelDrag()
+	case ui.Widgety:
+		obj.Parent().CancelDrag()
 	case []*card:
 		b.cancelTailDrag(obj)
 	case *pile:
@@ -561,10 +578,10 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 	// stroke sends a tap event, and later sends a cancel event
 	// println("Baize.NotifyCallback() tap", v.X, v.Y)
 	switch obj := v.Stroke.DraggedObject().(type) {
-	// case ui.Containery:
-	// 	obj.Tapped()
-	// case ui.Widgety:
-	// 	obj.Tapped()
+	case ui.Containery:
+		obj.Tapped()
+	case ui.Widgety:
+		obj.Tapped()
 	case []*card:
 		// offer TailTapped to the script first
 		// to implement things like Stock.TailTapped
@@ -574,18 +591,24 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 		if b.darkBaize.CardTapped(obj[0].darkCard) {
 			sound.Play("Slide")
 			b.refresh()
+			b.refeshUI()
+		} else {
+			sound.Play("Glass")
 		}
 	case *pile:
 		if b.darkBaize.PileTapped(obj.darkPile) {
 			sound.Play("Shove")
 			b.refresh()
+			b.refeshUI()
+		} else {
+			sound.Play("Glass")
 		}
-	// case *baize:
-	// 	pt := image.Pt(v.X, v.Y)
-	// 	// a tap outside any open ui drawer (ie on the baize) closes the drawer
-	// 	if con := TheGame.UI.VisibleDrawer(); con != nil && !pt.In(image.Rect(con.Rect())) {
-	// 		con.Hide()
-	// 	}
+	case *baize:
+		pt := image.Pt(v.X, v.Y)
+		// 	// a tap outside any open ui drawer (ie on the baize) closes the drawer
+		if con := b.game.ui.VisibleDrawer(); con != nil && !pt.In(image.Rect(con.Rect())) {
+			con.Hide()
+		}
 	default:
 		log.Panic("*** tap unknown object ***")
 	}
@@ -607,6 +630,35 @@ func (b *baize) NotifyCallback(v stroke.StrokeEvent) {
 	default:
 		log.Panic("*** unknown stroke event ***", v.Event)
 	}
+}
+
+func (b *baize) updateToolbar() {
+	undos := b.darkBaize.UndoStackSize()
+	b.game.ui.EnableWidget("toolbarUndo", undos > 1)
+	_, fmoves := b.darkBaize.Moves()
+	b.game.ui.EnableWidget("toolbarCollect", fmoves > 0)
+}
+
+func (b *baize) updateStatusbar() {
+	/***
+	if b.script.Stock().Hidden() {
+		TheGame.UI.SetStock(-1)
+	} else {
+		TheGame.UI.SetStock(b.script.Stock().Len())
+	}
+	if b.script.Waste() == nil {
+		TheGame.UI.SetWaste(-1) // previous variant may have had a waste, and this one does not
+	} else {
+		TheGame.UI.SetWaste(b.script.Waste().Len())
+	}
+	***/
+	b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d", b.darkBaize.UndoStackSize()-1))
+	b.game.ui.SetPercent(b.darkBaize.PercentComplete())
+}
+
+func (b *baize) updateDrawers() {
+	b.game.ui.EnableWidget("restartDeal", b.darkBaize.UndoStackSize() > 1)
+	b.game.ui.EnableWidget("gotoBookmark", b.darkBaize.Bookmark() > 0)
 }
 
 func (b *baize) update() error {

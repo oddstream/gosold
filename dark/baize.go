@@ -17,7 +17,6 @@ type Baize struct {
 	dark       *dark
 	variant    string
 	script     scripter
-	pack       []Card
 	powerMoves bool
 	cardCount  int
 	piles      []*Pile // needed by LIGHT to display piles and cards

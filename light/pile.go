@@ -66,6 +66,15 @@ func (p *pile) peek() *card {
 	return p.cards[len(p.cards)-1]
 }
 
+func (p *pile) push(c *card) {
+	p.cards = append(p.cards, c)
+	c.pile = p
+	if c.darkCard.Prone() != c.prone {
+		c.flip()
+	}
+	c.lerpTo(c.pos)
+}
+
 func (p *pile) makeTail(c *card) []*card {
 	if c.pile != p {
 		log.Panic("Pile.makeTail called with a card that is not of this pile")
@@ -83,21 +92,16 @@ func (p *pile) makeTail(c *card) []*card {
 }
 
 func (p *pile) updateCards() {
-	// darkPile should not change
 	p.cards = nil // several piles will be empty
 	for _, dc := range p.darkPile.Cards() {
 		id := dc.ID().PackSuitOrdinal() // ignore prone flag
 		if c, ok := p.baize.cardMap[id]; !ok {
 			log.Panicf("Card %s not found in card map", id.String())
 		} else {
-			c.pile = p // make a note of the pile that (now) owns this card
-			p.cards = append(p.cards, c)
-			if c.darkCard.Prone() {
-				c.flipDown()
-			} else {
-				c.flipUp()
-			}
-			c.lerpTo(c.pos)
+			// darkCard needs updating because DARK Pile updateFromSavable
+			// creates a new dark Card object
+			c.darkCard = dc
+			p.push(c)
 		}
 	}
 }

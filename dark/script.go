@@ -110,7 +110,7 @@ func (sb scriptBase) Complete() bool {
 	for _, f := range sb.foundations {
 		n += len(f.cards)
 	}
-	return n == len(sb.baize.pack)
+	return n == sb.baize.cardCount
 }
 
 func (sb scriptBase) SpiderComplete() bool {

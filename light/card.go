@@ -14,6 +14,8 @@ type card struct {
 	darkCard *dark.Card
 	pile     *pile
 
+	// prone flag for displayed card
+	prone bool
 	// pos of card on light.baize
 	pos image.Point
 
@@ -149,29 +151,10 @@ func (c *card) startFlip() {
 	c.flipStartTime = time.Now()
 }
 
-// FlipUp flips the card face up
-func (c *card) flipUp() {
-	if c.darkCard.Prone() {
-		c.darkCard.SetProne(false) // card is immediately face up, else fan isn't correct
-		c.startFlip()
-	}
-}
-
-// FlipDown flips the card face down
-func (c *card) flipDown() {
-	if !c.darkCard.Prone() {
-		c.darkCard.SetProne(true) // card is immediately face down, else fan isn't correct
-		c.startFlip()
-	}
-}
-
-// SetFlip turns the card over
-func (c *card) setFlip(prone bool) {
-	if prone {
-		c.flipDown()
-	} else {
-		c.flipUp()
-	}
+// flip the card because darkCard prone != local prone
+func (c *card) flip() {
+	c.prone = c.darkCard.Prone()
+	c.startFlip()
 }
 
 // startSpinning tells the card to start spinning
@@ -289,7 +272,7 @@ func (c *card) draw(screen *ebiten.Image) {
 	var img *ebiten.Image
 	// card prone has already been set to destination state
 	if c.flipDirection < 0 {
-		if c.darkCard.Prone() {
+		if c.prone {
 			// card is getting narrower, and it's going to show face down, but show face up
 			img = TheCardFaceImageLibrary[(c.darkCard.Suit()*13)+(c.darkCard.Ordinal()-1)]
 		} else {
@@ -297,7 +280,7 @@ func (c *card) draw(screen *ebiten.Image) {
 			img = CardBackImage
 		}
 	} else {
-		if c.darkCard.Prone() {
+		if c.prone {
 			img = CardBackImage
 		} else {
 			img = TheCardFaceImageLibrary[(c.darkCard.Suit()*13)+(c.darkCard.Ordinal()-1)]

@@ -2,20 +2,22 @@ package light
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"oddstream.games/gosold/dark"
 	"oddstream.games/gosold/sound"
+	"oddstream.games/gosold/ui"
 )
 
 var (
 	// GosolVersionMajor is the integer version number
 	GosoldVersionMajor int = 6
 	// CsolVersionMinor is the integer version number
-	GosoldVersionMinor int = 1
+	GosoldVersionMinor int = 2
 	// CSolVersionDate is the ISO 8601 date of bumping the version number
-	GosolVersionDate string = "2023-03-03"
+	GosolVersionDate string = "2023-03-09"
 	// CardWidth of cards, start with a silly value to force a rescale/refan
 	CardWidth int = 9
 	// CardHeight of cards, start with a silly value to force a rescale/refan
@@ -49,6 +51,7 @@ var (
 
 type Game struct {
 	darker       dark.Darker
+	ui           *ui.UI
 	baize        *baize
 	settings     *Settings
 	commandTable map[ebiten.Key]func()
@@ -63,21 +66,93 @@ func NewGame() *Game {
 	} else {
 		sound.SetVolume(g.settings.Volume)
 	}
+	g.ui = ui.New(g.execute)
 	g.baize = newBaize(g)
 	g.baize.startGame(g.settings.Variant)
 
 	g.commandTable = map[ebiten.Key]func(){
-		ebiten.KeyC: func() { g.baize.collect() },
 		ebiten.KeyN: func() { g.baize.newDeal() },
 		ebiten.KeyR: func() { g.baize.restartDeal() },
+		ebiten.KeyF: func() { g.ui.ShowVariantPickerEx(g.darker.ListVariantGroups(), "ShowVariantPicker") },
+		ebiten.KeyC: func() { g.baize.collect() },
 		ebiten.KeyU: func() { g.baize.undo() },
-		ebiten.KeyB: func() { g.baize.savePosition() },
-		ebiten.KeyL: func() { g.baize.loadPosition() },
-		ebiten.KeyS: func() { g.baize.savePosition() },
-		ebiten.KeyX: func() { ExitRequested = true },
+		ebiten.KeyB: func() {
+			if ebiten.IsKeyPressed(ebiten.KeyControl) {
+				g.baize.loadPosition()
+			} else {
+				g.baize.savePosition()
+			}
+		},
+		ebiten.KeyL:      func() { g.baize.loadPosition() },
+		ebiten.KeyS:      func() { g.baize.savePosition() },
+		ebiten.KeyX:      func() { ExitRequested = true },
+		ebiten.KeyMenu:   func() { g.ui.ToggleNavDrawer() },
+		ebiten.KeyEscape: func() { g.ui.HideActiveDrawer() },
+		ebiten.KeyH: func() {
+			g.settings.ShowMovableCards = !g.settings.ShowMovableCards
+			if g.settings.ShowMovableCards {
+				moves, fmoves := g.baize.darkBaize.Moves()
+				if moves+fmoves > 0 {
+					g.ui.ToastInfo("Movable cards highlighted")
+				} else {
+					g.ui.ToastError("There are no movable cards")
+				}
+			}
+		},
+		ebiten.KeyM: func() {
+			g.settings.AlwaysShowMovableCards = !g.settings.AlwaysShowMovableCards
+			g.settings.ShowMovableCards = g.settings.AlwaysShowMovableCards
+			if g.settings.AlwaysShowMovableCards {
+				g.ui.ToastInfo("Movable cards always highlighted")
+			}
+		},
+		ebiten.KeyA: func() {
+			var AniSpeedSettings = []ui.FloatSetting{
+				{Title: "Fast", Var: &g.settings.AniSpeed, Value: 0.3},
+				{Title: "Normal", Var: &g.settings.AniSpeed, Value: 0.6},
+				{Title: "Slow", Var: &g.settings.AniSpeed, Value: 0.9},
+			}
+			g.ui.ShowAniSpeedDrawer(&AniSpeedSettings)
+		},
+		ebiten.KeyF2: func() {
+			strs := g.darker.VariantStatistics(g.baize.variant)
+			strs = append(strs, " ") // n.b. can't use empty string
+			strs = append(strs, "ALL VARIANTS")
+			strs = append(strs, g.darker.AllStatistics()...)
+			g.ui.ShowTextDrawer(strs)
+		},
+		ebiten.KeyF3: func() {
+			var booleanSettings = []ui.BooleanSetting{
+				{Title: "Power moves", Var: &g.settings.PowerMoves, Update: func() { g.baize.darkBaize.SetPowerMoves(g.settings.PowerMoves) }},
+				{Title: "Auto collect", Var: &g.settings.AutoCollect},
+				{Title: "Safe collect", Var: &g.settings.SafeCollect},
+				{Title: "Show movable cards", Var: &g.settings.ShowMovableCards},
+				{Title: "Colorful cards", Var: &g.settings.ColorfulCards, Update: func() { g.baize.setFlag(dirtyCardImages) }},
+				{Title: "Mute sounds", Var: &g.settings.Mute, Update: func() {
+					if g.settings.Mute {
+						sound.SetVolume(0.0)
+					} else {
+						sound.SetVolume(g.settings.Volume)
+					}
+				}},
+				// {Title: "Mirror baize", Var: &g.settings.MirrorBaize, Update: func() {
+				// 	savedUndoStack := TheGame.Baize.undoStack
+				// 	TheGame.Baize.StartFreshGame()
+				// 	TheGame.Baize.SetUndoStack(savedUndoStack)
+				// }},
+			}
+			g.ui.ShowSettingsDrawer(&booleanSettings)
+		},
 	}
 
-	// TODO toast version bump
+	if g.settings.LastVersionMajor != GosoldVersionMajor || g.settings.LastVersionMinor != GosoldVersionMinor {
+		g.ui.Toast("Glass", fmt.Sprintf("Upgraded from %d.%d to %d.%d",
+			g.settings.LastVersionMajor,
+			g.settings.LastVersionMinor,
+			GosoldVersionMajor,
+			GosoldVersionMinor))
+	}
+
 	return g
 }
 
@@ -86,6 +161,24 @@ func (g *Game) execute(cmd any) {
 	case ebiten.Key:
 		if fn, ok := g.commandTable[v]; ok {
 			fn()
+		}
+	case ui.Command:
+		// a widget has sent a command
+		switch v.Command {
+		case "ShowVariantGroupPicker":
+			g.ui.ShowVariantPickerEx(g.darker.ListVariantGroups(), "ShowVariantPicker")
+		case "ShowVariantPicker":
+			g.ui.ShowVariantPickerEx(g.darker.ListVariants(v.Data), "ChangeVariant")
+		case "ChangeVariant":
+			if v.Data == g.baize.variant {
+				g.ui.ToastError(fmt.Sprintf("Already playing '%s'", v.Data))
+			} else {
+				g.baize.changeVariant(v.Data)
+			}
+		case "SaveSettings":
+			g.settings.save() // save now especially if running in a browser
+		default:
+			log.Panic("unknown command", v.Command, v.Data)
 		}
 	default:
 		log.Panicf("Game.execute unknown command type %v", cmd)
@@ -100,7 +193,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func (g *Game) Update() error {
 	g.baize.update()
-	// g.ui.update()
+	g.ui.Update()
 	if ExitRequested {
 		g.baize.darkBaize.Save()
 		g.settings.save()
@@ -114,5 +207,5 @@ func (g *Game) Update() error {
 // https://ebitencookbook.vercel.app/blog
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.baize.draw(screen)
-	// g.ui.draw(screen)
+	g.ui.Draw(screen)
 }

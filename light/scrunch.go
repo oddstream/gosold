@@ -1,7 +1,5 @@
 package light
 
-//lint:file-ignore ST1006 Receiver name will be anything I like, thank you
-
 import (
 	"oddstream.games/gosold/dark"
 )
