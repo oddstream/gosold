@@ -157,6 +157,8 @@ func NewGame() *Game {
 }
 
 func (g *Game) execute(cmd any) {
+	g.ui.HideActiveDrawer()
+	g.ui.HideFAB()
 	switch v := cmd.(type) {
 	case ebiten.Key:
 		if fn, ok := g.commandTable[v]; ok {

@@ -55,6 +55,33 @@ func (b *baize) setFlag(flag uint32) {
 	b.dirtyFlags |= flag
 }
 
+func (b *baize) afterMove() {
+	b.game.ui.HideFAB()
+	// var moves, fmoves int
+	// for {
+	moves, _ := b.darkBaize.Moves()
+	// 	if fmoves == 0 {
+	// 		break
+	// 	}
+	// 	if b.game.settings.AutoCollect {
+	// 		b.collect()
+	// 	}
+	// }
+	if b.darkBaize.Complete() {
+		b.game.ui.AddButtonToFAB("star", ebiten.KeyN)
+		b.startSpinning()
+	} else if b.darkBaize.Conformant() {
+		b.game.ui.AddButtonToFAB("done_all", ebiten.KeyC)
+	} else if moves == 0 {
+		b.game.ui.ToastError("No movable cards")
+		b.game.ui.AddButtonToFAB("star", ebiten.KeyN)
+		b.game.ui.AddButtonToFAB("restore", ebiten.KeyR)
+		if b.darkBaize.Bookmark() > 0 {
+			b.game.ui.AddButtonToFAB("bookmark", ebiten.KeyL)
+		}
+	}
+}
+
 func (b *baize) refresh() {
 	for _, lp := range b.piles {
 		lp.updateCards()
@@ -116,6 +143,7 @@ func (b *baize) newDeal() {
 	b.darkBaize.NewDeal()
 	b.refresh()
 	b.refeshUI()
+	sound.Play("Fan")
 }
 
 func (b *baize) restartDeal() {
@@ -125,6 +153,7 @@ func (b *baize) restartDeal() {
 	}
 	b.refresh()
 	b.refeshUI()
+	sound.Play("Fan")
 }
 
 func (b *baize) changeVariant(variant string) {
@@ -136,6 +165,7 @@ func (b *baize) collect() {
 	b.darkBaize.Collect(b.game.settings.SafeCollect)
 	b.refresh()
 	b.refeshUI()
+	b.afterMove()
 }
 
 func (b *baize) undo() {
@@ -536,6 +566,7 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 				} else {
 					b.stopTailDrag(tail)
 					b.refresh()
+					b.afterMove()
 					b.refeshUI()
 				}
 			}
@@ -591,6 +622,7 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 		if b.darkBaize.CardTapped(obj[0].darkCard) {
 			sound.Play("Slide")
 			b.refresh()
+			b.afterMove()
 			b.refeshUI()
 		} else {
 			sound.Play("Glass")
