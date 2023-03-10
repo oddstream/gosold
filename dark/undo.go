@@ -44,7 +44,7 @@ func (self *Pile) updateFromSavable(sp *savablePile) {
 	if len(self.cards) != len(sp.Cards) {
 		log.Panicf("%s cards rebuilt incorrectly", self.category)
 	}
-	self.label = sp.Label
+	self.setLabel(sp.Label)
 }
 
 func (b *Baize) newSavableBaize() *savableBaize {

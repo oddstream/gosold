@@ -66,7 +66,7 @@ func (self *Duchess) AfterMove() {
 			}
 		}
 		if ord == 0 {
-
+			// think we used to toast here
 		} else {
 			for _, f := range self.foundations {
 				f.setLabel(util.OrdinalToShortString(ord))

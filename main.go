@@ -29,4 +29,11 @@ func main() {
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
+
+	// we come here if the user closed the window with the x button
+	// but we don't come here if ExitRequested has been set
+	// (and Game.Update() returned an error)
+	// which another thing I don't understand
+	log.Println("main exit")
+	g.ExitGame()
 }

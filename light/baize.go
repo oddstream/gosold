@@ -26,17 +26,18 @@ const (
 const dirtyAll uint32 = 0xFFFF
 
 type baize struct {
-	variant      string
-	game         *Game
-	darkBaize    *dark.Baize
-	piles        []*pile
-	cardMap      map[cardid.CardID]*card
-	dirtyFlags   uint32 // what needs doing when we Update
-	stroke       *stroke.Stroke
-	dragStart    image.Point
-	dragOffset   image.Point
-	windowWidth  int // the most recent window width given to Layout
-	windowHeight int // the most recent window height given to Layout
+	variant          string
+	game             *Game
+	darkBaize        *dark.Baize
+	piles            []*pile
+	cardMap          map[cardid.CardID]*card
+	dirtyFlags       uint32 // what needs doing when we Update
+	stroke           *stroke.Stroke
+	dragStart        image.Point
+	dragOffset       image.Point
+	windowWidth      int // the most recent window width given to Layout
+	windowHeight     int // the most recent window height given to Layout
+	collectRequested bool
 }
 
 func newBaize(g *Game) *baize {
@@ -55,45 +56,48 @@ func (b *baize) setFlag(flag uint32) {
 	b.dirtyFlags |= flag
 }
 
-func (b *baize) afterMove() {
-	b.game.ui.HideFAB()
-	// var moves, fmoves int
-	// for {
-	moves, _ := b.darkBaize.Moves()
-	// 	if fmoves == 0 {
-	// 		break
-	// 	}
-	// 	if b.game.settings.AutoCollect {
-	// 		b.collect()
-	// 	}
-	// }
-	if b.darkBaize.Complete() {
-		b.game.ui.AddButtonToFAB("star", ebiten.KeyN)
-		b.startSpinning()
-	} else if b.darkBaize.Conformant() {
-		b.game.ui.AddButtonToFAB("done_all", ebiten.KeyC)
-	} else if moves == 0 {
-		b.game.ui.ToastError("No movable cards")
-		b.game.ui.AddButtonToFAB("star", ebiten.KeyN)
-		b.game.ui.AddButtonToFAB("restore", ebiten.KeyR)
-		if b.darkBaize.Bookmark() > 0 {
-			b.game.ui.AddButtonToFAB("bookmark", ebiten.KeyL)
+func (b *baize) copySettingsToDark() {
+	b.darkBaize.SetSettings(dark.BaizeSettings{
+		PowerMoves:  b.game.settings.PowerMoves,
+		SafeCollect: b.game.settings.SafeCollect,
+		AutoCollect: b.game.settings.AutoCollect,
+	})
+}
+
+func (b *baize) eventListener(e dark.BaizeEvent) {
+	switch e {
+	case dark.ChangedEvent:
+		for _, lp := range b.piles {
+			lp.updateCards()
+		}
+		b.refan()
+		b.updateUI()
+		if b.game.settings.AutoCollect {
+			if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
+				b.collectRequested = true
+			}
+		}
+	case dark.LabelEvent:
+		for _, lp := range b.piles {
+			lp.createPlaceholder()
+		}
+	case dark.CompleteEvent:
+		b.game.ui.Toast("Complete", fmt.Sprintf("%s complete", b.variant))
+	}
+}
+
+func (b *baize) quiet() bool {
+	if b.stroke != nil {
+		return false
+	}
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			if c.spinning() || c.flipping() || c.lerping() {
+				return false
+			}
 		}
 	}
-}
-
-func (b *baize) refresh() {
-	for _, lp := range b.piles {
-		lp.updateCards()
-		lp.createPlaceholder()
-	}
-	b.refan()
-}
-
-func (b *baize) refeshUI() {
-	b.updateToolbar()
-	b.updateDrawers()
-	b.updateStatusbar()
+	return true
 }
 
 // startGame starts a new game, either an old one loaded from json,
@@ -101,15 +105,19 @@ func (b *baize) refeshUI() {
 func (b *baize) startGame(variant string) {
 	// get a new baize from dark for this variant
 	var err error
-	if b.darkBaize, err = b.game.darker.NewBaize(variant); err != nil {
+	if b.darkBaize, err = b.game.darker.NewBaize(variant, b.eventListener); err != nil {
 		b.game.ui.ToastError(err.Error())
 		return
 	}
-
+	b.copySettingsToDark()
 	b.reset()
 
 	b.variant = variant
 	b.game.ui.SetTitle(variant)
+	if b.game.settings.Variant != variant {
+		b.game.settings.Variant = variant
+		b.game.settings.save()
+	}
 
 	// create card map
 	b.cardMap = make(map[cardid.CardID]*card)
@@ -118,7 +126,7 @@ func (b *baize) startGame(variant string) {
 			b.cardMap[dc.ID().PackSuitOrdinal()] = newCard(dc)
 		}
 	}
-	log.Println(len(b.cardMap), "cards in baize card map")
+	// log.Println(len(b.cardMap), "cards in baize card map")
 
 	// create LIGHT piles
 	b.piles = []*pile{}
@@ -128,7 +136,7 @@ func (b *baize) startGame(variant string) {
 		lp.updateCards()
 		lp.createPlaceholder()
 	}
-	log.Println(len(b.piles), "piles created")
+	// log.Println(len(b.piles), "piles created")
 
 	if b.game.settings.MirrorBaize {
 		b.mirrorSlots()
@@ -136,13 +144,12 @@ func (b *baize) startGame(variant string) {
 
 	sound.Play("Fan")
 	b.dirtyFlags = dirtyAll
-	b.refeshUI()
+	b.updateUI()
 }
 
 func (b *baize) newDeal() {
+	b.stopSpinning()
 	b.darkBaize.NewDeal()
-	b.refresh()
-	b.refeshUI()
 	sound.Play("Fan")
 }
 
@@ -151,21 +158,19 @@ func (b *baize) restartDeal() {
 		b.game.ui.ToastError(err.Error())
 		return
 	}
-	b.refresh()
-	b.refeshUI()
 	sound.Play("Fan")
 }
 
 func (b *baize) changeVariant(variant string) {
 	b.darkBaize.Save()
 	b.startGame(variant)
+	b.darkBaize.Load()
 }
 
 func (b *baize) collect() {
-	b.darkBaize.Collect(b.game.settings.SafeCollect)
-	b.refresh()
-	b.refeshUI()
-	b.afterMove()
+	if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
+		b.darkBaize.Collect()
+	}
 }
 
 func (b *baize) undo() {
@@ -173,8 +178,6 @@ func (b *baize) undo() {
 		b.game.ui.ToastError(err.Error())
 		return
 	}
-	b.refresh()
-	b.refeshUI()
 }
 
 func (b *baize) loadPosition() {
@@ -182,8 +185,6 @@ func (b *baize) loadPosition() {
 		b.game.ui.ToastError(err.Error())
 		return
 	}
-	b.refresh()
-	b.refeshUI()
 }
 
 func (b *baize) savePosition() {
@@ -191,7 +192,7 @@ func (b *baize) savePosition() {
 		b.game.ui.ToastError(err.Error())
 		return
 	}
-	// TODO recycles may have changed, so may need to recreate Stock placeholder
+	b.game.ui.ToastInfo("Position bookmarked")
 }
 
 // findPileAt finds the Pile under the mouse position
@@ -218,16 +219,16 @@ func (b *baize) findLowestCardAt(pt image.Point) *card {
 }
 
 // findHighestCardAt finds the top-most Card under the mouse position
-func (b *baize) findHighestCardAt(pt image.Point) *card {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if pt.In(c.screenRect()) {
-				return c
-			}
-		}
-	}
-	return nil
-}
+// func (b *baize) findHighestCardAt(pt image.Point) *card {
+// 	for _, p := range b.piles {
+// 		for _, c := range p.cards {
+// 			if pt.In(c.screenRect()) {
+// 				return c
+// 			}
+// 		}
+// 	}
+// 	return nil
+// }
 
 func (b *baize) largestIntersection(c *card) *pile {
 	var largestArea int = 0
@@ -288,8 +289,6 @@ func (b *baize) stopSpinning() {
 	}
 	b.setFlag(dirtyCardPositions)
 }
-
-// TODO input
 
 func (b *baize) mirrorSlots() {
 	/*
@@ -434,13 +433,13 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 // foreachCard applys a function to each card
-func (b *baize) foreachCard(fn func(*card)) {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			fn(c)
-		}
-	}
-}
+// func (b *baize) foreachCard(fn func(*card)) {
+// 	for _, p := range b.piles {
+// 		for _, c := range p.cards {
+// 			fn(c)
+// 		}
+// 	}
+// }
 
 // ApplyToTail applies a method func to this card and all the others after it in the tail
 func (b *baize) applyToTail(tail []*card, fn func(*card)) {
@@ -564,10 +563,8 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 					b.game.ui.ToastError(err.Error())
 					b.cancelTailDrag(tail)
 				} else {
+					sound.Play("Shove")
 					b.stopTailDrag(tail)
-					b.refresh()
-					b.afterMove()
-					b.refeshUI()
 				}
 			}
 		}
@@ -621,17 +618,12 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 		// or use Pile.DefaultTailTapped
 		if b.darkBaize.CardTapped(obj[0].darkCard) {
 			sound.Play("Slide")
-			b.refresh()
-			b.afterMove()
-			b.refeshUI()
 		} else {
 			sound.Play("Glass")
 		}
 	case *pile:
 		if b.darkBaize.PileTapped(obj.darkPile) {
 			sound.Play("Shove")
-			b.refresh()
-			b.refeshUI()
 		} else {
 			sound.Play("Glass")
 		}
@@ -672,18 +664,8 @@ func (b *baize) updateToolbar() {
 }
 
 func (b *baize) updateStatusbar() {
-	/***
-	if b.script.Stock().Hidden() {
-		TheGame.UI.SetStock(-1)
-	} else {
-		TheGame.UI.SetStock(b.script.Stock().Len())
-	}
-	if b.script.Waste() == nil {
-		TheGame.UI.SetWaste(-1) // previous variant may have had a waste, and this one does not
-	} else {
-		TheGame.UI.SetWaste(b.script.Waste().Len())
-	}
-	***/
+	b.game.ui.SetStock(b.darkBaize.StockLen())
+	b.game.ui.SetWaste(b.darkBaize.WasteLen())
 	b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d", b.darkBaize.UndoStackSize()-1))
 	b.game.ui.SetPercent(b.darkBaize.PercentComplete())
 }
@@ -691,6 +673,30 @@ func (b *baize) updateStatusbar() {
 func (b *baize) updateDrawers() {
 	b.game.ui.EnableWidget("restartDeal", b.darkBaize.UndoStackSize() > 1)
 	b.game.ui.EnableWidget("gotoBookmark", b.darkBaize.Bookmark() > 0)
+}
+
+func (b *baize) updateFAB() {
+	b.game.ui.HideFAB()
+	if b.darkBaize.Complete() {
+		b.game.ui.AddButtonToFAB("star", ebiten.KeyN)
+		b.startSpinning()
+	} else if b.darkBaize.Conformant() {
+		b.game.ui.AddButtonToFAB("done_all", ebiten.KeyC)
+	} else if moves, _ := b.darkBaize.Moves(); moves == 0 {
+		b.game.ui.ToastError("No movable cards")
+		b.game.ui.AddButtonToFAB("star", ebiten.KeyN)
+		b.game.ui.AddButtonToFAB("restore", ebiten.KeyR)
+		if b.darkBaize.Bookmark() > 0 {
+			b.game.ui.AddButtonToFAB("bookmark", ebiten.KeyL)
+		}
+	}
+}
+
+func (b *baize) updateUI() {
+	b.updateToolbar()
+	b.updateDrawers()
+	b.updateStatusbar()
+	b.updateFAB()
 }
 
 func (b *baize) update() error {
@@ -712,6 +718,11 @@ func (b *baize) update() error {
 		if inpututil.IsKeyJustReleased(k) {
 			b.game.execute(k)
 		}
+	}
+
+	if b.collectRequested && b.quiet() {
+		b.collect()
+		b.collectRequested = false
 	}
 
 	return nil

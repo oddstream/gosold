@@ -75,9 +75,9 @@ func (c *card) screenRect() image.Rectangle {
 // lerpTo starts the transition of this Card to pos
 func (c *card) lerpTo(dst image.Point) {
 
-	if c.spinning() {
-		return
-	}
+	// if c.spinning() {
+	// 	return
+	// }
 
 	if dst.Eq(c.pos) {
 		c.lerpingFlag = false

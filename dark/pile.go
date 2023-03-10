@@ -147,6 +147,9 @@ func (self *Pile) reset() {
 }
 
 func (self *Pile) setLabel(label string) {
+	if self.label != label {
+		self.baize.fnNotify(LabelEvent)
+	}
 	self.label = label
 }
 

@@ -69,6 +69,7 @@ func NewGame() *Game {
 	g.ui = ui.New(g.execute)
 	g.baize = newBaize(g)
 	g.baize.startGame(g.settings.Variant)
+	g.baize.darkBaize.Load()
 
 	g.commandTable = map[ebiten.Key]func(){
 		ebiten.KeyN: func() { g.baize.newDeal() },
@@ -123,9 +124,9 @@ func NewGame() *Game {
 		},
 		ebiten.KeyF3: func() {
 			var booleanSettings = []ui.BooleanSetting{
-				{Title: "Power moves", Var: &g.settings.PowerMoves, Update: func() { g.baize.darkBaize.SetPowerMoves(g.settings.PowerMoves) }},
-				{Title: "Auto collect", Var: &g.settings.AutoCollect},
-				{Title: "Safe collect", Var: &g.settings.SafeCollect},
+				{Title: "Power moves", Var: &g.settings.PowerMoves, Update: func() { g.baize.copySettingsToDark() }},
+				{Title: "Auto collect", Var: &g.settings.AutoCollect, Update: func() { g.baize.copySettingsToDark() }},
+				{Title: "Safe collect", Var: &g.settings.SafeCollect, Update: func() { g.baize.copySettingsToDark() }},
 				{Title: "Show movable cards", Var: &g.settings.ShowMovableCards},
 				{Title: "Colorful cards", Var: &g.settings.ColorfulCards, Update: func() { g.baize.setFlag(dirtyCardImages) }},
 				{Title: "Mute sounds", Var: &g.settings.Mute, Update: func() {
@@ -154,6 +155,11 @@ func NewGame() *Game {
 	}
 
 	return g
+}
+
+func (g *Game) ExitGame() {
+	g.baize.darkBaize.Save()
+	g.settings.save()
 }
 
 func (g *Game) execute(cmd any) {

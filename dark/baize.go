@@ -14,27 +14,40 @@ import (
 // Baize is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Baize object as immutable, hence the unexported fields and getters.
 type Baize struct {
-	dark       *dark
-	variant    string
-	script     scripter
-	powerMoves bool
-	cardCount  int
-	piles      []*Pile // needed by LIGHT to display piles and cards
-	recycles   int     // needed by LIGHT to determine Stock rune
-	bookmark   int     // needed by LIGHT to grey out goto bookmark menu item
-	moves      int     // count of all available card moves
-	fmoves     int     // count of available moves to foundation
-	undoStack  []*savableBaize
+	dark      *dark
+	variant   string
+	script    scripter
+	cardCount int
+	piles     []*Pile // needed by LIGHT to display piles and cards
+	recycles  int     // needed by LIGHT to determine Stock rune
+	bookmark  int     // needed by LIGHT to grey out goto bookmark menu item
+	moves     int     // count of all available card moves
+	fmoves    int     // count of available moves to foundation
+	undoStack []*savableBaize
+	fnNotify  func(BaizeEvent)
+	BaizeSettings
+}
+
+type BaizeEvent int
+
+const (
+	ChangedEvent BaizeEvent = iota
+	CompleteEvent
+	LabelEvent
+)
+
+type BaizeSettings struct {
+	PowerMoves, SafeCollect, AutoCollect bool
 }
 
 // NewBaize creates a new Baize object
-func (d *dark) NewBaize(variant string) (*Baize, error) {
+func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent)) (*Baize, error) {
 	var script scripter
 	var ok bool
 	if script, ok = variants[variant]; !ok {
 		return nil, errors.New("unknown variant " + variant)
 	}
-	b := &Baize{dark: d, variant: variant, script: script}
+	b := &Baize{dark: d, variant: variant, script: script, fnNotify: fnNotify}
 	b.script.SetBaize(b)
 	b.script.BuildPiles()
 	b.script.StartGame()
@@ -80,6 +93,7 @@ func (b *Baize) LoadPosition() (bool, error) {
 	b.updateFromSavable(sav)
 	b.undoPush() // replace current state
 	b.findDestinations()
+	b.fnNotify(ChangedEvent)
 	return true, nil
 }
 
@@ -109,6 +123,7 @@ func (b *Baize) PileTapped(pile *Pile) bool {
 	if crc != b.crc() {
 		b.afterUserMove()
 		cardsMoved = true
+		b.fnNotify(ChangedEvent)
 	}
 	return cardsMoved
 }
@@ -139,6 +154,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	b.script.StartGame()
 	b.undoPush()
 	b.findDestinations()
+	b.fnNotify(ChangedEvent)
 	return true, nil
 }
 
@@ -158,11 +174,16 @@ func (b *Baize) RestartDeal() (bool, error) {
 	b.bookmark = 0 // do this AFTER UpdateFromSavable
 	b.undoPush()   // replace current state
 	b.findDestinations()
+	b.fnNotify(ChangedEvent)
 	return true, nil
 }
 
 func (b *Baize) Load() {
+	crc := b.crc()
 	b.load()
+	if b.crc() != crc {
+		b.fnNotify(ChangedEvent)
+	}
 }
 
 func (b *Baize) Save() {
@@ -181,8 +202,8 @@ func (b *Baize) SavePosition() (bool, error) {
 	return true, nil
 }
 
-func (b *Baize) SetPowerMoves(value bool) {
-	b.powerMoves = value
+func (b *Baize) SetSettings(settings BaizeSettings) {
+	b.BaizeSettings = settings
 }
 
 // TailDragged called by client when a tail of cards has been dragged from one pile to another.
@@ -211,6 +232,7 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 				}
 				if crc != b.crc() {
 					b.afterUserMove()
+					b.fnNotify(ChangedEvent)
 				}
 			}
 		}
@@ -232,6 +254,7 @@ func (b *Baize) TailTapped(tail []*Card) bool {
 	if crc != b.crc() {
 		b.afterUserMove()
 		cardsMoved = true
+		b.fnNotify(ChangedEvent)
 	}
 	return cardsMoved
 }
@@ -260,6 +283,7 @@ func (b *Baize) Undo() (bool, error) {
 	b.updateFromSavable(sav)
 	b.undoPush() // replace current state
 	b.findDestinations()
+	b.fnNotify(ChangedEvent)
 	return true, nil
 }
 
@@ -271,8 +295,24 @@ func (b *Baize) Moves() (int, int) {
 	return b.moves, b.fmoves
 }
 
+// StockLen returns number of cards in Stock, or -1 if Stock is hidden.
+func (b *Baize) StockLen() int {
+	if b.script.Stock().Hidden() {
+		return -1
+	}
+	return b.script.Stock().Len()
+}
+
+// WasteLen returns number of cards in Waste, or -1 if there is no Waste.
+func (b *Baize) WasteLen() int {
+	if b.script.Waste() == nil {
+		return -1
+	}
+	return b.script.Waste().Len()
+}
+
 // collectFromPile is a helper function for Collect()
-func (b *Baize) collectFromPile(pile *Pile, safe bool) int {
+func (b *Baize) collectFromPile(pile *Pile) int {
 	if pile == nil {
 		return 0
 	}
@@ -287,7 +327,7 @@ func (b *Baize) collectFromPile(pile *Pile, safe bool) int {
 			if !ok {
 				break // done with this foundation, try another
 			}
-			if safe {
+			if b.SafeCollect {
 				if ok, safeOrd := b.doingSafeCollect(); ok {
 					if card.Ordinal() > safeOrd {
 						// can't toast here, collect all will create a lot of toasts
@@ -308,21 +348,26 @@ func (b *Baize) collectFromPile(pile *Pile, safe bool) int {
 // waste, cell, reserve and tableau piles.
 // nb there is no collecting to discard piles, they are optional and presence of
 // cards in them does not signify a complete game.
-func (b *Baize) Collect(safe bool) {
+func (b *Baize) Collect() {
+	var totalCardsMoved int = 0
 	for {
-		var cardsMoved int = b.collectFromPile(b.script.Waste(), safe)
+		var cardsMoved int = b.collectFromPile(b.script.Waste())
 		for _, pile := range b.script.Cells() {
-			cardsMoved += b.collectFromPile(pile, safe)
+			cardsMoved += b.collectFromPile(pile)
 		}
 		for _, pile := range b.script.Reserves() {
-			cardsMoved += b.collectFromPile(pile, safe)
+			cardsMoved += b.collectFromPile(pile)
 		}
 		for _, pile := range b.script.Tableaux() {
-			cardsMoved += b.collectFromPile(pile, safe)
+			cardsMoved += b.collectFromPile(pile)
 		}
 		if cardsMoved == 0 {
 			break
 		}
+		totalCardsMoved += cardsMoved
+	}
+	if totalCardsMoved > 0 {
+		b.fnNotify(ChangedEvent)
 	}
 }
 
@@ -358,6 +403,9 @@ func (b *Baize) addPile(pile *Pile) {
 }
 
 func (b *Baize) setRecycles(recycles int) {
+	if b.recycles != recycles {
+		b.fnNotify(LabelEvent)
+	}
 	b.recycles = recycles
 }
 
@@ -366,6 +414,7 @@ func (b *Baize) afterUserMove() {
 	b.undoPush()
 	b.findDestinations()
 	if b.Complete() {
+		b.fnNotify(CompleteEvent)
 		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
 	}
 	// LIGHT can do a Collect() now if it likes

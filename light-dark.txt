@@ -32,6 +32,7 @@ A. They are LIGHT
 Q. MirrorBaize?
 A. Entirely up to LIGHT, as the relative positions of piles don't change, only slot positions and fan type
 	...implies need for LIGHT to hold copies of DARK Slot() and FanType()
+	... may require help from DARK to do the undo push, restart, undo pop
 
 Q. Start a new deal?
 A.
@@ -41,6 +42,19 @@ A.
 
 Q. AutoCollect?
 A. LIGHT can call Baize.Collect(safe bool) (replaces sol.Baize.AfterAfterUserMove)
+	BUT
+	Collect() should only be done while idle
+	because Collect() is like the user doing a few card taps
+	and so will invoke DARK AfterUserMove and LIGHT AfterMove
+
+Q. DARK settings?
+A. Maybe have a darkSettings struct
+	containing PowerMoves, SafeCollect, AutoCollect
+
+
+Event notifier, DARK notifies LIGHT when
+	game complete
+	cards have moved/baize has changed (after a move, load, undo)
 
 DARKER INTERFACE
 ========
