@@ -91,12 +91,12 @@ func (p *pile) makeTail(c *card) []*card {
 	return nil
 }
 
-func (p *pile) updateCards() {
-	p.cards = nil // several piles will be empty
+func (p *pile) copyCardsFromDark() {
+	p.cards = []*card{}
 	for _, dc := range p.darkPile.Cards() {
 		id := dc.ID().PackSuitOrdinal() // ignore prone flag
 		if c, ok := p.baize.cardMap[id]; !ok {
-			log.Panicf("Card %s not found in card map", id.String())
+			log.Panicf("Card [%s] not found in card map", id.String())
 		} else {
 			// darkCard needs updating because DARK Pile updateFromSavable
 			// creates a new dark Card object

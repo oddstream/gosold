@@ -9,9 +9,9 @@ import (
 // LIGHT should see a Card object as immutable, hence the unexported fields and getters.
 type Card struct {
 	id             cardid.CardID
-	owningPile     *Pile
+	pile           *Pile // the Pile this Card is currently in
 	tapDestination *Pile
-	tapWeight      int
+	tapWeight      int // 0..4
 }
 
 func newCard(pack, suit, ordinal int) Card {
@@ -60,11 +60,11 @@ func (c *Card) SetProne(prone bool) {
 // Private functions, only visible inside DARK
 
 func (c *Card) owner() *Pile {
-	return c.owningPile
+	return c.pile
 }
 
 func (c *Card) setOwner(p *Pile) {
-	c.owningPile = p
+	c.pile = p
 }
 
 func (c *Card) setProne(prone bool) {

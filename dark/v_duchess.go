@@ -45,7 +45,6 @@ func (self *Duchess) StartGame() {
 		moveCard(self.stock, pile)
 		moveCard(self.stock, pile)
 	}
-
 	for _, pile := range self.tableaux {
 		moveCard(self.stock, pile)
 	}

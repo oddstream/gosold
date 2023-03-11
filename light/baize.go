@@ -64,25 +64,35 @@ func (b *baize) copySettingsToDark() {
 	})
 }
 
-func (b *baize) eventListener(e dark.BaizeEvent) {
+func (b *baize) eventListener(e dark.BaizeEvent, param any) {
 	switch e {
 	case dark.ChangedEvent:
 		for _, lp := range b.piles {
-			lp.updateCards()
+			lp.copyCardsFromDark()
 		}
 		b.refan()
 		b.updateUI()
 		if b.game.settings.AutoCollect {
-			if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
-				b.collectRequested = true
+			// don't auto collect a virgin game
+			if b.darkBaize.UndoStackSize() > 1 {
+				if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
+					b.collectRequested = true
+				}
 			}
 		}
 	case dark.LabelEvent:
+		// TODO add an event parameter specifying which pile
 		for _, lp := range b.piles {
 			lp.createPlaceholder()
 		}
-	case dark.CompleteEvent:
+	case dark.WonEvent:
 		b.game.ui.Toast("Complete", fmt.Sprintf("%s complete", b.variant))
+	case dark.LostEvent:
+		b.game.ui.Toast("Fail", fmt.Sprintf("Recording a lost game of %s", b.variant))
+	case dark.MessageEvent:
+		if str, ok := param.(string); ok {
+			b.game.ui.ToastInfo(str)
+		}
 	}
 }
 
@@ -133,7 +143,7 @@ func (b *baize) startGame(variant string) {
 	for _, dp := range b.darkBaize.Piles() {
 		lp := newPile(b, dp)
 		b.piles = append(b.piles, lp)
-		lp.updateCards()
+		lp.copyCardsFromDark()
 		lp.createPlaceholder()
 	}
 	// log.Println(len(b.piles), "piles created")
@@ -170,6 +180,7 @@ func (b *baize) changeVariant(variant string) {
 func (b *baize) collect() {
 	if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
 		b.darkBaize.Collect()
+		sound.Play("Shove")
 	}
 }
 
@@ -178,6 +189,7 @@ func (b *baize) undo() {
 		b.game.ui.ToastError(err.Error())
 		return
 	}
+	sound.Play("Fan")
 }
 
 func (b *baize) loadPosition() {
@@ -563,7 +575,7 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 					b.game.ui.ToastError(err.Error())
 					b.cancelTailDrag(tail)
 				} else {
-					sound.Play("Shove")
+					sound.Play("Slide")
 					b.stopTailDrag(tail)
 				}
 			}
@@ -616,6 +628,8 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 		// if the script doesn't want to do anything, it can call pile.vtable.TailTapped
 		// which will either ignore it (eg Foundation, Discard)
 		// or use Pile.DefaultTailTapped
+
+		// obj is a tail of light cards, but we need a tail of dark cards
 		if b.darkBaize.CardTapped(obj[0].darkCard) {
 			sound.Play("Slide")
 		} else {

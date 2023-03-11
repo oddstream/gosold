@@ -115,6 +115,9 @@ func NewGame() *Game {
 			}
 			g.ui.ShowAniSpeedDrawer(&AniSpeedSettings)
 		},
+		ebiten.KeyF1: func() {
+			g.baize.wikipedia()
+		},
 		ebiten.KeyF2: func() {
 			strs := g.darker.VariantStatistics(g.baize.variant)
 			strs = append(strs, " ") // n.b. can't use empty string

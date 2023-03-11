@@ -24,7 +24,7 @@ type Baize struct {
 	moves     int     // count of all available card moves
 	fmoves    int     // count of available moves to foundation
 	undoStack []*savableBaize
-	fnNotify  func(BaizeEvent)
+	fnNotify  func(BaizeEvent, any)
 	BaizeSettings
 }
 
@@ -32,8 +32,10 @@ type BaizeEvent int
 
 const (
 	ChangedEvent BaizeEvent = iota
-	CompleteEvent
-	LabelEvent
+	LabelEvent              // TODO needs param
+	WonEvent
+	LostEvent
+	MessageEvent
 )
 
 type BaizeSettings struct {
@@ -41,7 +43,7 @@ type BaizeSettings struct {
 }
 
 // NewBaize creates a new Baize object
-func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent)) (*Baize, error) {
+func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize, error) {
 	var script scripter
 	var ok bool
 	if script, ok = variants[variant]; !ok {
@@ -93,7 +95,7 @@ func (b *Baize) LoadPosition() (bool, error) {
 	b.updateFromSavable(sav)
 	b.undoPush() // replace current state
 	b.findDestinations()
-	b.fnNotify(ChangedEvent)
+	b.fnNotify(ChangedEvent, nil)
 	return true, nil
 }
 
@@ -123,7 +125,7 @@ func (b *Baize) PileTapped(pile *Pile) bool {
 	if crc != b.crc() {
 		b.afterUserMove()
 		cardsMoved = true
-		b.fnNotify(ChangedEvent)
+		b.fnNotify(ChangedEvent, nil)
 	}
 	return cardsMoved
 }
@@ -141,6 +143,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	if len(b.undoStack) > 1 && !b.Complete() {
 		percent := b.PercentComplete()
 		b.dark.stats.recordLostGame(b.variant, percent)
+		b.fnNotify(LostEvent, nil)
 	}
 
 	b.reset()
@@ -154,7 +157,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	b.script.StartGame()
 	b.undoPush()
 	b.findDestinations()
-	b.fnNotify(ChangedEvent)
+	b.fnNotify(ChangedEvent, nil)
 	return true, nil
 }
 
@@ -174,16 +177,15 @@ func (b *Baize) RestartDeal() (bool, error) {
 	b.bookmark = 0 // do this AFTER UpdateFromSavable
 	b.undoPush()   // replace current state
 	b.findDestinations()
-	b.fnNotify(ChangedEvent)
+	b.fnNotify(ChangedEvent, nil)
 	return true, nil
 }
 
 func (b *Baize) Load() {
-	crc := b.crc()
+	// pearl from the mudbank:
+	// don't do a crc check here; send the change notify in all cases
 	b.load()
-	if b.crc() != crc {
-		b.fnNotify(ChangedEvent)
-	}
+	b.fnNotify(ChangedEvent, nil)
 }
 
 func (b *Baize) Save() {
@@ -232,7 +234,7 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 				}
 				if crc != b.crc() {
 					b.afterUserMove()
-					b.fnNotify(ChangedEvent)
+					b.fnNotify(ChangedEvent, nil)
 				}
 			}
 		}
@@ -241,7 +243,8 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 }
 
 func (b *Baize) CardDragged(src *Pile, card *Card, dst *Pile) (bool, error) {
-	tail := card.owningPile.makeTail(card)
+	// tail := card.owningPile.makeTail(card)
+	tail := src.makeTail(card)
 	return b.TailDragged(src, tail, dst)
 }
 
@@ -254,13 +257,13 @@ func (b *Baize) TailTapped(tail []*Card) bool {
 	if crc != b.crc() {
 		b.afterUserMove()
 		cardsMoved = true
-		b.fnNotify(ChangedEvent)
+		b.fnNotify(ChangedEvent, nil)
 	}
 	return cardsMoved
 }
 
 func (b *Baize) CardTapped(card *Card) bool {
-	tail := card.owningPile.makeTail(card)
+	tail := card.pile.makeTail(card)
 	return b.TailTapped(tail)
 }
 
@@ -283,7 +286,7 @@ func (b *Baize) Undo() (bool, error) {
 	b.updateFromSavable(sav)
 	b.undoPush() // replace current state
 	b.findDestinations()
-	b.fnNotify(ChangedEvent)
+	b.fnNotify(ChangedEvent, nil)
 	return true, nil
 }
 
@@ -367,8 +370,12 @@ func (b *Baize) Collect() {
 		totalCardsMoved += cardsMoved
 	}
 	if totalCardsMoved > 0 {
-		b.fnNotify(ChangedEvent)
+		b.fnNotify(ChangedEvent, nil)
 	}
+}
+
+func (b *Baize) Wikipedia() string {
+	return b.script.Wikipedia()
 }
 
 // Baize private functions
@@ -404,9 +411,9 @@ func (b *Baize) addPile(pile *Pile) {
 
 func (b *Baize) setRecycles(recycles int) {
 	if b.recycles != recycles {
-		b.fnNotify(LabelEvent)
+		b.recycles = recycles
+		b.fnNotify(LabelEvent, nil)
 	}
-	b.recycles = recycles
 }
 
 func (b *Baize) afterUserMove() {
@@ -414,8 +421,8 @@ func (b *Baize) afterUserMove() {
 	b.undoPush()
 	b.findDestinations()
 	if b.Complete() {
-		b.fnNotify(CompleteEvent)
 		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
+		b.fnNotify(WonEvent, nil)
 	}
 	// LIGHT can do a Collect() now if it likes
 }

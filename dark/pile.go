@@ -148,9 +148,9 @@ func (self *Pile) reset() {
 
 func (self *Pile) setLabel(label string) {
 	if self.label != label {
-		self.baize.fnNotify(LabelEvent)
+		self.label = label
+		self.baize.fnNotify(LabelEvent, nil)
 	}
-	self.label = label
 }
 
 func (self *Pile) fill(packs, suits int) int {
@@ -307,17 +307,15 @@ func (self *Pile) makeTail(c *Card) []*Card {
 			return self.cards[i:]
 		}
 	}
-	log.Panic("Pile.MakeTail made an empty tail")
+	log.Panicf("Pile.MakeTail could not find [%s] in %s pile", c, self.category)
 	return nil
 }
 
 func (self *Pile) defaultTailTapped(tail []*Card) {
 	card := tail[0]
 	if card.tapDestination != nil {
-		csrc := card.owner()
-		ctail := csrc.makeTail(card)
-		if len(ctail) == 1 {
-			moveCard(csrc, card.tapDestination)
+		if len(tail) == 1 {
+			moveCard(card.owner(), card.tapDestination)
 		} else {
 			moveTail(card, card.tapDestination)
 		}

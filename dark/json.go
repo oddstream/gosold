@@ -4,6 +4,7 @@ package dark
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -152,6 +153,7 @@ func (b *Baize) load() {
 		log.Fatal("saved undo stack is not ok")
 	}
 	b.setUndoStack(undoStack)
+	b.fnNotify(MessageEvent, fmt.Sprintf("Loaded a saved game of %s", b.variant))
 }
 
 // Save the entire undo stack to file
@@ -169,4 +171,5 @@ func (b *Baize) save() {
 	}
 
 	saveBytesToFile(bytes, "saved."+b.variant+".json")
+	// nb don't toast here; ebiten may have shut down
 }

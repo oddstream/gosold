@@ -17,7 +17,7 @@ package dark
 type Darker interface {
 	ListVariantGroups() []string
 	ListVariants(string) []string
-	NewBaize(string, func(BaizeEvent)) (*Baize, error)
+	NewBaize(string, func(BaizeEvent, any)) (*Baize, error)
 	VariantStatistics(string) []string
 	AllStatistics() []string
 }

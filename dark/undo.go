@@ -34,7 +34,7 @@ func (self *Pile) updateFromSavable(sp *savablePile) {
 	if self.category != sp.Category {
 		log.Panicf("Baize pile (%s) and SavablePile (%s) are different", self.category, sp.Category)
 	}
-	self.reset()
+	self.cards = []*Card{}
 	for _, cid := range sp.Cards {
 		// cid includes prone flag
 		// BEWARE making a new dark Card will invalidate light card's darkCard pointer
