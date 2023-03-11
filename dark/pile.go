@@ -142,14 +142,10 @@ func (b *Baize) newPile(category string, slot image.Point, fanType FanType, move
 	return p
 }
 
-func (self *Pile) reset() {
-	self.cards = self.cards[:0]
-}
-
 func (self *Pile) setLabel(label string) {
 	if self.label != label {
 		self.label = label
-		self.baize.fnNotify(LabelEvent, nil)
+		self.baize.fnNotify(LabelEvent, self)
 	}
 }
 
@@ -254,7 +250,7 @@ func (self *Pile) buryCards(ordinal int) {
 			tmp = append(tmp, c)
 		}
 	}
-	self.reset()
+	self.cards = self.cards[:0]
 	for i := 0; i < len(tmp); i++ {
 		self.push(tmp[i])
 	}

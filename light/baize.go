@@ -31,7 +31,7 @@ type baize struct {
 	darkBaize        *dark.Baize
 	piles            []*pile
 	cardMap          map[cardid.CardID]*card
-	dirtyFlags       uint32 // what needs doing when we Update
+	dirtyFlags       uint32 // what needs doing when we update
 	stroke           *stroke.Stroke
 	dragStart        image.Point
 	dragOffset       image.Point
@@ -81,9 +81,12 @@ func (b *baize) eventListener(e dark.BaizeEvent, param any) {
 			}
 		}
 	case dark.LabelEvent:
-		// TODO add an event parameter specifying which pile
-		for _, lp := range b.piles {
-			lp.createPlaceholder()
+		if dp, ok := param.(*dark.Pile); ok {
+			for _, lp := range b.piles {
+				if lp.darkPile == dp {
+					lp.createPlaceholder()
+				}
+			}
 		}
 	case dark.WonEvent:
 		b.game.ui.Toast("Complete", fmt.Sprintf("%s complete", b.variant))

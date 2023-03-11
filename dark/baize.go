@@ -32,7 +32,7 @@ type BaizeEvent int
 
 const (
 	ChangedEvent BaizeEvent = iota
-	LabelEvent              // TODO needs param
+	LabelEvent
 	WonEvent
 	LostEvent
 	MessageEvent
@@ -149,7 +149,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	b.reset()
 
 	for _, p := range b.piles {
-		p.reset()
+		p.cards = p.cards[:0]
 	}
 
 	b.cardCount = b.script.Stock().fill(b.script.Packs(), b.script.Suits())
@@ -398,11 +398,16 @@ func (b *Baize) crc() uint32 {
 		}
 		return ^crc // bitwise NOT
 	*/
-	var lens []byte
+	var arr []byte // = []byte{byte(b.recycles)}
 	for _, p := range b.piles {
-		lens = append(lens, byte(p.Len()))
+		arr = append(arr, byte(p.Len()))
+		for _, c := range p.cards {
+			arr = append(arr, byte(c.id.Pack()))
+			arr = append(arr, byte(c.id.Suit()))
+			arr = append(arr, byte(c.id.Ordinal()))
+		}
 	}
-	return crc32.ChecksumIEEE(lens)
+	return crc32.ChecksumIEEE(arr)
 }
 
 func (b *Baize) addPile(pile *Pile) {
@@ -412,7 +417,7 @@ func (b *Baize) addPile(pile *Pile) {
 func (b *Baize) setRecycles(recycles int) {
 	if b.recycles != recycles {
 		b.recycles = recycles
-		b.fnNotify(LabelEvent, nil)
+		b.fnNotify(LabelEvent, b.script.Stock())
 	}
 }
 
@@ -424,7 +429,6 @@ func (b *Baize) afterUserMove() {
 		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
 		b.fnNotify(WonEvent, nil)
 	}
-	// LIGHT can do a Collect() now if it likes
 }
 
 func (b *Baize) setUndoStack(undoStack []*savableBaize) {
