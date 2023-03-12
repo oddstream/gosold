@@ -46,7 +46,7 @@ Some will never make it here because they are just poor games:
 * Golf
 * Pyramid (or any card matching variant)
 
-![Screenshot](https://github.com/oddstream/gosold/blob/7152668f4b5053a1d438981e9d4564624616da6a/screenshots/Australian.png)
+![Screenshot](https://github.com/oddstream/gosold/blob/84179963d81c4b36cee39bb6e55449dff4fce17c/screenshots/Simple%20Simon.png)
 
 ## Other features
 
