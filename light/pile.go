@@ -54,10 +54,10 @@ func newPile(baize *baize, darkPile *dark.Pile) *pile {
 		fanFactor: defaultFanFactor[darkPile.FanType()]}
 }
 
-func (p *pile) reset() {
-	p.cards = p.cards[:0]
-	p.fanFactor = defaultFanFactor[p.fanType]
-}
+// func (p *pile) reset() {
+// 	p.cards = p.cards[:0]
+// 	p.fanFactor = defaultFanFactor[p.fanType]
+// }
 
 func (p *pile) peek() *card {
 	if len(p.cards) == 0 {
@@ -194,9 +194,9 @@ func (p *pile) setBaizePos(pos image.Point) {
 	}
 }
 
-func (p *pile) baizePos() image.Point {
-	return p.pos
-}
+// func (p *pile) baizePos() image.Point {
+// 	return p.pos
+// }
 
 func (p *pile) screenPos() image.Point {
 	return p.pos.Add(p.baize.dragOffset)
@@ -238,12 +238,12 @@ func (p *pile) fannedBaizeRect() image.Rectangle {
 	return r
 }
 
-func (p *pile) fannedScreenRect() image.Rectangle {
-	var r image.Rectangle = p.fannedBaizeRect()
-	r.Min = r.Min.Add(p.baize.dragOffset)
-	r.Max = r.Max.Add(p.baize.dragOffset)
-	return r
-}
+// func (p *pile) fannedScreenRect() image.Rectangle {
+// 	var r image.Rectangle = p.fannedBaizeRect()
+// 	r.Min = r.Min.Add(p.baize.dragOffset)
+// 	r.Max = r.Max.Add(p.baize.dragOffset)
+// 	return r
+// }
 
 // PosAfter returns the position of the next card
 func (p *pile) posAfter(c *card) image.Point {
