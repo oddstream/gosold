@@ -2,7 +2,7 @@
 
 Towards a polymorphic solitaire engine in [Go](https://golang.org/)+[Ebiten](https://ebiten.org/), with help from [fogleman/gg](https://github.com/fogleman/gg) (both of which are highly recommended), with game variants run by (user supplied) scripts.
 
-![Screenshot](https://github.com/oddstream/gosold/blob/7152668f4b5053a1d438981e9d4564624616da6a/screenshots/Simple%20Simon.png)
+![Screenshot](https://github.com/oddstream/gosold/blob/83a2f0204bc2006ccffbcc8035e5a7306418b2d6/screenshots/Klondike.png)
 
 It's tested on Linux, Windows and in a web browser. If you have go installed, you should be able to run it on Linux or Windows by cloning this repo and then `go run .` in the cloned directory. Or, install it using `go install github.com/oddstream/gosol@latest`.
 
@@ -70,7 +70,7 @@ A lot a features have been tried and discarded, in order to keep the game (and p
 
 Configurability is the root of all evil, someone said. Every configuration option in a program is a place where the program is too stupid to figure out for itself what the user really wants, and should be considered a failure of both the program and the programmer who implemented it. So, there's one card face, one color palette, one card animation speed, and so on.
 
-![Screenshot](https://github.com/oddstream/gosold/blob/7152668f4b5053a1d438981e9d4564624616da6a/screenshots/American%20Toad.png)
+![Screenshot](https://github.com/oddstream/gosold/blob/83a2f0204bc2006ccffbcc8035e5a7306418b2d6/screenshots/American%20Toad.png)
 
 ## FAQ
 
@@ -225,7 +225,7 @@ On Windows, you'll find them as `.json` files in a folder called `C:\Users\<user
 
 * A game is RELAXED when any restriction on what card can be moved to an empty tableaux pile has been removed
 
-![Screenshot](https://github.com/oddstream/gosold/blob/7152668f4b5053a1d438981e9d4564624616da6a/screenshots/Klondike.png)
+![Screenshot](https://github.com/oddstream/gosold/blob/83a2f0204bc2006ccffbcc8035e5a7306418b2d6/screenshots/Australian.png)
 
 ## The seven different types of piles
 
