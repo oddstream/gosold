@@ -34,6 +34,6 @@ func main() {
 	// but we don't come here if ExitRequested has been set
 	// (and Game.Update() returned an error)
 	// which another thing I don't understand
-	log.Println("main exit")
+	// log.Println("main exit")
 	g.ExitGame()
 }

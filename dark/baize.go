@@ -14,7 +14,7 @@ import (
 // Baize is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Baize object as immutable, hence the unexported fields and getters.
 type Baize struct {
-	dark      *dark
+	dark      *dark // link back to dark for statistics
 	variant   string
 	script    scripter
 	cardCount int
@@ -148,11 +148,31 @@ func (b *Baize) NewDeal() (bool, error) {
 
 	b.reset()
 
+	// the cards are all over the place
+	// we could either recall them all to the Stock
+	// or just delete them and make fresh ones
+	// favour the former because the cards lerp better
+
+	// for _, p := range b.piles {
+	// 	p.cards = p.cards[:0]
+	// }
+	// b.cardCount = b.script.Stock().fill(b.script.Packs(), b.script.Suits())
+
+	stock := b.script.Stock()
 	for _, p := range b.piles {
+		if p == stock {
+			continue
+		}
+		stock.cards = append(stock.cards, p.cards...)
 		p.cards = p.cards[:0]
 	}
+	for _, c := range stock.cards {
+		c.pile = stock
+	}
+	if len(stock.cards) != b.cardCount {
+		log.Panic("the number of cards in the stock is incorrect")
+	}
 
-	b.cardCount = b.script.Stock().fill(b.script.Packs(), b.script.Suits())
 	b.script.Stock().shuffle()
 	b.script.StartGame()
 	b.undoPush()

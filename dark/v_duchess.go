@@ -49,6 +49,7 @@ func (self *Duchess) StartGame() {
 		moveCard(self.stock, pile)
 	}
 	self.baize.setRecycles(1)
+	self.baize.fnNotify(MessageEvent, "Move a Reserve card to a Foundation")
 }
 
 func (self *Duchess) AfterMove() {
@@ -65,7 +66,7 @@ func (self *Duchess) AfterMove() {
 			}
 		}
 		if ord == 0 {
-			// think we used to toast here
+			self.baize.fnNotify(MessageEvent, "Move a Reserve card to a Foundation")
 		} else {
 			for _, f := range self.foundations {
 				f.setLabel(util.OrdinalToShortString(ord))

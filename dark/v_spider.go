@@ -105,7 +105,7 @@ func (self *Spider) TailTapped(tail []*Card) {
 			}
 		}
 		if emptyTabs > 0 && tabCards >= len(self.tableaux) {
-			// TheGame.UI.ToastError("All empty tableaux must be filled before dealing a new row")
+			self.baize.fnNotify(MessageEvent, "All empty tableaux must be filled before dealing a new row")
 		} else {
 			for _, tab := range self.tableaux {
 				moveCard(self.stock, tab)

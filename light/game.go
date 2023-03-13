@@ -206,8 +206,7 @@ func (g *Game) Update() error {
 	g.baize.update()
 	g.ui.Update()
 	if ExitRequested {
-		g.baize.darkBaize.Save()
-		g.settings.save()
+		g.ExitGame()
 		return errors.New("exit requested")
 	}
 	return nil

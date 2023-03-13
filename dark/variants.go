@@ -450,7 +450,7 @@ func (d *dark) ListVariantGroups() []string {
 }
 
 func (d *dark) ListVariants(group string) []string {
-	var vnames []string = nil
+	var vnames []string = []string{}
 	vnames = append(vnames, variantGroups[group]...)
 	if group == "> All by Played" {
 		sort.Slice(vnames, func(i, j int) bool {
