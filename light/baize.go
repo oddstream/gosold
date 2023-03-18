@@ -60,7 +60,6 @@ func (b *baize) copySettingsToDark() {
 	b.darkBaize.SetSettings(dark.BaizeSettings{
 		PowerMoves:  b.game.settings.PowerMoves,
 		SafeCollect: b.game.settings.SafeCollect,
-		AutoCollect: b.game.settings.AutoCollect,
 	})
 }
 
@@ -185,6 +184,10 @@ func (b *baize) collect() {
 		b.darkBaize.Collect()
 		sound.Play("Shove")
 	}
+}
+
+func (b *baize) solve() {
+	b.darkBaize.Solve(2)
 }
 
 func (b *baize) undo() {
@@ -385,7 +388,7 @@ func (b *baize) ScaleCards() bool {
 	PilePaddingY = int(slotHeight / 10)
 	CardHeight = int(slotHeight) - PilePaddingY
 
-	TopMargin = /* ui.ToolbarHeight */ 48 + CardHeight/3
+	TopMargin = ui.ToolbarHeight + CardHeight/3
 	LeftMargin = (CardWidth / 2) + PilePaddingX
 
 	CardCornerRadius = float64(CardWidth) / 10.0 // same as lsol
@@ -633,7 +636,7 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 		// or use Pile.DefaultTailTapped
 
 		// obj is a tail of light cards, but we need a tail of dark cards
-		if b.darkBaize.CardTapped(obj[0].darkCard) {
+		if b.darkBaize.CardTapped(obj[0].darkCard, 0) {
 			sound.Play("Slide")
 		} else {
 			sound.Play("Glass")

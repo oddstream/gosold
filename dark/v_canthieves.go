@@ -16,7 +16,7 @@ type CanThieves struct {
 
 func (self *CanThieves) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	if self.reserves != nil {
@@ -161,12 +161,12 @@ func (self *CanThieves) UnsortedPairs(pile *Pile) int {
 	return 0
 }
 
-func (self *CanThieves) TailTapped(tail []*Card) {
+func (self *CanThieves) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.waste)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

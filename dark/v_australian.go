@@ -12,7 +12,7 @@ type Australian struct {
 }
 
 func (self *Australian) BuildPiles() {
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.foundations = nil
@@ -72,13 +72,13 @@ func (*Australian) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (self *Australian) TailTapped(tail []*Card) {
+func (self *Australian) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		c := pile.pop()
 		self.waste.push(c)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

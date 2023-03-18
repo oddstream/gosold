@@ -12,11 +12,9 @@ type Stock struct {
 	pile *Pile
 }
 
-func (b *Baize) NewStock(slot image.Point, fanType FanType, packs int, suits int, cardFilter *[14]bool, jokersPerPack int) *Pile {
-	pile := b.newPile("Stock", slot, fanType, MOVE_ONE)
+func (b *Baize) NewStock(slot image.Point) *Pile {
+	pile := b.newPile("Stock", slot, FAN_NONE, MOVE_ONE)
 	pile.vtable = &Stock{pile: pile}
-	b.cardCount = pile.fill(packs, suits)
-	pile.shuffle()
 	return pile
 }
 
@@ -24,7 +22,7 @@ func (*Stock) CanAcceptTail([]*Card) (bool, error) {
 	return false, errors.New("Cannot move cards to the Stock")
 }
 
-func (*Stock) TailTapped([]*Card) {
+func (*Stock) TailTapped([]*Card, int) {
 	// do nothing, handled by script, which had first dibs
 }
 
@@ -40,15 +38,6 @@ func (self *Stock) unsortedPairs() int {
 	return self.pile.Len() - 1
 }
 
-func (self *Stock) MovableTails() []*movableTail {
-	var tails []*movableTail = []*movableTail{}
-	if self.pile.Len() > 0 {
-		var card *Card = self.pile.peek()
-		var tail []*Card = []*Card{card}
-		var homes []*Pile = self.pile.baize.findHomesForTail(tail)
-		for _, home := range homes {
-			tails = append(tails, &movableTail{dst: home, tail: tail})
-		}
-	}
-	return tails
+func (self *Stock) MovableTails2() [][]*Card {
+	return self.pile.singleCardMovableTails()
 }

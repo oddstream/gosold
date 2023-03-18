@@ -25,7 +25,7 @@ func (self *Klondike) BuildPiles() {
 	if self.draw == 0 {
 		self.draw = 1
 	}
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, self.Packs(), 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.foundations = []*Pile{}
@@ -107,14 +107,14 @@ func (*Klondike) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColor)
 }
 
-func (self *Klondike) TailTapped(tail []*Card) {
+func (self *Klondike) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		for i := 0; i < self.draw; i++ {
 			moveCard(self.stock, self.waste)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

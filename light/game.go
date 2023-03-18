@@ -12,6 +12,7 @@ import (
 )
 
 var (
+	DebugMode bool
 	// GosolVersionMajor is the integer version number
 	GosoldVersionMajor int = 6
 	// CsolVersionMinor is the integer version number
@@ -32,7 +33,7 @@ var (
 	// LeftMargin the gap between the left of the screen and the first pile
 	LeftMargin int = (CardWidth / 2) + PilePaddingX
 	// TopMargin the gap between top pile and top of baize
-	TopMargin int = 48 /*ui.ToolbarHeight*/ + CardHeight/3
+	TopMargin int = ui.ToolbarHeight + CardHeight/3
 	// CardFaceImageLibrary
 	// thirteen suitless cards,
 	// one entry for each face card (4 suits * 13 cards),
@@ -46,7 +47,7 @@ var (
 	// CardShadowImage applies to all cards so is kept globally as an optimization
 	CardShadowImage *ebiten.Image
 	// ExitRequested is set when user has had enough
-	ExitRequested bool = false
+	ExitRequested bool
 )
 
 type Game struct {
@@ -92,8 +93,8 @@ func NewGame() *Game {
 		ebiten.KeyH: func() {
 			g.settings.ShowMovableCards = !g.settings.ShowMovableCards
 			if g.settings.ShowMovableCards {
-				moves, fmoves := g.baize.darkBaize.Moves()
-				if moves+fmoves > 0 {
+				moves, _ := g.baize.darkBaize.Moves()
+				if moves > 0 {
 					g.ui.ToastInfo("Movable cards highlighted")
 				} else {
 					g.ui.ToastError("There are no movable cards")
@@ -115,6 +116,7 @@ func NewGame() *Game {
 			}
 			g.ui.ShowAniSpeedDrawer(&AniSpeedSettings)
 		},
+		ebiten.KeyQ: func() { g.baize.solve() },
 		ebiten.KeyF1: func() {
 			g.baize.wikipedia()
 		},

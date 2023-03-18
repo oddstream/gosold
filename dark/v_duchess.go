@@ -16,7 +16,7 @@ type Duchess struct {
 
 func (self *Duchess) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{1, 1}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{1, 1})
 
 	self.reserves = []*Pile{}
 	for i := 0; i < 4; i++ {
@@ -126,12 +126,12 @@ func (*Duchess) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColorWrap)
 }
 
-func (self *Duchess) TailTapped(tail []*Card) {
+func (self *Duchess) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.waste)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

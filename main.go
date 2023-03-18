@@ -3,14 +3,37 @@
 package main
 
 import (
+	"flag"
 	"log"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"oddstream.games/gosold/dark"
 	light "oddstream.games/gosold/light"
 	"oddstream.games/gosold/util"
 )
 
 func main() {
+
+	var DebugMode bool
+
+	log.SetFlags(0)
+
+	// pearl from the mudbank: don't have any flags that will overwrite ThePreferences
+	flag.BoolVar(&DebugMode, "debug", false, "turn debug mode on")
+	flag.BoolVar(&dark.NoLoad, "noload", false, "do not load saved game when starting")
+	flag.BoolVar(&dark.NoSave, "nosave", false, "do not save game before exit")
+
+	flag.Parse()
+
+	if DebugMode {
+		dark.DebugMode = true
+		light.DebugMode = true
+		for i, a := range os.Args {
+			log.Println(i, a)
+		}
+	}
+
 	// ebiten panics if a window to maximize is not resizable
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	if ebiten.IsWindowMaximized() || ebiten.IsWindowMinimized() {

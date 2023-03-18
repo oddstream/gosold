@@ -13,7 +13,7 @@ type Blockade struct {
 
 func (self *Blockade) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 2, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 
 	self.foundations = nil
 	for x := 4; x < 12; x++ {
@@ -79,14 +79,14 @@ func (*Blockade) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (self *Blockade) TailTapped(tail []*Card) {
+func (self *Blockade) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock {
 		for _, tab := range self.tableaux {
 			moveCard(self.stock, tab)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

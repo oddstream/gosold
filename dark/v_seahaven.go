@@ -13,7 +13,7 @@ type Seahaven struct {
 
 func (self *Seahaven) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.cells = nil
 	for x := 0; x < 4; x++ {
@@ -80,8 +80,8 @@ func (*Seahaven) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*Seahaven) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*Seahaven) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (*Seahaven) PileTapped(*Pile) {}

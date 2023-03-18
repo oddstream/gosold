@@ -14,7 +14,7 @@ type Scorpion struct {
 
 func (self *Scorpion) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 
 	self.discards = []*Pile{}
 	for x := 3; x < 7; x++ {
@@ -78,7 +78,7 @@ func (*Scorpion) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (self *Scorpion) TailTapped(tail []*Card) {
+func (self *Scorpion) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	switch pile.vtable.(type) {
 	case *Stock:
@@ -88,7 +88,7 @@ func (self *Scorpion) TailTapped(tail []*Card) {
 			}
 		}
 	default:
-		tail[0].owner().vtable.TailTapped(tail)
+		tail[0].owner().vtable.TailTapped(tail, nTarget)
 	}
 }
 

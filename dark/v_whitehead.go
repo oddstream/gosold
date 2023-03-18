@@ -13,7 +13,7 @@ type Whitehead struct {
 
 func (self *Whitehead) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
 	self.foundations = nil
@@ -83,12 +83,12 @@ func (*Whitehead) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownColor)
 }
 
-func (self *Whitehead) TailTapped(tail []*Card) {
+func (self *Whitehead) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.waste)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

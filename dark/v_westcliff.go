@@ -15,7 +15,7 @@ type Westcliff struct {
 }
 
 func (self *Westcliff) BuildPiles() {
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 	switch self.variant {
 	case "Classic":
 		self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
@@ -135,7 +135,7 @@ func (*Westcliff) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColor)
 }
 
-func (self *Westcliff) TailTapped(tail []*Card) {
+func (self *Westcliff) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		switch self.variant {
@@ -147,7 +147,7 @@ func (self *Westcliff) TailTapped(tail []*Card) {
 			}
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

@@ -15,7 +15,7 @@ type Bisley struct {
 
 func (self *Bisley) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.foundations = nil
 
@@ -93,12 +93,12 @@ func (*Bisley) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownColor)
 }
 
-func (self *Bisley) TailTapped(tail []*Card) {
+func (self *Bisley) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.waste)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

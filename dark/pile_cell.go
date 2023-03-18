@@ -31,8 +31,8 @@ func (self *Cell) CanAcceptTail(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Cell) TailTapped(tail []*Card) {
-	self.pile.defaultTailTapped(tail)
+func (self *Cell) TailTapped(tail []*Card, nTarget int) {
+	self.pile.defaultTailTapped(tail, nTarget)
 }
 
 func (*Cell) Conformant() bool {
@@ -43,16 +43,6 @@ func (*Cell) unsortedPairs() int {
 	return 0
 }
 
-func (self *Cell) MovableTails() []*movableTail {
-	// nb same as Reserve.MovableTails
-	var tails []*movableTail = []*movableTail{}
-	if self.pile.Len() > 0 {
-		var card *Card = self.pile.peek()
-		var tail []*Card = []*Card{card}
-		var homes []*Pile = self.pile.baize.findHomesForTail(tail)
-		for _, home := range homes {
-			tails = append(tails, &movableTail{dst: home, tail: tail})
-		}
-	}
-	return tails
+func (self *Cell) MovableTails2() [][]*Card {
+	return self.pile.singleCardMovableTails()
 }

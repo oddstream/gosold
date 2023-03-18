@@ -43,35 +43,35 @@ func loadBytesFromFile(jsonFname string, leaveNoTrace bool) ([]byte, int, error)
 		log.Fatal("WASM detected")
 	}
 
-	path, err := fullPath(jsonFname)
+	pathName, err := fullPath(jsonFname)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	file, err := os.Open(path)
+	file, err := os.Open(pathName)
 	if err == nil && file != nil {
 		var bytes []byte
 		var count int
 		fi, err := file.Stat()
 		if err != nil {
-			log.Fatal(err, " getting FileInfo ", path)
+			log.Fatal(err, " getting FileInfo ", pathName)
 		}
 		if fi.Size() == 0 {
-			log.Print("empty file ", path)
+			log.Print("empty file ", pathName)
 		} else {
 			bytes = make([]byte, fi.Size()+8)
 			count, err = file.Read(bytes)
 			if err != nil {
-				log.Fatal(err, " reading ", path)
+				log.Fatal(err, " reading ", pathName)
 			}
 		}
 		err = file.Close()
 		if err != nil {
-			log.Fatal(err, " closing ", path)
+			log.Fatal(err, " closing ", pathName)
 		}
-		log.Println("loaded", path)
+		log.Println("loaded", pathName)
 		if leaveNoTrace {
-			os.Remove(path)
+			os.Remove(pathName)
 		}
 		return bytes, count, nil
 	}
@@ -85,14 +85,14 @@ func saveBytesToFile(bytes []byte, jsonFname string) {
 		log.Fatal("WASM detected")
 	}
 
-	path, err := fullPath(jsonFname)
+	pathName, err := fullPath(jsonFname)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	makeConfigDir()
 
-	file, err := os.Create(path)
+	file, err := os.Create(pathName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func saveBytesToFile(bytes []byte, jsonFname string) {
 		log.Fatal(err)
 	}
 
-	log.Println("saved", path)
+	log.Println("saved", pathName)
 }
 
 // Load statistics for all variants from JSON to an already-created Statistics object
@@ -152,7 +152,7 @@ func (b *Baize) load() {
 	if !b.isSavableStackOk(undoStack) {
 		log.Fatal("saved undo stack is not ok")
 	}
-	b.setUndoStack(undoStack)
+	b.replaceUndoStack(undoStack)
 	b.fnNotify(MessageEvent, fmt.Sprintf("Loaded a saved game of %s", b.variant))
 }
 

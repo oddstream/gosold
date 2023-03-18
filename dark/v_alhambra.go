@@ -15,7 +15,7 @@ type Alhambra struct {
 
 func (self *Alhambra) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 3}, FAN_NONE, 2, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 3})
 
 	// waste pile implemented as a tableau because cards may be built on it
 	self.tableaux = nil
@@ -91,12 +91,12 @@ func (*Alhambra) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownColor)
 }
 
-func (self *Alhambra) TailTapped(tail []*Card) {
+func (self *Alhambra) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.tableaux[0])
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

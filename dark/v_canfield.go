@@ -21,7 +21,7 @@ type Canfield struct {
 
 func (self *Canfield) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 
 	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
 
@@ -136,14 +136,14 @@ func (self *Canfield) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, self.tabCompareFunc)
 }
 
-func (self *Canfield) TailTapped(tail []*Card) {
+func (self *Canfield) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		for i := 0; i < self.draw; i++ {
 			moveCard(self.stock, self.waste)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

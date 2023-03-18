@@ -15,7 +15,7 @@ type Penguin struct {
 func (pen *Penguin) BuildPiles() {
 
 	// hidden (off-screen) stock
-	pen.stock = pen.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	pen.stock = pen.baize.NewStock(image.Point{-5, -5})
 	pen.waste = nil
 
 	// the flipper, seven cells
@@ -118,8 +118,8 @@ func (*Penguin) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.Compare_DownSuitWrap)
 }
 
-func (pen *Penguin) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (pen *Penguin) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (pen *Penguin) PileTapped(pile *Pile) {}

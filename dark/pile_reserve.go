@@ -22,8 +22,8 @@ func (*Reserve) CanAcceptTail(tail []*Card) (bool, error) {
 	return false, errors.New("Cannot add a card to a Reserve")
 }
 
-func (self *Reserve) TailTapped(tail []*Card) {
-	self.pile.defaultTailTapped(tail)
+func (self *Reserve) TailTapped(tail []*Card, nTarget int) {
+	self.pile.defaultTailTapped(tail, nTarget)
 }
 
 // Conformant when contains zero or one card(s), same as Waste
@@ -39,16 +39,6 @@ func (self *Reserve) unsortedPairs() int {
 	return self.pile.Len() - 1
 }
 
-func (self *Reserve) MovableTails() []*movableTail {
-	// nb same as Cell.MovableTails
-	var tails []*movableTail = []*movableTail{}
-	if self.pile.Len() > 0 {
-		var card *Card = self.pile.peek()
-		var tail []*Card = []*Card{card}
-		var homes []*Pile = self.pile.baize.findHomesForTail(tail)
-		for _, home := range homes {
-			tails = append(tails, &movableTail{dst: home, tail: tail})
-		}
-	}
-	return tails
+func (self *Reserve) MovableTails2() [][]*Card {
+	return self.pile.singleCardMovableTails()
 }

@@ -15,7 +15,7 @@ type MrsMop struct {
 
 func (self *MrsMop) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 2, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.discards = []*Pile{}
 	for x := 0; x < 4; x++ {
@@ -88,8 +88,8 @@ func (*MrsMop) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*MrsMop) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*MrsMop) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (*MrsMop) PileTapped(*Pile) {}

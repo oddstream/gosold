@@ -15,7 +15,7 @@ type Agnes struct {
 
 func (self *Agnes) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 	self.waste = nil
 
 	self.foundations = nil
@@ -101,14 +101,14 @@ func (*Agnes) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColorWrap)
 }
 
-func (self *Agnes) TailTapped(tail []*Card) {
+func (self *Agnes) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		for _, pile := range self.reserves {
 			moveCard(self.stock, pile)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.TailTapped(tail, nTarget)
 	}
 }
 

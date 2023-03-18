@@ -17,7 +17,7 @@ type scripter interface {
 	TailAppendError(*Pile, []*Card) (bool, error)
 	UnsortedPairs(*Pile) int
 
-	TailTapped([]*Card)
+	TailTapped([]*Card, int)
 	PileTapped(*Pile)
 
 	Cells() []*Pile
@@ -48,6 +48,7 @@ type scriptBase struct {
 	wikipedia    string
 	cardColors   int
 	packs, suits int
+	// could add suitFilter
 }
 
 // Fallback/default methods for a scripter interface //////////////////////////

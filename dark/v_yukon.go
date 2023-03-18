@@ -14,7 +14,7 @@ type Yukon struct {
 
 func (self *Yukon) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
@@ -85,8 +85,8 @@ func (*Yukon) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColor)
 }
 
-func (*Yukon) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*Yukon) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (*Yukon) PileTapped(*Pile) {}

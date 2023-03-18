@@ -18,7 +18,7 @@ func (self *Spiderette) BuildPiles() {
 		self.cardColors = 4
 	}
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, self.packs, self.suits, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 
 	self.discards = []*Pile{}
 	for x := 3; x < 7; x++ {
@@ -88,7 +88,7 @@ func (*Spiderette) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (self *Spiderette) TailTapped(tail []*Card) {
+func (self *Spiderette) TailTapped(tail []*Card, nTarget int) {
 	var pile *Pile = tail[0].owner()
 	switch pile.vtable.(type) {
 	case *Stock:
@@ -108,7 +108,7 @@ func (self *Spiderette) TailTapped(tail []*Card) {
 			}
 		}
 	default:
-		tail[0].owner().vtable.TailTapped(tail)
+		tail[0].owner().vtable.TailTapped(tail, nTarget)
 
 	}
 }

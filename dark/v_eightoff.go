@@ -13,7 +13,7 @@ type EightOff struct {
 
 func (self *EightOff) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.cells = nil
 	for x := 0; x < 8; x++ {
@@ -81,8 +81,8 @@ func (*EightOff) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*EightOff) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*EightOff) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (*EightOff) PileTapped(*Pile) {}

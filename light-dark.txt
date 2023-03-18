@@ -11,10 +11,65 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] packs, suits in ScriptBase AND Stock!?
+[x] only calc Baize crc when it's needed, only use Baize.crc in solver
 [ ] WASM
 [ ] Mirror Baize
 [x] dark makeTail failing after loading a game
 [x] recenter variant in toolbar after changing it
+
+TAP DESTINATIONS
+================
+foreach pile
+	Pile vtable MovableTails2() [][]*Card
+		if cell or reserve or waste or stock, make a []tail of just top card
+		if foundation or discard, make empty/nil tail
+		if tableau, return list of pile.canMoveTail/script.TailMoveError tails
+
+	consolidate the lists with Baize findAllMovableTails2()
+
+	foreach tail from above, make a list of piles where a tap would send that tail
+	using baize.findHomesForTail
+
+	so each card now has a list of tap destinations []{*Pile, Weight}
+	the list can be sorted into descending weight order
+
+SOLVER
+======
+
+put tapTargets in a map?
+Baize.tapTargets = map[cardid.CardID] (dst?, weight, *savedBaize)
+can't because Card will have >1 tapTarget
+
+could use the undo stack to probe tap targets
+and use another struct tree to record progress?
+struct would have children, savableBaize, percentComplete ...
+can move from current position to somewhere in the tree (auto move)
+
+card has []tapTarget
+tapTarget has *saveableBaize
+
+try using the undo stack
+	foreach tap target
+		push current baize
+		do move
+find tap targets, moves on Baize0
+foreach tap target
+	clone Baize0 -> Baize1
+	translate tap targets from Baize0 -> Baize1
+	make move
+
+for each card with a tapDestination
+	create/clone a child baize (Baize1) with depth+1, (and undoStack, fnNotify == nil)
+	make a note of the card to be tapped
+	make the tap move on Baize1
+	if the Baize1 crc already exists, disregard
+	record tapped card in Baize1
+	add Baize1 to Baize0 children slice
+	if percentComplete == 100%, stop
+
+find highest percentComplete in leaf node of children tree
+	follow parent links, extra-highlighting tappedCard in each parent
 
 Q&A
 ===

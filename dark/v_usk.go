@@ -20,7 +20,7 @@ type Usk struct {
 
 func (self *Usk) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{0, 0})
 
 	self.layout = []UskPileInfo{
 		{x: 0, n: 8},
@@ -101,8 +101,8 @@ func (*Usk) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColor)
 }
 
-func (*Usk) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*Usk) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 func (self *Usk) PileTapped(pile *Pile) {

@@ -14,7 +14,7 @@ type SimpleSimon struct {
 
 func (self *SimpleSimon) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.discards = []*Pile{}
 	for x := 3; x < 7; x++ {
@@ -86,8 +86,8 @@ func (*SimpleSimon) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*SimpleSimon) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*SimpleSimon) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (*SimpleSimon) PileTapped(*Pile) {}

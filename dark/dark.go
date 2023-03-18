@@ -11,6 +11,12 @@ package dark
 //		*dark struct, as created by NewDark()
 //	}
 
+var (
+	DebugMode bool
+	NoLoad    bool
+	NoSave    bool
+)
+
 // Darker is a public interface (published by this package) that
 // exposes methods to manipulate the outer layer of package dark.
 // The layers are: Darker>Baize>Pile>Card.

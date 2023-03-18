@@ -41,16 +41,10 @@ const (
 // Made public for now, but that may change.
 type pileVtabler interface {
 	CanAcceptTail([]*Card) (bool, error)
-	TailTapped([]*Card)
+	TailTapped([]*Card, int)
 	Conformant() bool
 	unsortedPairs() int
-	MovableTails() []*movableTail
-}
-
-// movableTail is used for collecting tap destinations
-type movableTail struct {
-	dst  *Pile
-	tail []*Card
+	MovableTails2() [][]*Card
 }
 
 // Pile holds the state of the piles and cards therein.
@@ -142,13 +136,6 @@ func (b *Baize) newPile(category string, slot image.Point, fanType FanType, move
 	return p
 }
 
-func (self *Pile) setLabel(label string) {
-	if self.label != label {
-		self.label = label
-		self.baize.fnNotify(LabelEvent, self)
-	}
-}
-
 func (self *Pile) fill(packs, suits int) int {
 	var count int = packs * suits * 13
 
@@ -173,6 +160,13 @@ func (self *Pile) fill(packs, suits int) int {
 func (self *Pile) shuffle() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	rand.Shuffle(self.Len(), self.Swap)
+}
+
+func (self *Pile) setLabel(label string) {
+	if self.label != label {
+		self.label = label
+		self.baize.fnNotify(LabelEvent, self)
+	}
 }
 
 // delete a *Card from this pile
@@ -307,13 +301,23 @@ func (self *Pile) makeTail(c *Card) []*Card {
 	return nil
 }
 
-func (self *Pile) defaultTailTapped(tail []*Card) {
+func (self *Pile) defaultTailTapped(tail []*Card, nTarget int) {
 	card := tail[0]
-	if card.tapDestination != nil {
+	if card.tapTargets != nil {
+		dst := card.tapTargets[nTarget].dst
 		if len(tail) == 1 {
-			moveCard(card.owner(), card.tapDestination)
+			moveCard(card.owner(), dst)
 		} else {
-			moveTail(card, card.tapDestination)
+			moveTail(card, dst)
 		}
 	}
+}
+
+func (self *Pile) singleCardMovableTails() [][]*Card {
+	if self.Len() > 0 {
+		var card *Card = self.peek()
+		var tail []*Card = []*Card{card}
+		return [][]*Card{tail}
+	}
+	return nil
 }

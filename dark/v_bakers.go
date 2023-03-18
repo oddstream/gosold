@@ -14,7 +14,7 @@ type BakersDozen struct {
 
 func (self *BakersDozen) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5}, FAN_NONE, 1, 4, nil, 0)
+	self.stock = self.baize.NewStock(image.Point{-5, -5})
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
@@ -74,8 +74,8 @@ func (*BakersDozen) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*BakersDozen) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+func (*BakersDozen) TailTapped(tail []*Card, nTarget int) {
+	tail[0].owner().vtable.TailTapped(tail, nTarget)
 }
 
 // func (*BakersDozen) PileTapped(*Pile) {}

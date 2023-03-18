@@ -36,7 +36,7 @@ func (self *Discard) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailMoveError(tail)
 }
 
-func (*Discard) TailTapped([]*Card) {
+func (*Discard) TailTapped([]*Card, int) {
 	// do nothing
 }
 
@@ -53,6 +53,6 @@ func (*Discard) unsortedPairs() int {
 	return 0
 }
 
-func (*Discard) MovableTails() []*movableTail {
+func (*Discard) MovableTails2() [][]*Card {
 	return nil
 }

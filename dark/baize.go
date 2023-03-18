@@ -6,7 +6,9 @@ import (
 	"errors"
 	"hash/crc32"
 	"log"
+	"sort"
 
+	"oddstream.games/gosold/cardid"
 	"oddstream.games/gosold/util"
 )
 
@@ -14,15 +16,28 @@ import (
 // Baize is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Baize object as immutable, hence the unexported fields and getters.
 type Baize struct {
-	dark      *dark // link back to dark for statistics
-	variant   string
+	dark         *dark  // link back to dark for statistics
+	variant      string // needed by stats (could fix this)
+	pilesToCheck []*Pile
+
+	// members needed by solver
 	script    scripter
 	cardCount int
 	piles     []*Pile // needed by LIGHT to display piles and cards
 	recycles  int     // needed by LIGHT to determine Stock rune
-	bookmark  int     // needed by LIGHT to grey out goto bookmark menu item
-	moves     int     // count of all available card moves
-	fmoves    int     // count of available moves to foundation
+	percent   int     // needed by LIGHT to display in status bar
+
+	// members specific to solver
+	depth      int
+	parent     *Baize
+	children   []*Baize
+	crc        uint32
+	tappedCard cardid.CardID
+
+	// members that are needed by LIGHT
+	bookmark  int // needed by LIGHT to grey out goto bookmark menu item
+	moves     int // count of all available card moves
+	fmoves    int // count of available moves to foundation
 	undoStack []*savableBaize
 	fnNotify  func(BaizeEvent, any)
 	BaizeSettings
@@ -39,7 +54,7 @@ const (
 )
 
 type BaizeSettings struct {
-	PowerMoves, SafeCollect, AutoCollect bool
+	PowerMoves, SafeCollect bool
 }
 
 // NewBaize creates a new Baize object
@@ -52,9 +67,29 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	b := &Baize{dark: d, variant: variant, script: script, fnNotify: fnNotify}
 	b.script.SetBaize(b)
 	b.script.BuildPiles()
+	// BuildPiles() must not create or move any cards
+	// so fill and shuffle Stock here
+	{
+		stock := b.script.Stock()
+		b.cardCount = stock.fill(b.script.Packs(), b.script.Suits())
+		stock.shuffle()
+	}
+	b.pilesToCheck = []*Pile{}
+	b.pilesToCheck = append(b.pilesToCheck, b.script.Foundations()...)
+	b.pilesToCheck = append(b.pilesToCheck, b.script.Tableaux()...)
+	b.pilesToCheck = append(b.pilesToCheck, b.script.Cells()...)
+	b.pilesToCheck = append(b.pilesToCheck, b.script.Discards()...)
+	if b.script.Waste() != nil {
+		// in Go 1.19, append will add a nil
+		// in Go 1.17, nil was not appended?
+		b.pilesToCheck = append(b.pilesToCheck, b.script.Waste())
+	}
+
 	b.script.StartGame()
+	// NOT calling afterChange() here; we don't want the notification sent
 	b.undoPush()
-	b.findDestinations()
+	b.findTapTargets()
+	b.percent = b.percentComplete()
 	return b, nil
 }
 
@@ -93,23 +128,13 @@ func (b *Baize) LoadPosition() (bool, error) {
 		}
 	}
 	b.updateFromSavable(sav)
-	b.undoPush() // replace current state
-	b.findDestinations()
-	b.fnNotify(ChangedEvent, nil)
+	b.undoPush()
+	b.afterChange()
 	return true, nil
 }
 
-// PercentComplete used to display in status bar
 func (b *Baize) PercentComplete() int {
-	var pairs, unsorted, percent int
-	for _, p := range b.piles {
-		if p.Len() > 1 {
-			pairs += p.Len() - 1
-		}
-		unsorted += p.vtable.unsortedPairs()
-	}
-	percent = (int)(100.0 - util.MapValue(float64(unsorted), 0, float64(pairs), 0.0, 100.0))
-	return percent
+	return b.percent
 }
 
 // Piles returns the slice of Piles
@@ -120,9 +145,9 @@ func (b *Baize) Piles() []*Pile {
 // PileTapped called by client when a pile - usually stock - has been tapped
 func (b *Baize) PileTapped(pile *Pile) bool {
 	cardsMoved := false
-	crc := b.crc()
+	oldCRC := b.calcCRC()
 	b.script.PileTapped(pile)
-	if crc != b.crc() {
+	if b.calcCRC() != oldCRC {
 		b.afterUserMove()
 		cardsMoved = true
 		b.fnNotify(ChangedEvent, nil)
@@ -176,8 +201,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	b.script.Stock().shuffle()
 	b.script.StartGame()
 	b.undoPush()
-	b.findDestinations()
-	b.fnNotify(ChangedEvent, nil)
+	b.afterChange()
 	return true, nil
 }
 
@@ -195,21 +219,24 @@ func (b *Baize) RestartDeal() (bool, error) {
 	}
 	b.updateFromSavable(sav)
 	b.bookmark = 0 // do this AFTER UpdateFromSavable
-	b.undoPush()   // replace current state
-	b.findDestinations()
-	b.fnNotify(ChangedEvent, nil)
+	b.undoPush()
+	b.afterChange()
 	return true, nil
 }
 
 func (b *Baize) Load() {
 	// pearl from the mudbank:
 	// don't do a crc check here; send the change notify in all cases
-	b.load()
-	b.fnNotify(ChangedEvent, nil)
+	if !NoLoad {
+		b.load()
+		b.fnNotify(ChangedEvent, nil)
+	}
 }
 
 func (b *Baize) Save() {
-	b.save()
+	if !NoSave {
+		b.save()
+	}
 }
 
 // SavePosition sets the bookmark to the current baize position
@@ -246,13 +273,13 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 			if ok, err = b.script.TailMoveError(tail); !ok {
 				return false, err
 			} else {
-				crc := b.crc()
+				oldCRC := b.calcCRC()
 				if len(tail) == 1 {
 					moveCard(src, dst)
 				} else {
 					moveTail(tail[0], dst)
 				}
-				if crc != b.crc() {
+				if b.calcCRC() != oldCRC {
 					b.afterUserMove()
 					b.fnNotify(ChangedEvent, nil)
 				}
@@ -270,21 +297,23 @@ func (b *Baize) CardDragged(src *Pile, card *Card, dst *Pile) (bool, error) {
 
 // TailTapped called by client when a card/tail has been tapped.
 // returns true if cards have been moved.
-func (b *Baize) TailTapped(tail []*Card) bool {
+func (b *Baize) TailTapped(tail []*Card, nTarget int) bool {
 	cardsMoved := false
-	crc := b.crc()
-	b.script.TailTapped(tail)
-	if crc != b.crc() {
+	oldCRC := b.calcCRC()
+	b.script.TailTapped(tail, nTarget)
+	if b.calcCRC() != oldCRC {
 		b.afterUserMove()
 		cardsMoved = true
-		b.fnNotify(ChangedEvent, nil)
+		if b.fnNotify != nil {
+			b.fnNotify(ChangedEvent, nil)
+		}
 	}
 	return cardsMoved
 }
 
-func (b *Baize) CardTapped(card *Card) bool {
+func (b *Baize) CardTapped(card *Card, nTarget int) bool {
 	tail := card.pile.makeTail(card)
-	return b.TailTapped(tail)
+	return b.TailTapped(tail, nTarget)
 }
 
 func (b *Baize) Undo() (bool, error) {
@@ -304,9 +333,8 @@ func (b *Baize) Undo() (bool, error) {
 		log.Panic("error popping second state from undo stack")
 	}
 	b.updateFromSavable(sav)
-	b.undoPush() // replace current state
-	b.findDestinations()
-	b.fnNotify(ChangedEvent, nil)
+	b.undoPush()
+	b.afterChange()
 	return true, nil
 }
 
@@ -405,7 +433,20 @@ func (b *Baize) reset() {
 	b.bookmark = 0
 }
 
-func (b *Baize) crc() uint32 {
+// percentComplete used to display in status bar, and as postive progress in solver
+func (b *Baize) percentComplete() int {
+	var pairs, unsorted, percent int
+	for _, p := range b.piles {
+		if p.Len() > 1 {
+			pairs += p.Len() - 1
+		}
+		unsorted += p.vtable.unsortedPairs()
+	}
+	percent = (int)(100.0 - util.MapValue(float64(unsorted), 0, float64(pairs), 0.0, 100.0))
+	return percent
+}
+
+func (b *Baize) calcCRC() uint32 {
 	/*
 		var crc uint = 0xFFFFFFFF
 		var mask uint
@@ -416,7 +457,8 @@ func (b *Baize) crc() uint32 {
 				crc = (crc >> 1) ^ (0xEDB88320 & mask)
 			}
 		}
-		return ^crc // bitwise NOT
+		crc = ^crc // bitwise NOT
+		return uint32(crc)
 	*/
 	var arr []byte // = []byte{byte(b.recycles)}
 	for _, p := range b.piles {
@@ -441,21 +483,29 @@ func (b *Baize) setRecycles(recycles int) {
 	}
 }
 
+func (b *Baize) afterChange() {
+	b.findTapTargets()
+	b.percent = b.percentComplete()
+	b.fnNotify(ChangedEvent, nil)
+}
+
 func (b *Baize) afterUserMove() {
 	b.script.AfterMove()
 	b.undoPush()
-	b.findDestinations()
+	b.afterChange()
 	if b.Complete() {
 		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
 		b.fnNotify(WonEvent, nil)
 	}
 }
 
-func (b *Baize) setUndoStack(undoStack []*savableBaize) {
+func (b *Baize) replaceUndoStack(undoStack []*savableBaize) {
 	b.undoStack = undoStack
 	sav := b.undoPeek()
 	b.updateFromSavable(sav)
-	b.findDestinations()
+	// NOT calling undoPush() here
+	// because undo stack is replaced by the loaded one
+	b.afterChange()
 }
 
 func (b *Baize) calcPowerMoves(pDraggingTo *Pile) int {
@@ -513,46 +563,6 @@ func (b *Baize) doingSafeCollect() (bool, int) {
 	return true, lowest + 1
 }
 
-func (b *Baize) findHomesForTail(tail []*Card) []*Pile {
-	var homes []*Pile
-
-	var card = tail[0]
-	var src = card.owner()
-	// can the tail be moved in general?
-	if ok, _ := src.canMoveTail(tail); !ok {
-		return homes
-	}
-
-	// is the tail conformant enough to move?
-	if ok, _ := b.script.TailMoveError(tail); !ok {
-		return homes
-	}
-
-	var pilesToCheck []*Pile = []*Pile{}
-	pilesToCheck = append(pilesToCheck, b.script.Foundations()...)
-	pilesToCheck = append(pilesToCheck, b.script.Tableaux()...)
-	pilesToCheck = append(pilesToCheck, b.script.Cells()...)
-	pilesToCheck = append(pilesToCheck, b.script.Discards()...)
-	if b.script.Waste() != nil {
-		// in Go 1.19, append will add a nil
-		// in Go 1.17, nil was not appended?
-		pilesToCheck = append(pilesToCheck, b.script.Waste())
-	}
-
-	for _, dst := range pilesToCheck {
-		// if !dst.Valid() {
-		// 	log.Println("Destination pile not valid", dst)
-		// }
-		if dst != src {
-			if ok, _ := dst.vtable.CanAcceptTail(tail); ok {
-				homes = append(homes, dst)
-			}
-		}
-	}
-
-	return homes
-}
-
 // foreachCard applys a function to each card
 func (b *Baize) foreachCard(fn func(*Card)) {
 	for _, p := range b.piles {
@@ -562,30 +572,94 @@ func (b *Baize) foreachCard(fn func(*Card)) {
 	}
 }
 
-// findAllMovableTails helper function for findDestinations.
-func (b *Baize) findAllMovableTails() []*movableTail {
-	var tails = []*movableTail{}
+func (b *Baize) findAllMovableTails2() [][]*Card {
+	var tails [][]*Card
 	for _, p := range b.piles {
-		var t2 []*movableTail = p.vtable.MovableTails()
-		if len(t2) > 0 {
-			tails = append(tails, t2...)
+		if ptails := p.vtable.MovableTails2(); ptails != nil {
+			tails = append(tails, ptails...)
 		}
 	}
 	return tails
 }
 
-// FindDestinations sets Baize.moves, Baize.fmoves, Card.destinations
-func (b *Baize) findDestinations() {
-	b.moves, b.fmoves = 0, 0
+func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 
-	// Golang gotcha:
-	// Go uses a copy of the value instead of the value itself within a range clause.
-	// fine for pointers, be careful with objects
-	// for _, c := range CardLibrary {
-	// 	c.movable = false
-	// }
-	// https://medium.com/@betable/3-go-gotchas-590b8c014e0a
-	b.foreachCard(func(c *Card) { c.tapDestination = nil; c.tapWeight = 0 })
+	for _, tail := range tails {
+		// we already know this tail is movable, both at pile-type and script level
+		headCard := tail[0]
+		src := headCard.pile
+		for _, dst := range b.pilesToCheck {
+			if dst == src {
+				continue
+			}
+			if ok, _ := dst.vtable.CanAcceptTail(tail); ok {
+				// moving an full tail from one pile to another empty pile of the same type is pointless
+				// eg Cell to Cell or Tableau to Tableau
+				if dst.Len() == 0 && src.Len() == len(tail) && src.label == dst.label && src.category == dst.category {
+					continue
+				}
+				// filter out case of, for example, moving a single card from
+				// tableau to any of four different empty cells; just record one
+				if dst.Len() == 0 && len(tail) == 1 {
+					if dst.category == "Cell" || dst.category == "Tableau" || dst.category == "Foundation" {
+						// if slices.ContainsFunc(headCard.tapTargets, func(tt tapTarget) bool { return tt.dst.category == dst.category }) {
+						// 	continue
+						// }
+						contains := false
+						for _, tt := range headCard.tapTargets {
+							if tt.dst.category == dst.category {
+								contains = true
+								break
+							}
+						}
+						if contains {
+							continue
+						}
+					}
+				}
+				var weight int16
+				switch dst.vtable.(type) {
+				case *Cell:
+					weight = 1
+				case *Tableau:
+					if dst.Empty() {
+						if dst.Label() != "" {
+							weight = 2
+						} else {
+							weight = 1
+						}
+					} else if dst.peek().Suit() == headCard.Suit() {
+						// Simple Simon, Spider
+						weight = 3
+					} else {
+						weight = 2
+					}
+				case *Foundation, *Discard:
+					// moves to Foundation get priority when card is tapped
+					weight = 4
+				default:
+					weight = 1
+				}
+				headCard.tapTargets = append(headCard.tapTargets, tapTarget{dst: dst, weight: weight})
+			}
+		}
+	}
+}
+
+func (b *Baize) sortTapTargets() {
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			if c.tapTargets == nil {
+				continue
+			}
+			// sort so highest weight comes first
+			sort.Slice(c.tapTargets, func(i, j int) bool { return c.tapTargets[i].weight > c.tapTargets[j].weight })
+		}
+	}
+}
+
+func (b *Baize) countMoves() {
+	b.moves, b.fmoves = 0, 0
 
 	if !b.script.Stock().Hidden() {
 		if b.script.Stock().Empty() {
@@ -602,49 +676,28 @@ func (b *Baize) findDestinations() {
 		}
 	}
 
-	for _, mc := range b.findAllMovableTails() {
-		movable := true
-		card := mc.tail[0]
-		src := card.owner()
-		dst := mc.dst
-		// moving an full tail from one pile to another empty pile is pointless
-		if dst.Len() == 0 && len(mc.tail) == len(src.cards) {
-			if src.label == dst.label && src.category == dst.category {
-				movable = false
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			if c.tapTargets == nil {
+				continue
 			}
-		}
-		if movable {
-			b.moves++
-			if _, ok := dst.vtable.(*Foundation); ok {
-				b.fmoves++
-			}
-			var weight int
-			switch dst.vtable.(type) {
-			case *Cell:
-				weight = 1
-			case *Tableau:
-				if dst.Empty() {
-					if dst.Label() != "" {
-						weight = 2
-					} else {
-						weight = 1
-					}
-				} else if dst.peek().Suit() == card.Suit() {
-					// Simple Simon, Spider
-					weight = 3
-				} else {
-					weight = 2
+			for _, tt := range c.tapTargets {
+				b.moves++
+				if _, ok := tt.dst.vtable.(*Foundation); ok {
+					b.fmoves++
 				}
-			case *Foundation, *Discard:
-				// moves to Foundation get priority when card is tapped
-				weight = 4
-			default:
-				weight = 1
-			}
-			if weight > card.tapWeight {
-				card.tapDestination = dst
-				card.tapWeight = weight
 			}
 		}
 	}
+
+}
+
+func (b *Baize) findTapTargets() {
+
+	// TODO save this in Baize and calculate after script.BuildPiles()
+	b.foreachCard(func(c *Card) { c.tapTargets = nil })
+	var tails [][]*Card = b.findAllMovableTails2()
+	b.findTargetsForAllMovableTails2(tails) // adds tapTargets to movable cards
+	b.sortTapTargets()
+	b.countMoves()
 }

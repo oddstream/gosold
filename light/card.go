@@ -336,9 +336,10 @@ func (c *card) draw(screen *ebiten.Image) {
 			// nb this will color all the stock cards, not just the top card
 			img = MovableCardBackImage
 		} else {
-			if !c.flipping() && c.darkCard.TapWeight() != 0 {
+			var weight int16 = c.darkCard.TapWeight2()
+			if !c.flipping() && weight != 0 {
 				// c.destinations has been sorted so weightiest is first
-				switch c.darkCard.TapWeight() {
+				switch weight {
 				case 1: // Cell
 					op.ColorM.Scale(1.0, 1.0, 0.9, 1)
 				case 2: // Normal

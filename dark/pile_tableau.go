@@ -49,8 +49,8 @@ func (self *Tableau) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
-func (self *Tableau) TailTapped(tail []*Card) {
-	self.pile.defaultTailTapped(tail)
+func (self *Tableau) TailTapped(tail []*Card, nTarget int) {
+	self.pile.defaultTailTapped(tail, nTarget)
 }
 
 func (self *Tableau) Conformant() bool {
@@ -62,20 +62,18 @@ func (self *Tableau) unsortedPairs() int {
 	return self.pile.baize.script.UnsortedPairs(self.pile)
 }
 
-func (self *Tableau) MovableTails() []*movableTail {
-	var tails []*movableTail = []*movableTail{}
+func (self *Tableau) MovableTails2() [][]*Card {
 	if self.pile.Len() > 0 {
+		var tails [][]*Card
 		for _, card := range self.pile.cards {
 			var tail = self.pile.makeTail(card)
 			if ok, _ := self.pile.canMoveTail(tail); ok {
 				if ok, _ := self.pile.baize.script.TailMoveError(tail); ok {
-					var homes []*Pile = self.pile.baize.findHomesForTail(tail)
-					for _, home := range homes {
-						tails = append(tails, &movableTail{dst: home, tail: tail})
-					}
+					tails = append(tails, tail)
 				}
 			}
 		}
+		return tails
 	}
-	return tails
+	return nil
 }
