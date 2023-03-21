@@ -70,7 +70,7 @@ func (p *pile) sizeWithFanFactor(fanFactor float64) int {
 	case dark.FAN_DOWN:
 		for i := 0; i < len(p.cards)-1; i++ {
 			c := p.cards[i]
-			if c.darkCard.Prone() {
+			if c.pile.baize.darkBaize.IsCardProne(c.id) {
 				max += int(float64(CardHeight) / CARD_BACK_FAN_FACTOR)
 			} else {
 				max += int(float64(CardHeight) / fanFactor)
@@ -80,7 +80,7 @@ func (p *pile) sizeWithFanFactor(fanFactor float64) int {
 	case dark.FAN_LEFT, dark.FAN_RIGHT:
 		for i := 0; i < len(p.cards)-1; i++ {
 			c := p.cards[i]
-			if c.darkCard.Prone() {
+			if c.pile.baize.darkBaize.IsCardProne(c.id) {
 				max += int(float64(CardWidth) / CARD_BACK_FAN_FACTOR)
 			} else {
 				max += int(float64(CardWidth) / fanFactor)

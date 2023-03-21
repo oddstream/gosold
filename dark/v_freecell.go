@@ -118,8 +118,8 @@ func (self *Freecell) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, self.tabCompareFunc)
 }
 
-func (*Freecell) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*Freecell) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (*Freecell) PileTapped(*Pile) {}

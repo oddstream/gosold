@@ -6,16 +6,16 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"oddstream.games/gosold/dark"
+	"oddstream.games/gosold/cardid"
 	"oddstream.games/gosold/util"
 )
 
 type card struct {
-	darkCard *dark.Card
-	pile     *pile
+	id   cardid.CardID
+	pile *pile
 
-	// prone flag for displayed card
-	prone bool
+	// lightProne flag for displayed card
+	lightProne bool
 	// pos of card on light.baize
 	pos image.Point
 
@@ -39,10 +39,6 @@ type card struct {
 	directionX, directionY int     // direction vector when card is spinning
 	angle, spin            float64 // current angle and spin when card is spinning
 	spinStartAfter         time.Time
-}
-
-func newCard(darkCard *dark.Card) *card {
-	return &card{darkCard: darkCard} // pos will start at 0,0
 }
 
 // baizePos returns the x,y baize coords of this card
@@ -149,12 +145,6 @@ func (c *card) startFlip() {
 	c.flipWidth = 1.0    // card starts full width
 	c.flipDirection = -1 // start by making card narrower
 	c.flipStartTime = time.Now()
-}
-
-// flip the card because darkCard prone != local prone
-func (c *card) flip() {
-	c.prone = c.darkCard.Prone()
-	c.startFlip()
 }
 
 // startSpinning tells the card to start spinning
@@ -272,18 +262,18 @@ func (c *card) draw(screen *ebiten.Image) {
 	var img *ebiten.Image
 	// card prone has already been set to destination state
 	if c.flipDirection < 0 {
-		if c.prone {
+		if c.lightProne {
 			// card is getting narrower, and it's going to show face down, but show face up
-			img = TheCardFaceImageLibrary[(c.darkCard.Suit()*13)+(c.darkCard.Ordinal()-1)]
+			img = TheCardFaceImageLibrary[(c.id.Suit()*13)+(c.id.Ordinal()-1)]
 		} else {
 			// card is getting narrower, and it's going to show face up, but show face down
 			img = CardBackImage
 		}
 	} else {
-		if c.prone {
+		if c.lightProne {
 			img = CardBackImage
 		} else {
-			img = TheCardFaceImageLibrary[(c.darkCard.Suit()*13)+(c.darkCard.Ordinal()-1)]
+			img = TheCardFaceImageLibrary[(c.id.Suit()*13)+(c.id.Ordinal()-1)]
 		}
 	}
 
@@ -300,9 +290,9 @@ func (c *card) draw(screen *ebiten.Image) {
 		op.GeoM.Translate(float64(CardWidth/2), float64(CardHeight/2))
 
 		// naughty to do this here instead of Update(), but Draw() knows the screen dimensions and Update() doesn't
-		w, h := screen.Size()
-		w -= c.pile.baize.dragOffset.X
-		h -= c.pile.baize.dragOffset.Y
+		// w, h := screen.Size()
+		w := screen.Bounds().Dx() - c.pile.baize.dragOffset.X
+		h := screen.Bounds().Dy() - c.pile.baize.dragOffset.Y
 		switch {
 		case c.pos.X+CardWidth > w:
 			c.directionX = -rand.Intn(5)
@@ -336,18 +326,17 @@ func (c *card) draw(screen *ebiten.Image) {
 			// nb this will color all the stock cards, not just the top card
 			img = MovableCardBackImage
 		} else {
-			var weight int16 = c.darkCard.TapWeight2()
+			var weight int16 = c.pile.baize.darkBaize.CardTapWeight(c.id)
 			if !c.flipping() && weight != 0 {
-				// c.destinations has been sorted so weightiest is first
 				switch weight {
 				case 1: // Cell
-					op.ColorM.Scale(1.0, 1.0, 0.9, 1)
+					op.ColorScale.Scale(1.0, 1.0, 0.9, 1)
 				case 2: // Normal
-					op.ColorM.Scale(1.0, 1.0, 0.8, 1)
+					op.ColorScale.Scale(1.0, 1.0, 0.8, 1)
 				case 3: // Suit match
-					op.ColorM.Scale(1.0, 1.0, 0.7, 1)
+					op.ColorScale.Scale(1.0, 1.0, 0.7, 1)
 				case 4: // Discard or Foundation
-					op.ColorM.Scale(1.0, 1.0, 0.6, 1)
+					op.ColorScale.Scale(1.0, 1.0, 0.6, 1)
 				}
 			}
 		}
@@ -355,5 +344,8 @@ func (c *card) draw(screen *ebiten.Image) {
 
 	if img != nil {
 		screen.DrawImage(img, op)
+		// if c.darkCard.TapWeight() > 0 {
+		// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d%%", c.darkCard.TapPercent()), c.pos.X+c.pile.baize.dragOffset.X, c.pos.Y+c.pile.baize.dragOffset.Y)
+		// }
 	}
 }

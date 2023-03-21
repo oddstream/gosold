@@ -17,7 +17,7 @@ type scripter interface {
 	TailAppendError(*Pile, []*Card) (bool, error)
 	UnsortedPairs(*Pile) int
 
-	TailTapped([]*Card, int)
+	TailTapped([]*Card)
 	PileTapped(*Pile)
 
 	Cells() []*Pile

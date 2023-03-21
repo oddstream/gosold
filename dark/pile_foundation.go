@@ -32,7 +32,7 @@ func (self *Foundation) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
-func (*Foundation) TailTapped([]*Card, int) {}
+func (*Foundation) TailTapped([]*Card) {}
 
 func (*Foundation) Conformant() bool {
 	return true

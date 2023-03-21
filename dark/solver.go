@@ -1,7 +1,12 @@
 package dark
 
-import "log"
+import (
+	"log"
 
+	"oddstream.games/gosold/cardid"
+)
+
+/*
 func (b *Baize) createChild() *Baize {
 	if b.crc == 0 {
 		println("parent crc not set")
@@ -10,7 +15,7 @@ func (b *Baize) createChild() *Baize {
 	child := &Baize{
 		dark:       b.dark,
 		variant:    b.variant,
-		script:     b.script,
+		script:     variants[b.variant],
 		cardCount:  b.cardCount,
 		piles:      make([]*Pile, 0, len(b.piles)),
 		recycles:   b.recycles,
@@ -18,11 +23,10 @@ func (b *Baize) createChild() *Baize {
 		crc:        b.crc,
 		depth:      b.depth + 1,
 		parent:     b,
-		children:   []*Baize{},
 		tappedCard: 0,
-		bookmark:   0,
-		moves:      0,
-		fmoves:     0,
+		bookmark:   b.bookmark,
+		moves:      b.moves,
+		fmoves:     b.fmoves,
 		undoStack:  []*savableBaize{},
 		fnNotify: func(evt BaizeEvent, data any) {
 		},
@@ -61,23 +65,15 @@ func (b *Baize) createChild() *Baize {
 	if child.crc != b.crc {
 		println("createChild crc mismatch child:", child.crc, "parent:", b.crc)
 	}
+
+	child.setupPilesToCheck()
 	child.findTapTargets()
 	// child.tappedCard will be added later
 	return child
 }
+*/
 
-func (b *Baize) findCRC(crc uint32) bool {
-	// if b.crc == crc {
-	// 	return true
-	// }
-	// for _, child := range b.children {
-	// 	if child.findCRC(crc) {
-	// 		return true
-	// 	}
-	// }
-	return false
-}
-
+/*
 func countTargets(b *Baize) int {
 	targets := 0
 	for _, p := range b.piles {
@@ -90,42 +86,46 @@ func countTargets(b *Baize) int {
 	}
 	return targets
 }
+*/
 
-func solve(root *Baize, b *Baize, depth int) {
-	if b.depth > depth || b.percent >= 100 {
-		println("limit reached", b.depth, b.percent)
+/*
+func solve(root *Baize, b0 *Baize, depth int) {
+	if b0.depth > depth || b0.percent >= 100 {
+		println("limit reached", b0.depth, b0.percent)
 		return
 	}
-	if b.moves == 0 {
+	if b0.moves == 0 {
 		println("stuck")
 		return
 	}
-	println("depth:", b.depth, "moves:", b.moves)
-
-	println("parent has", countTargets(b), "tap targets")
+	println("b0 depth:", b0.depth, "moves:", b0.moves)
+	println("b0 has", countTargets(b0), "tap targets")
 
 	root.crc = root.calcCRC()
 
-	b1 := b.createChild()
-	println("child has", countTargets(b1), "tap targets")
-
 	// for each card with tap targets
-	for _, p := range b1.piles {
-		for _, c := range p.cards {
-			for nTapTarget := range c.tapTargets {
-				tail := p.makeTail(c)
+	for ip0, p0 := range b0.piles {
+		for ic0, c0 := range p0.cards {
+			for nTapTarget := range c0.tapTargets {
+				b1 := b0.createChild()
+				p1 := b1.piles[ip0]
+				c1 := p1.cards[ic0]
+				if c0.id != c1.id {
+					println("oops - cards are not the same")
+				}
+				tail := p1.makeTail(c1)
 				oldCRC := b1.calcCRC()
 				// move tail to a pre-determined destination
 				b1.script.TailTapped(tail, nTapTarget)
 				if b1.calcCRC() == oldCRC {
-					println("nothing changed!")
+					println(ip0, ic0, "nothing changed!")
 				} else {
+					c0.tapTargets[nTapTarget].baize = b1
 					// println("baize changed")
 					// the tap caused the baize to change
 					b1.script.AfterMove()
 					b1.percent = b1.percentComplete()
-					b1.tappedCard = c.id
-					b.children = append(b.children, b1)
+					b1.tappedCard = c1.id
 					// solve(root, b1, depth)
 				}
 			}
@@ -133,16 +133,111 @@ func solve(root *Baize, b *Baize, depth int) {
 	}
 
 }
+*/
 
-func display(b *Baize) {
-	log.Printf("depth %d complete %d%%", b.depth, b.percent)
-	for _, b1 := range b.children {
-		display(b1)
+type tapNode struct {
+	cid      cardid.CardID
+	percent  int
+	depth    int
+	crc      uint32
+	children []*tapNode
+}
+
+func (b *Baize) solve2(tn *tapNode, maxDepth int) {
+	if tn.depth > maxDepth {
+		// println("max depth reached")
+		return
+	}
+	if b.moves == 0 {
+		println("no moves")
+		return
+	}
+	// create a list of all the tap cards in this baize
+	// because cards will be destroyed/recreated by undo
+	var tapTargets []cardid.CardID = []cardid.CardID{}
+	b.foreachCard(func(c *Card) {
+		if c.tapTarget.dst != nil {
+			tapTargets = append(tapTargets, c.id)
+		}
+	})
+	// println(len(tapTargets), "tap targets found in baize")
+
+	sb := b.newSavableBaize()
+	oldPercent := b.percent
+
+	for i := range tapTargets {
+		c := b.findCard(tapTargets[i])
+		tail := c.owner().makeTail(c)
+
+		// make the move
+		b.script.TailTapped(tail)
+		b.script.AfterMove()
+		b.findTapTargets()
+		b.percent = b.percentComplete()
+
+		// we now have a new baize
+		// create a child node with result of this move
+		var node tapNode = tapNode{
+			cid:      tapTargets[i],
+			percent:  b.percent,
+			depth:    tn.depth + 1,
+			crc:      b.calcCRC(),
+			children: []*tapNode{},
+		}
+		tn.children = append(tn.children, &node)
+
+		// go find children of this node
+		// b.solve2(&node, maxDepth)
+
+		// revert baize to it's starting state
+		b.updateFromSavable(sb)
+		b.findTapTargets()
+		b.percent = oldPercent
 	}
 }
 
-func (b *Baize) Solve(depth int) {
-	b.children = nil
-	solve(b, b, depth)
-	display(b)
+func display(tn *tapNode) {
+	log.Printf("depth %d complete %d%%", tn.depth, tn.percent)
+	for _, tc := range tn.children {
+		display(tc)
+	}
+}
+
+func countNodes(tn *tapNode, pcount *int) {
+	*pcount++
+	for _, tc := range tn.children {
+		countNodes(tc, pcount)
+	}
+}
+
+func maxPercent(tn *tapNode, pmax *int) {
+	if tn.percent > *pmax {
+		*pmax = tn.percent
+	}
+	for _, tc := range tn.children {
+		maxPercent(tc, pmax)
+	}
+}
+
+func (b *Baize) sanity() {
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			if c.pile != p {
+				println("insanity at", p.category, c.String())
+			}
+		}
+	}
+}
+
+func (b *Baize) Solve(maxDepth int) {
+	var tn *tapNode = &tapNode{} // root node will be empty/dummy, except for children
+	b.solve2(tn, maxDepth)
+	var count int
+	countNodes(tn, &count)
+	var percent int
+	maxPercent(tn, &percent)
+	println("max depth", maxDepth, "nodes", count, "max percent", percent)
+	// display(tapTree)
+	b.findTapTargets()
+	b.sanity()
 }

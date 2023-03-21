@@ -88,8 +88,8 @@ func (*MrsMop) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*MrsMop) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*MrsMop) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (*MrsMop) PileTapped(*Pile) {}

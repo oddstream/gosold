@@ -49,8 +49,8 @@ func (self *Tableau) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
-func (self *Tableau) TailTapped(tail []*Card, nTarget int) {
-	self.pile.defaultTailTapped(tail, nTarget)
+func (self *Tableau) TailTapped(tail []*Card) {
+	self.pile.defaultTailTapped(tail)
 }
 
 func (self *Tableau) Conformant() bool {

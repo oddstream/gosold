@@ -22,7 +22,7 @@ func (*Stock) CanAcceptTail([]*Card) (bool, error) {
 	return false, errors.New("Cannot move cards to the Stock")
 }
 
-func (*Stock) TailTapped([]*Card, int) {
+func (*Stock) TailTapped([]*Card) {
 	// do nothing, handled by script, which had first dibs
 }
 

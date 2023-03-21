@@ -74,8 +74,8 @@ func (*BakersDozen) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*BakersDozen) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*BakersDozen) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (*BakersDozen) PileTapped(*Pile) {}

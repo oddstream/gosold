@@ -34,6 +34,8 @@ func main() {
 		}
 	}
 
+	ebiten.SetScreenClearedEveryFrame(false)
+
 	// ebiten panics if a window to maximize is not resizable
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	if ebiten.IsWindowMaximized() || ebiten.IsWindowMinimized() {

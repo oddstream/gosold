@@ -164,8 +164,8 @@ func (self *Antares) UnsortedPairs(pile *Pile) int {
 	return 0
 }
 
-func (*Antares) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*Antares) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (self *Antares) PileTapped(pile *Pile) {}

@@ -46,8 +46,8 @@ type pile struct {
 	img       *ebiten.Image
 }
 
-func newPile(baize *baize, darkPile *dark.Pile) *pile {
-	return &pile{baize: baize,
+func newPile(b *baize, darkPile *dark.Pile) *pile {
+	return &pile{baize: b,
 		darkPile:  darkPile,
 		slot:      darkPile.Slot(),
 		fanType:   darkPile.FanType(),
@@ -69,8 +69,9 @@ func (p *pile) peek() *card {
 func (p *pile) push(c *card) {
 	p.cards = append(p.cards, c)
 	c.pile = p
-	if c.darkCard.Prone() != c.prone {
-		c.flip()
+	if darkProne := p.baize.darkBaize.IsCardProne(c.id); darkProne != c.lightProne {
+		c.lightProne = darkProne
+		c.startFlip()
 	}
 	c.lerpTo(c.pos)
 }
@@ -91,16 +92,13 @@ func (p *pile) makeTail(c *card) []*card {
 	return nil
 }
 
+// copyCardsFromDark
 func (p *pile) copyCardsFromDark() {
 	p.cards = []*card{}
-	for _, dc := range p.darkPile.Cards() {
-		id := dc.ID().PackSuitOrdinal() // ignore prone flag
-		if c, ok := p.baize.cardMap[id]; !ok {
+	for _, id := range p.darkPile.Cards() {
+		if c, ok := p.baize.cardMap[id.PackSuitOrdinal()]; !ok {
 			log.Panicf("Card [%s] not found in card map", id.String())
 		} else {
-			// darkCard needs updating because DARK Pile updateFromSavable
-			// creates a new dark Card object
-			c.darkCard = dc
 			p.push(c)
 		}
 	}
@@ -267,19 +265,19 @@ func (p *pile) posAfter(c *card) image.Point {
 	case dark.FAN_NONE:
 		// nothing to do
 	case dark.FAN_DOWN:
-		if c.darkCard.Prone() {
+		if p.baize.darkBaize.IsCardProne(c.id) {
 			pos.Y += int(float64(CardHeight) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.Y += int(float64(CardHeight) / p.fanFactor)
 		}
 	case dark.FAN_LEFT:
-		if c.darkCard.Prone() {
+		if p.baize.darkBaize.IsCardProne(c.id) {
 			pos.X -= int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.X -= int(float64(CardWidth) / p.fanFactor)
 		}
 	case dark.FAN_RIGHT:
-		if c.darkCard.Prone() {
+		if p.baize.darkBaize.IsCardProne(c.id) {
 			pos.X += int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.X += int(float64(CardWidth) / p.fanFactor)
@@ -399,7 +397,7 @@ func (p *pile) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(p.pos.X+p.baize.dragOffset.X), float64(p.pos.Y+p.baize.dragOffset.Y))
 	// if self.target && len(self.cards) == 0 {
-	// 	op.ColorM.Scale(0.75, 0.75, 0.75, 1)
+	// 	op.ColorScale.Scale(0.75, 0.75, 0.75, 1)
 	// 	// op.GeoM.Translate(2, 2)
 	// }
 

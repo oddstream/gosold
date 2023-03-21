@@ -101,8 +101,8 @@ func (*Usk) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColor)
 }
 
-func (*Usk) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*Usk) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 func (self *Usk) PileTapped(pile *Pile) {

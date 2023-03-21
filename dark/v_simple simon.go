@@ -86,8 +86,8 @@ func (*SimpleSimon) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (*SimpleSimon) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*SimpleSimon) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (*SimpleSimon) PileTapped(*Pile) {}

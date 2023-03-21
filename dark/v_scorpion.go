@@ -78,7 +78,7 @@ func (*Scorpion) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownSuit)
 }
 
-func (self *Scorpion) TailTapped(tail []*Card, nTarget int) {
+func (self *Scorpion) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	switch pile.vtable.(type) {
 	case *Stock:
@@ -88,7 +88,7 @@ func (self *Scorpion) TailTapped(tail []*Card, nTarget int) {
 			}
 		}
 	default:
-		tail[0].owner().vtable.TailTapped(tail, nTarget)
+		tail[0].owner().vtable.TailTapped(tail)
 	}
 }
 

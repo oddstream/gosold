@@ -118,8 +118,8 @@ func (*Penguin) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.Compare_DownSuitWrap)
 }
 
-func (pen *Penguin) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (pen *Penguin) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (pen *Penguin) PileTapped(pile *Pile) {}

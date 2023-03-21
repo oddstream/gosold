@@ -11,7 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] packs, suits in ScriptBase AND Stock!?
+[ ] why save >1 tap target for each card? just makes the solver more complicated.
+[x] packs, suits in ScriptBase AND Stock!?
 [x] only calc Baize crc when it's needed, only use Baize.crc in solver
 [ ] WASM
 [ ] Mirror Baize
@@ -36,6 +37,7 @@ foreach pile
 
 SOLVER
 ======
+[ ] doing a Q makes autoCollect not work
 
 put tapTargets in a map?
 Baize.tapTargets = map[cardid.CardID] (dst?, weight, *savedBaize)
@@ -59,16 +61,16 @@ foreach tap target
 	translate tap targets from Baize0 -> Baize1
 	make move
 
-for each card with a tapDestination
+for each tapDestination
 	create/clone a child baize (Baize1) with depth+1, (and undoStack, fnNotify == nil)
 	make a note of the card to be tapped
 	make the tap move on Baize1
 	if the Baize1 crc already exists, disregard
-	record tapped card in Baize1
-	add Baize1 to Baize0 children slice
+	?(record tapped card in Baize1)
+	add Baize1 to taDestination
 	if percentComplete == 100%, stop
 
-find highest percentComplete in leaf node of children tree
+find highest percentComplete in leaf node of tapTargets
 	follow parent links, extra-highlighting tappedCard in each parent
 
 Q&A

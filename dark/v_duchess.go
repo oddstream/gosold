@@ -126,12 +126,12 @@ func (*Duchess) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColorWrap)
 }
 
-func (self *Duchess) TailTapped(tail []*Card, nTarget int) {
+func (self *Duchess) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.waste)
 	} else {
-		pile.vtable.TailTapped(tail, nTarget)
+		pile.vtable.TailTapped(tail)
 	}
 }
 

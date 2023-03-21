@@ -105,7 +105,7 @@ func (s *Statistics) strings() []string {
 	strs = append(strs, fmt.Sprintf("Played: %d", numPlayed))
 	strs = append(strs, fmt.Sprintf("Won: %d", numWon))
 	strs = append(strs, fmt.Sprintf("Lost: %d", numLost))
-	winRate := (numWon * 100) / (numPlayed)
+	winRate := (numWon * 100) / numPlayed
 	strs = append(strs, fmt.Sprintf("Win rate: %d%%", winRate))
 	return strs
 }

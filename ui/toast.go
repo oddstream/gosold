@@ -113,13 +113,17 @@ func (tm *ToastManager) Draw(screen *ebiten.Image) {
 		// ebitenutil.DebugPrint(screen, "No toasts")
 		return
 	}
-	sx, sy := screen.Size()
+	// sx, sy := screen.Size()
+	sx := screen.Bounds().Dx()
+	sy := screen.Bounds().Dy()
 	var tx, ty int
 	ty = sy - 10 - 24 // 10 padding, 24 height of statusbar
 	// for _, t := range tm.toasts {
 	for i := len(tm.toasts) - 1; i >= 0; i-- {
 		t := tm.toasts[i]
-		w, h := t.img.Size()
+		// w, h := t.img.Size()
+		w := t.img.Bounds().Dx()
+		h := t.img.Bounds().Dy()
 		tx = (sx - w) / 2
 		ty = ty - h - 10 // move y up ready for next toast
 		op := &ebiten.DrawImageOptions{}

@@ -31,8 +31,8 @@ func (self *Cell) CanAcceptTail(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Cell) TailTapped(tail []*Card, nTarget int) {
-	self.pile.defaultTailTapped(tail, nTarget)
+func (self *Cell) TailTapped(tail []*Card) {
+	self.pile.defaultTailTapped(tail)
 }
 
 func (*Cell) Conformant() bool {

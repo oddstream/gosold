@@ -5,22 +5,18 @@ import (
 )
 
 type tapTarget struct {
-	dst    *Pile
-	weight int16
+	dst     *Pile // where this card will go if tapped
+	weight  int16 // 0...4; how fruity this move is
+	percent int   // what the Baize would be if this tap is tapped
 }
 
 // Card holds the state of the cards.
 // Card is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Card object as immutable, hence the unexported fields and getters.
 type Card struct {
-	id         cardid.CardID
-	pile       *Pile // the Pile this Card is currently in
-	tapTargets []tapTarget
-}
-
-func newCard(pack, suit, ordinal int) Card {
-	c := Card{id: cardid.NewCardID(pack, suit, ordinal)}
-	return c
+	id   cardid.CardID
+	pile *Pile // the Pile this Card is currently in
+	tapTarget
 }
 
 // Public functions, visible outside DARK
@@ -29,9 +25,9 @@ func (c *Card) String() string {
 	return c.id.String()
 }
 
-func (c *Card) ID() cardid.CardID {
-	return c.id
-}
+// func (c *Card) ID() cardid.CardID {
+// 	return c.id
+// }
 
 func (c *Card) Pack() int {
 	return c.id.Pack()
@@ -53,13 +49,12 @@ func (c *Card) Black() bool {
 	return c.id.Black()
 }
 
-func (c *Card) TapWeight2() int16 {
-	var weight int16
-	if c.tapTargets != nil {
-		// tapTargets already sorted by weight
-		weight = c.tapTargets[0].weight
-	}
-	return weight
+func (c *Card) TapWeight() int16 {
+	return c.tapTarget.weight
+}
+
+func (c *Card) TapPercent() int {
+	return c.tapTarget.percent
 }
 
 // func (c *Card) SetProne(prone bool) {

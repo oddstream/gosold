@@ -36,7 +36,7 @@ func (self *Discard) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailMoveError(tail)
 }
 
-func (*Discard) TailTapped([]*Card, int) {
+func (*Discard) TailTapped([]*Card) {
 	// do nothing
 }
 

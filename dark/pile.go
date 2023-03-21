@@ -41,7 +41,7 @@ const (
 // Made public for now, but that may change.
 type pileVtabler interface {
 	CanAcceptTail([]*Card) (bool, error)
-	TailTapped([]*Card, int)
+	TailTapped([]*Card)
 	Conformant() bool
 	unsortedPairs() int
 	MovableTails2() [][]*Card
@@ -81,8 +81,12 @@ func (p *Pile) Label() string {
 	return p.label
 }
 
-func (p *Pile) Cards() []*Card {
-	return p.cards
+func (p *Pile) Cards() []cardid.CardID {
+	var ids []cardid.CardID = []cardid.CardID{}
+	for _, c := range p.cards {
+		ids = append(ids, c.id)
+	}
+	return ids
 }
 
 func (p *Pile) Slot() image.Point {
@@ -148,7 +152,11 @@ func (self *Pile) fill(packs, suits int) int {
 				// (i.e. not 0..3)
 				// run the suits loop backwards, so spades are used first
 				// (folks expect Spider One Suit to use spades)
-				var c Card = newCard(pack, cardid.SPADE-suit, ord)
+				var c Card = Card{id: cardid.NewCardID(pack, cardid.SPADE-suit, ord)}
+				// Card will be created face up, because prone flag is not set
+				// Card.pile will be nil, but set by push()
+				// Card.tapTarget will be zeroed, which is what we want
+				self.baize.cardMap[c.id] = &c
 				self.push(&c)
 			}
 		}
@@ -301,14 +309,13 @@ func (self *Pile) makeTail(c *Card) []*Card {
 	return nil
 }
 
-func (self *Pile) defaultTailTapped(tail []*Card, nTarget int) {
-	card := tail[0]
-	if card.tapTargets != nil {
-		dst := card.tapTargets[nTarget].dst
+func (self *Pile) defaultTailTapped(tail []*Card) {
+	c := tail[0]
+	if dst := c.tapTarget.dst; dst != nil {
 		if len(tail) == 1 {
-			moveCard(card.owner(), dst)
+			moveCard(c.owner(), dst)
 		} else {
-			moveTail(card, dst)
+			moveTail(c, dst)
 		}
 	}
 }

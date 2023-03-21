@@ -38,8 +38,10 @@ func (self *Pile) updateFromSavable(sp *savablePile) {
 	for _, cid := range sp.Cards {
 		// cid includes prone flag
 		// BEWARE making a new dark Card will invalidate light card's darkCard pointer
-		var c Card = Card{id: cid}
-		self.push(&c) // will always flip down if this pile is Stock
+		// hence the use of cardid.CardID in LIGHT, and the cardMap here in DARK
+		var c *Card = self.baize.cardMap[cid.PackSuitOrdinal()]
+		c.id = cid   // saved card may be face down
+		self.push(c) // will always flip down if this pile is Stock
 	}
 	if len(self.cards) != len(sp.Cards) {
 		log.Panicf("%s cards rebuilt incorrectly", self.category)

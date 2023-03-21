@@ -134,8 +134,9 @@ func (b *baize) startGame(variant string) {
 	// create card map
 	b.cardMap = make(map[cardid.CardID]*card)
 	for _, dp := range b.darkBaize.Piles() {
-		for _, dc := range dp.Cards() {
-			b.cardMap[dc.ID().PackSuitOrdinal()] = newCard(dc)
+		for _, id := range dp.Cards() {
+			b.cardMap[id.PackSuitOrdinal()] = &card{id: id}
+			// card is created face up, because prone flag is not set
 		}
 	}
 	// log.Println(len(b.cardMap), "cards in baize card map")
@@ -187,15 +188,19 @@ func (b *baize) collect() {
 }
 
 func (b *baize) solve() {
-	b.darkBaize.Solve(2)
+	b.darkBaize.Solve(3)
 }
 
 func (b *baize) undo() {
+	// temporarily disable autocollect
+	var saved bool = b.game.settings.AutoCollect
+	b.game.settings.AutoCollect = false
 	if ok, err := b.darkBaize.Undo(); !ok {
 		b.game.ui.ToastError(err.Error())
-		return
+	} else {
+		sound.Play("Fan")
 	}
-	sound.Play("Fan")
+	b.game.settings.AutoCollect = saved
 }
 
 func (b *baize) loadPosition() {
@@ -250,7 +255,7 @@ func (b *baize) findLowestCardAt(pt image.Point) *card {
 
 func (b *baize) largestIntersection(c *card) *pile {
 	var largestArea int = 0
-	var pile *pile = nil
+	var largest *pile = nil
 	cardRect := c.baizeRect()
 	for _, p := range b.piles {
 		if p == c.pile {
@@ -261,10 +266,10 @@ func (b *baize) largestIntersection(c *card) *pile {
 		area := intersectRect.Dx() * intersectRect.Dy()
 		if area > largestArea {
 			largestArea = area
-			pile = p
+			largest = p
 		}
 	}
-	return pile
+	return largest
 }
 
 // startDrag return true if the Baize can be dragged
@@ -493,6 +498,17 @@ func (b *baize) cancelTailDrag(tail []*card) {
 	b.applyToTail(tail, (*card).cancelDrag)
 }
 
+func (b *baize) findCard(cid cardid.CardID) *card {
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			if c.id == cid {
+				return c
+			}
+		}
+	}
+	return nil
+}
+
 func (b *baize) strokeStart(v stroke.StrokeEvent) {
 	b.stroke = v.Stroke
 
@@ -505,14 +521,14 @@ func (b *baize) strokeStart(v stroke.StrokeEvent) {
 		}
 	} else {
 		pt := image.Pt(v.X, v.Y)
-		if card := b.findLowestCardAt(pt); card != nil {
-			if card.lerping() {
+		if c := b.findLowestCardAt(pt); c != nil {
+			if c.lerping() {
 				// TheGame.UI.Toast("Glass", "Confusing to move a moving card")
 				v.Stroke.Cancel()
 			} else {
-				tail := card.pile.makeTail(card)
+				tail := c.pile.makeTail(c)
 				b.startTailDrag(tail)
-				b.stroke.SetDraggedObject(tail)
+				b.stroke.SetDraggedObject(tail) // TODO use card.id instead
 			}
 		} else {
 			if p := b.findPileAt(pt); p != nil {
@@ -541,6 +557,11 @@ func (b *baize) strokeMove(v stroke.StrokeEvent) {
 		obj.DragBy(v.Stroke.PositionDiff())
 	case ui.Widgety:
 		obj.Parent().DragBy(v.Stroke.PositionDiff())
+	case cardid.CardID:
+		c := b.findCard(obj)
+		tail := c.pile.makeTail(c)
+		dx, dy := v.Stroke.PositionDiff()
+		b.dragTailBy(tail, dx, dy)
 	case []*card:
 		dx, dy := v.Stroke.PositionDiff()
 		b.dragTailBy(obj, dx, dy)
@@ -568,16 +589,19 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 		obj.StopDrag()
 	case ui.Widgety:
 		obj.Parent().StopDrag()
+	// case cardid.CardID:
+	// 	c := b.findCard(obj)
+	// 	tail := c.pile.makeTail(c)
 	case []*card:
-		tail := obj     // alias for readability
-		card := tail[0] // for readability
-		if card.wasDragged() {
-			if dst := b.largestIntersection(card); dst == nil {
+		tail := obj  // alias for readability
+		c := tail[0] // for readability
+		if c.wasDragged() {
+			if dst := b.largestIntersection(c); dst == nil {
 				// println("no intersection for", c.String())
 				b.cancelTailDrag(tail)
 			} else {
-				src := card.pile
-				if ok, err := b.darkBaize.CardDragged(src.darkPile, card.darkCard, dst.darkPile); !ok {
+				src := c.pile
+				if ok, err := b.darkBaize.CardDragged(src.darkPile, c.id, dst.darkPile); !ok {
 					b.game.ui.ToastError(err.Error())
 					b.cancelTailDrag(tail)
 				} else {
@@ -636,7 +660,9 @@ func (b *baize) strokeTap(v stroke.StrokeEvent) {
 		// or use Pile.DefaultTailTapped
 
 		// obj is a tail of light cards, but we need a tail of dark cards
-		if b.darkBaize.CardTapped(obj[0].darkCard, 0) {
+		// also, if have run the solver, then the card.darkCard objects will no longer exist
+
+		if b.darkBaize.CardTapped(obj[0].id) {
 			sound.Play("Slide")
 		} else {
 			sound.Play("Glass")

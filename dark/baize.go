@@ -19,6 +19,7 @@ type Baize struct {
 	dark         *dark  // link back to dark for statistics
 	variant      string // needed by stats (could fix this)
 	pilesToCheck []*Pile
+	cardMap      map[cardid.CardID]*Card
 
 	// members needed by solver
 	script    scripter
@@ -28,11 +29,10 @@ type Baize struct {
 	percent   int     // needed by LIGHT to display in status bar
 
 	// members specific to solver
-	depth      int
-	parent     *Baize
-	children   []*Baize
-	crc        uint32
-	tappedCard cardid.CardID
+	//	depth      int
+	//	parent     *Baize
+	//	crc        uint32
+	//	tappedCard cardid.CardID
 
 	// members that are needed by LIGHT
 	bookmark  int // needed by LIGHT to grey out goto bookmark menu item
@@ -64,7 +64,7 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	if script, ok = variants[variant]; !ok {
 		return nil, errors.New("unknown variant " + variant)
 	}
-	b := &Baize{dark: d, variant: variant, script: script, fnNotify: fnNotify}
+	b := &Baize{dark: d, variant: variant, script: script, cardMap: make(map[cardid.CardID]*Card), fnNotify: fnNotify}
 	b.script.SetBaize(b)
 	b.script.BuildPiles()
 	// BuildPiles() must not create or move any cards
@@ -74,6 +74,16 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 		b.cardCount = stock.fill(b.script.Packs(), b.script.Suits())
 		stock.shuffle()
 	}
+	b.script.StartGame()
+	// NOT calling afterChange() here; we don't want the notification sent
+	b.undoPush()
+	b.setupPilesToCheck()
+	b.findTapTargets()
+	b.percent = b.percentComplete()
+	return b, nil
+}
+
+func (b *Baize) setupPilesToCheck() {
 	b.pilesToCheck = []*Pile{}
 	b.pilesToCheck = append(b.pilesToCheck, b.script.Foundations()...)
 	b.pilesToCheck = append(b.pilesToCheck, b.script.Tableaux()...)
@@ -84,13 +94,6 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 		// in Go 1.17, nil was not appended?
 		b.pilesToCheck = append(b.pilesToCheck, b.script.Waste())
 	}
-
-	b.script.StartGame()
-	// NOT calling afterChange() here; we don't want the notification sent
-	b.undoPush()
-	b.findTapTargets()
-	b.percent = b.percentComplete()
-	return b, nil
 }
 
 // Baize public interface ////////////////////////////////////////////////////////////
@@ -289,18 +292,22 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 	return true, nil
 }
 
-func (b *Baize) CardDragged(src *Pile, card *Card, dst *Pile) (bool, error) {
-	// tail := card.owningPile.makeTail(card)
-	tail := src.makeTail(card)
+func (b *Baize) CardDragged(src *Pile, id cardid.CardID, dst *Pile) (bool, error) {
+	var c *Card
+	var ok bool
+	if c, ok = b.cardMap[id.PackSuitOrdinal()]; !ok {
+		log.Panic("CardDragged: Card not found in map", id)
+	}
+	tail := src.makeTail(c)
 	return b.TailDragged(src, tail, dst)
 }
 
 // TailTapped called by client when a card/tail has been tapped.
 // returns true if cards have been moved.
-func (b *Baize) TailTapped(tail []*Card, nTarget int) bool {
+func (b *Baize) TailTapped(tail []*Card) bool {
 	cardsMoved := false
 	oldCRC := b.calcCRC()
-	b.script.TailTapped(tail, nTarget)
+	b.script.TailTapped(tail)
 	if b.calcCRC() != oldCRC {
 		b.afterUserMove()
 		cardsMoved = true
@@ -311,9 +318,14 @@ func (b *Baize) TailTapped(tail []*Card, nTarget int) bool {
 	return cardsMoved
 }
 
-func (b *Baize) CardTapped(card *Card, nTarget int) bool {
-	tail := card.pile.makeTail(card)
-	return b.TailTapped(tail, nTarget)
+func (b *Baize) CardTapped(id cardid.CardID) bool {
+	var c *Card
+	var ok bool
+	if c, ok = b.cardMap[id.PackSuitOrdinal()]; !ok {
+		log.Panic("CardTapped: Card not found in map", id)
+	}
+	tail := c.pile.makeTail(c)
+	return b.TailTapped(tail)
 }
 
 func (b *Baize) Undo() (bool, error) {
@@ -424,6 +436,24 @@ func (b *Baize) Collect() {
 
 func (b *Baize) Wikipedia() string {
 	return b.script.Wikipedia()
+}
+
+func (b *Baize) IsCardProne(id cardid.CardID) bool {
+	var c *Card
+	var ok bool
+	if c, ok = b.cardMap[id.PackSuitOrdinal()]; !ok {
+		log.Panic("IsCardProne: card not found in map", id)
+	}
+	return c.Prone()
+}
+
+func (b *Baize) CardTapWeight(id cardid.CardID) int16 {
+	var c *Card
+	var ok bool
+	if c, ok = b.cardMap[id.PackSuitOrdinal()]; !ok {
+		log.Panic("CardTapWeight: card not found in map", id)
+	}
+	return c.tapTarget.weight
 }
 
 // Baize private functions
@@ -572,6 +602,17 @@ func (b *Baize) foreachCard(fn func(*Card)) {
 	}
 }
 
+func (b *Baize) findCard(cid cardid.CardID) *Card {
+	for _, p := range b.piles {
+		for _, c := range p.cards {
+			if c.id == cid {
+				return c
+			}
+		}
+	}
+	return nil
+}
+
 func (b *Baize) findAllMovableTails2() [][]*Card {
 	var tails [][]*Card
 	for _, p := range b.piles {
@@ -586,6 +627,7 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 
 	for _, tail := range tails {
 		// we already know this tail is movable, both at pile-type and script level
+		var targets []tapTarget = []tapTarget{}
 		headCard := tail[0]
 		src := headCard.pile
 		for _, dst := range b.pilesToCheck {
@@ -606,7 +648,7 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 						// 	continue
 						// }
 						contains := false
-						for _, tt := range headCard.tapTargets {
+						for _, tt := range targets {
 							if tt.dst.category == dst.category {
 								contains = true
 								break
@@ -640,20 +682,12 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 				default:
 					weight = 1
 				}
-				headCard.tapTargets = append(headCard.tapTargets, tapTarget{dst: dst, weight: weight})
+				targets = append(targets, tapTarget{dst: dst, weight: weight})
 			}
 		}
-	}
-}
-
-func (b *Baize) sortTapTargets() {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if c.tapTargets == nil {
-				continue
-			}
-			// sort so highest weight comes first
-			sort.Slice(c.tapTargets, func(i, j int) bool { return c.tapTargets[i].weight > c.tapTargets[j].weight })
+		if len(targets) > 0 {
+			sort.Slice(targets, func(i, j int) bool { return targets[i].weight > targets[j].weight })
+			headCard.tapTarget = targets[0]
 		}
 	}
 }
@@ -678,14 +712,12 @@ func (b *Baize) countMoves() {
 
 	for _, p := range b.piles {
 		for _, c := range p.cards {
-			if c.tapTargets == nil {
+			if c.tapTarget.dst == nil {
 				continue
 			}
-			for _, tt := range c.tapTargets {
-				b.moves++
-				if _, ok := tt.dst.vtable.(*Foundation); ok {
-					b.fmoves++
-				}
+			b.moves++
+			if _, ok := c.tapTarget.dst.vtable.(*Foundation); ok {
+				b.fmoves++
 			}
 		}
 	}
@@ -693,11 +725,11 @@ func (b *Baize) countMoves() {
 }
 
 func (b *Baize) findTapTargets() {
-
-	// TODO save this in Baize and calculate after script.BuildPiles()
-	b.foreachCard(func(c *Card) { c.tapTargets = nil })
+	b.foreachCard(func(c *Card) {
+		c.tapTarget.dst = nil
+		c.tapTarget.weight = 0
+	})
 	var tails [][]*Card = b.findAllMovableTails2()
 	b.findTargetsForAllMovableTails2(tails) // adds tapTargets to movable cards
-	b.sortTapTargets()
 	b.countMoves()
 }

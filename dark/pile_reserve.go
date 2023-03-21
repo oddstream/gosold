@@ -22,8 +22,8 @@ func (*Reserve) CanAcceptTail(tail []*Card) (bool, error) {
 	return false, errors.New("Cannot add a card to a Reserve")
 }
 
-func (self *Reserve) TailTapped(tail []*Card, nTarget int) {
-	self.pile.defaultTailTapped(tail, nTarget)
+func (self *Reserve) TailTapped(tail []*Card) {
+	self.pile.defaultTailTapped(tail)
 }
 
 // Conformant when contains zero or one card(s), same as Waste

@@ -85,8 +85,8 @@ func (*Yukon) UnsortedPairs(pile *Pile) int {
 	return unsortedPairs(pile, cardPair.compare_DownAltColor)
 }
 
-func (*Yukon) TailTapped(tail []*Card, nTarget int) {
-	tail[0].owner().vtable.TailTapped(tail, nTarget)
+func (*Yukon) TailTapped(tail []*Card) {
+	tail[0].owner().vtable.TailTapped(tail)
 }
 
 // func (*Yukon) PileTapped(*Pile) {}

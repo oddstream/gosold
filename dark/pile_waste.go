@@ -29,8 +29,8 @@ func (*Waste) CanAcceptTail(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Waste) TailTapped(tail []*Card, nTarget int) {
-	self.pile.defaultTailTapped(tail, nTarget)
+func (self *Waste) TailTapped(tail []*Card) {
+	self.pile.defaultTailTapped(tail)
 }
 
 // Conformant when contains zero or one card(s), same as Reserve
