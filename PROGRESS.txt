@@ -1,0 +1,9 @@
+PROGRESS
+
+2023-03-23
+add script.TwoCards
+use TwoCards when assigning weight
+remove script.UnsortedPairs
+remove compare.unsortedPairs
+retire Antares, Demons and Thieves
+added Robot()

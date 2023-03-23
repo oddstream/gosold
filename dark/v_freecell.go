@@ -97,25 +97,20 @@ func (self *Freecell) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Freecell) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return self.tabCompareFunc(cardPair{dst.peek(), tail[0]})
-		}
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (self *Freecell) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, self.tabCompareFunc)
+func (self *Freecell) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuit()
+	case *Tableau:
+		return self.tabCompareFunc(cardPair{c1, c2})
+	}
+	return true, nil
 }
 
 func (*Freecell) TailTapped(tail []*Card) {

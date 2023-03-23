@@ -67,30 +67,24 @@ func (*Bisley) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Bisley) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			if dst.Label() == "A" {
-				return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-			} else {
-				return cardPair{dst.peek(), tail[0]}.compare_DownSuit()
-			}
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			// return CardPair{dst.peek(), tail[0]}.Compare_UpOrDownSuit()
-			return cardPair{dst.peek(), tail[0]}.chainCall(cardPair.compare_UpOrDown, cardPair.compare_Suit)
-		}
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Bisley) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownColor)
+func (*Bisley) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		if pile.Label() == "A" {
+			return cardPair{c1, c2}.compare_UpSuit()
+		} else {
+			return cardPair{c1, c2}.compare_DownSuit()
+		}
+	case *Tableau:
+		return cardPair{c1, c2}.chainCall(cardPair.compare_UpOrDown, cardPair.compare_Suit)
+	}
+	return true, nil
 }
 
 func (self *Bisley) TailTapped(tail []*Card) {

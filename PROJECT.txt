@@ -11,7 +11,12 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] why save >1 tap target for each card? just makes the solver more complicated.
+[ ] Stock tapped cards are not always flipping
+[ ] Robot()
+	Collect() is really just auto-playing the weight=4 cards
+	so have an AutoPlay() for the weight=2,3 cards
+	only do one round in case of circulars
+[x] why save >1 tap target for each card? just makes the solver more complicated.
 [x] packs, suits in ScriptBase AND Stock!?
 [x] only calc Baize crc when it's needed, only use Baize.crc in solver
 [ ] WASM
@@ -37,7 +42,7 @@ foreach pile
 
 SOLVER
 ======
-[ ] doing a Q makes autoCollect not work
+[x] doing a Q makes autoCollect not work
 
 put tapTargets in a map?
 Baize.tapTargets = map[cardid.CardID] (dst?, weight, *savedBaize)

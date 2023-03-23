@@ -265,19 +265,19 @@ func (p *pile) posAfter(c *card) image.Point {
 	case dark.FAN_NONE:
 		// nothing to do
 	case dark.FAN_DOWN:
-		if p.baize.darkBaize.IsCardProne(c.id) {
+		if c.lightProne {
 			pos.Y += int(float64(CardHeight) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.Y += int(float64(CardHeight) / p.fanFactor)
 		}
 	case dark.FAN_LEFT:
-		if p.baize.darkBaize.IsCardProne(c.id) {
+		if c.lightProne {
 			pos.X -= int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.X -= int(float64(CardWidth) / p.fanFactor)
 		}
 	case dark.FAN_RIGHT:
-		if p.baize.darkBaize.IsCardProne(c.id) {
+		if c.lightProne {
 			pos.X += int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.X += int(float64(CardWidth) / p.fanFactor)

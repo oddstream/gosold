@@ -182,13 +182,15 @@ func (b *baize) changeVariant(variant string) {
 
 func (b *baize) collect() {
 	if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
-		b.darkBaize.Collect()
-		sound.Play("Shove")
+		// even with fmoves > 0, SafeCollect may mean no cards are collected
+		if b.darkBaize.Collect4() > 0 {
+			sound.Play("Shove")
+		}
 	}
 }
 
 func (b *baize) solve() {
-	b.darkBaize.Solve(3)
+	b.darkBaize.Solve(4)
 }
 
 func (b *baize) undo() {

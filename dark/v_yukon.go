@@ -63,26 +63,21 @@ func (*Yukon) TailMoveError([]*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Yukon) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_DownAltColor()
-		}
+func (self *Yukon) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Yukon) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownAltColor)
+func (self *Yukon) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownAltColor()
+	}
+	return true, nil
 }
 
 func (*Yukon) TailTapped(tail []*Card) {

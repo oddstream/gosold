@@ -59,7 +59,20 @@ func (self *Tableau) Conformant() bool {
 }
 
 func (self *Tableau) unsortedPairs() int {
-	return self.pile.baize.script.UnsortedPairs(self.pile)
+	if self.pile.Len() < 2 {
+		return 0
+	}
+	var unsorted int
+	for _, pair := range newCardPairs(self.pile.cards) {
+		if pair.c1.Prone() || pair.c2.Prone() {
+			unsorted++
+		} else {
+			if ok, _ := self.pile.baize.script.TwoCards(self.pile, pair.c1, pair.c2); !ok {
+				unsorted++
+			}
+		}
+	}
+	return unsorted
 }
 
 func (self *Tableau) MovableTails2() [][]*Card {

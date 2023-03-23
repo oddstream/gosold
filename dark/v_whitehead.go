@@ -60,27 +60,21 @@ func (*Whitehead) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Whitehead) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	// why the pretty asterisks? google method pointer receivers in interfaces; *Tableau is a different type to Tableau
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_DownColor()
-		}
+func (self *Whitehead) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Whitehead) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownColor)
+func (self *Whitehead) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownColor()
+	}
+	return true, nil
 }
 
 func (self *Whitehead) TailTapped(tail []*Card) {

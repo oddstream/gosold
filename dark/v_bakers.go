@@ -52,26 +52,26 @@ func (*BakersDozen) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*BakersDozen) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
+func (self *BakersDozen) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		switch dst.vtable.(type) {
+		case *Foundation:
 			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-		}
-	case *Tableau:
-		if dst.Empty() {
+		case *Tableau:
 			return false, errors.New("Cannot move a card to an empty Tableau")
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_Down()
 		}
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*BakersDozen) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownSuit)
+func (*BakersDozen) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_Down()
+	}
+	return true, nil
 }
 
 func (*BakersDozen) TailTapped(tail []*Card) {

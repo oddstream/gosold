@@ -74,8 +74,14 @@ func (*Scorpion) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Scorpion) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownSuit)
+func (*Scorpion) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Discard:
+		return cardPair{c1, c2}.compare_DownSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownSuit()
+	}
+	return true, nil
 }
 
 func (self *Scorpion) TailTapped(tail []*Card) {

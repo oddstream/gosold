@@ -26,27 +26,6 @@ func tailConformant(tail []*Card, fn cardPairCompareFunc) (bool, error) {
 	return true, nil
 }
 
-// unsortedPairs
-//
-// A generic way of calculating the number of unsorted card pairs in a pile.
-// Called by *Pile.vtable.unsortedPairs()
-func unsortedPairs(pile *Pile, fn cardPairCompareFunc) int {
-	if pile.Len() < 2 {
-		return 0
-	}
-	var unsorted int
-	for _, pair := range newCardPairs(pile.cards) {
-		if pair.c1.Prone() || pair.c2.Prone() {
-			unsorted++
-		} else {
-			if ok, _ := fn(pair); !ok {
-				unsorted++
-			}
-		}
-	}
-	return unsorted
-}
-
 func newCardPairs(cards []*Card) cardPairs {
 	if len(cards) < 2 {
 		return []cardPair{} // always return a list, not nil
@@ -257,7 +236,7 @@ func (cp cardPair) compare_UpSuitWrap() (bool, error) {
 	return cp.compare_UpWrap()
 }
 
-func (cp cardPair) Compare_DownSuitWrap() (bool, error) {
+func (cp cardPair) compare_DownSuitWrap() (bool, error) {
 	ok, err := cp.compare_Suit()
 	if !ok {
 		return ok, err

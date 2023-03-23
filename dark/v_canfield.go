@@ -99,9 +99,9 @@ func (self *Canfield) TailMoveError(tail []*Card) (bool, error) {
 func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	// The top cards are available for play on foundations, BUT NEVER INTO SPACES
 	// One card can be moved at a time, but sequences can also be moved as one unit.
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
+	if dst.Empty() {
+		switch dst.vtable.(type) {
+		case *Foundation:
 			c := tail[0]
 			ord := util.OrdinalToShortString(c.Ordinal())
 			if dst.Label() == "" {
@@ -115,25 +115,25 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			if ord != dst.Label() {
 				return false, fmt.Errorf("Foundations can only accept an %s, not a %s", dst.Label(), ord)
 			}
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuitWrap()
-		}
-	case *Tableau:
-		if dst.Empty() {
+		case *Tableau:
 			// Spaces that occur on the tableau are filled only from reserve or waste
 			if tail[0].owner().category == "Tableau" {
 				return false, errors.New("An empty Tableau must be filled from the Reserve or Waste")
 			}
 			return true, nil
-		} else {
-			return self.tabCompareFunc(cardPair{dst.peek(), tail[0]})
 		}
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (self *Canfield) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, self.tabCompareFunc)
+func (self *Canfield) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuitWrap()
+	case *Tableau:
+		return self.tabCompareFunc(cardPair{c1, c2})
+	}
+	return true, nil
 }
 
 func (self *Canfield) TailTapped(tail []*Card) {

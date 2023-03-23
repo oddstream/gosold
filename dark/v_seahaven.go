@@ -59,25 +59,20 @@ func (self *Seahaven) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Seahaven) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_DownSuit()
-		}
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Seahaven) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownSuit)
+func (*Seahaven) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownSuit()
+	}
+	return true, nil
 }
 
 func (*Seahaven) TailTapped(tail []*Card) {

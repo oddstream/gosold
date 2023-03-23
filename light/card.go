@@ -1,11 +1,13 @@
 package light
 
 import (
+	"fmt"
 	"image"
 	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"oddstream.games/gosold/cardid"
 	"oddstream.games/gosold/util"
 )
@@ -337,6 +339,8 @@ func (c *card) draw(screen *ebiten.Image) {
 					op.ColorScale.Scale(1.0, 1.0, 0.7, 1)
 				case 4: // Discard or Foundation
 					op.ColorScale.Scale(1.0, 1.0, 0.6, 1)
+				case 5: // Solver move
+					op.ColorScale.Scale(1.0, 1.0, 0.5, 1)
 				}
 			}
 		}
@@ -344,8 +348,8 @@ func (c *card) draw(screen *ebiten.Image) {
 
 	if img != nil {
 		screen.DrawImage(img, op)
-		// if c.darkCard.TapWeight() > 0 {
-		// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d%%", c.darkCard.TapPercent()), c.pos.X+c.pile.baize.dragOffset.X, c.pos.Y+c.pile.baize.dragOffset.Y)
-		// }
+		if DebugMode && c.pile.baize.darkBaize.CardTapWeight(c.id) > 0 {
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d", c.pile.baize.darkBaize.CardTapWeight(c.id)), c.pos.X+c.pile.baize.dragOffset.X, c.pos.Y+c.pile.baize.dragOffset.Y)
+		}
 	}
 }

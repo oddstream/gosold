@@ -87,7 +87,7 @@ func (*Penguin) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
 	switch pile.vtable.(type) {
 	case *Tableau:
-		ok, err := tailConformant(tail, cardPair.Compare_DownSuitWrap)
+		ok, err := tailConformant(tail, cardPair.compare_DownSuitWrap)
 		if !ok {
 			return ok, err
 		}
@@ -95,27 +95,21 @@ func (*Penguin) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Penguin) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	// why the pretty asterisks? google method pointer receivers in interfaces; *Tableau is a different type to Tableau
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuitWrap()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.Compare_DownSuitWrap()
-		}
+func (pen *Penguin) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return pen.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Penguin) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.Compare_DownSuitWrap)
+func (*Penguin) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuitWrap()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownSuitWrap()
+	}
+	return true, nil
 }
 
 func (pen *Penguin) TailTapped(tail []*Card) {

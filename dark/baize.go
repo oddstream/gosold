@@ -411,8 +411,8 @@ func (b *Baize) collectFromPile(pile *Pile) int {
 // waste, cell, reserve and tableau piles.
 // nb there is no collecting to discard piles, they are optional and presence of
 // cards in them does not signify a complete game.
-func (b *Baize) Collect() {
-	var totalCardsMoved int = 0
+func (b *Baize) Collect() int {
+	var totalCardsMoved int
 	for {
 		var cardsMoved int = b.collectFromPile(b.script.Waste())
 		for _, pile := range b.script.Cells() {
@@ -431,6 +431,61 @@ func (b *Baize) Collect() {
 	}
 	if totalCardsMoved > 0 {
 		b.fnNotify(ChangedEvent, nil)
+	}
+	return totalCardsMoved
+}
+
+func (b *Baize) Collect4() int {
+	var totalCardsMoved int
+	for {
+		var cardsMoved int
+		for _, c := range b.cardMap {
+			if c.tapTarget.weight == 4 {
+				b.CardTapped(c.id)
+				cardsMoved++
+			}
+		}
+		if cardsMoved == 0 {
+			break
+		}
+		totalCardsMoved += cardsMoved
+	}
+	return totalCardsMoved
+}
+
+func (b *Baize) countCardWeight(w int16) int {
+	var n int
+	for _, c := range b.cardMap {
+		if c.tapTarget.weight == w {
+			n++
+		}
+	}
+	return n
+}
+
+// Robot
+func (b *Baize) Robot() {
+	// while !complete && moves>0
+	// tap all the weight=4 cards
+	// tap all the weight=3 cards
+	// tap all the weight=2 cards
+	var w int16
+	// for w = 1; w < 5; w++ {
+	// 	println(w, b.countCardWeight(w))
+	// }
+	for w = 4; w > 1; w-- {
+		for {
+			var cardsMoved int
+			for _, c := range b.cardMap {
+				if c.tapTarget.weight == w {
+					b.CardTapped(c.id)
+					cardsMoved++
+				}
+			}
+			if cardsMoved == 0 {
+				break
+			}
+		}
 	}
 }
 
@@ -674,7 +729,16 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 						// Simple Simon, Spider
 						weight = 3
 					} else {
+						// if this card is conformant with prev card, downgrade to 1
 						weight = 2
+						if cPrev := src.prev(headCard); cPrev != nil {
+							if ok, _ := b.script.TwoCards(dst, cPrev, headCard); ok {
+								weight = 1
+								// println("ARE prev", cPrev.String(), "this", headCard.String())
+							} else {
+								// println("NOT prev", cPrev.String(), "this", headCard.String())
+							}
+						}
 					}
 				case *Foundation, *Discard:
 					// moves to Foundation get priority when card is tapped
@@ -686,7 +750,9 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 			}
 		}
 		if len(targets) > 0 {
-			sort.Slice(targets, func(i, j int) bool { return targets[i].weight > targets[j].weight })
+			if len(targets) > 1 {
+				sort.Slice(targets, func(i, j int) bool { return targets[i].weight > targets[j].weight })
+			}
 			headCard.tapTarget = targets[0]
 		}
 	}

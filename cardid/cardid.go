@@ -33,7 +33,8 @@ const (
 )
 
 func (cid CardID) String() string {
-	return fmt.Sprintf("%d %s %d", cid.Pack(), cid.StringSuit(), cid.Ordinal())
+	// return fmt.Sprintf("%d %s %d", cid.Pack(), cid.StringSuit(), cid.Ordinal())
+	return fmt.Sprintf("[%d%c]", cid.Ordinal(), cid.SuitRune())
 }
 
 /*

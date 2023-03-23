@@ -84,8 +84,14 @@ func (*Spiderette) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Spiderette) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownSuit)
+func (*Spiderette) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Discard:
+		return cardPair{c1, c2}.compare_DownSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_Down()
+	}
+	return true, nil
 }
 
 func (self *Spiderette) TailTapped(tail []*Card) {

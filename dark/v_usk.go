@@ -79,26 +79,21 @@ func (*Usk) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Usk) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_DownAltColor()
-		}
+func (self *Usk) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Usk) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownAltColor)
+func (self *Usk) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownAltColor()
+	}
+	return true, nil
 }
 
 func (*Usk) TailTapped(tail []*Card) {

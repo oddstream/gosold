@@ -23,11 +23,6 @@ var variants = map[string]scripter{
 			packs:      2,
 		},
 	},
-	"Antares": &Antares{
-		scriptBase: scriptBase{
-			wikipedia: "https://www.goodsol.com/games/antares.html",
-		},
-	},
 	"Australian": &Australian{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Australian_Patience",
@@ -83,18 +78,12 @@ var variants = map[string]scripter{
 		},
 		draw:           1,
 		recycles:       2,
-		tabCompareFunc: cardPair.Compare_DownSuitWrap,
+		tabCompareFunc: cardPair.compare_DownSuitWrap,
 		variant:        "storehouse",
 	},
 	"Duchess": &Duchess{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Duchess_(solitaire)",
-		},
-	},
-	"Demons and Thieves": &CanThieves{
-		scriptBase: scriptBase{
-			wikipedia: "https://www.goodsol.com/pgshelp/index.html?demons_and_thieves.htm",
-			packs:     2,
 		},
 	},
 	"Klondike": &Klondike{

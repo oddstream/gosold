@@ -225,6 +225,17 @@ func (self *Pile) push(c *Card) {
 	c.setOwner(self)
 }
 
+// prev returns *Card that is before specified card in the pile
+// or nil if there is no card before it
+func (self *Pile) prev(c *Card) *Card {
+	for i, d := range self.cards {
+		if c == d && i > 0 {
+			return self.cards[i-1]
+		}
+	}
+	return nil
+}
+
 func (self *Pile) flipUpExposedCard() {
 	if !self.IsStock() {
 		if c := self.peek(); c != nil {

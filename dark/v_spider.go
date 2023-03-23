@@ -88,8 +88,14 @@ func (*Spider) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Spider) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownSuit)
+func (*Spider) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Discard:
+		return cardPair{c1, c2}.compare_DownSuit()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_Down()
+	}
+	return true, nil
 }
 
 func (self *Spider) TailTapped(tail []*Card) {

@@ -66,29 +66,24 @@ func (*Alhambra) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Alhambra) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0]) // never happens
-		} else {
-			if dst.Label() == "A" {
-				return cardPair{dst.peek(), tail[0]}.compare_UpSuit()
-			} else if dst.Label() == "K" {
-				return cardPair{dst.peek(), tail[0]}.compare_DownSuit()
-			}
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpOrDownSuitWrap()
-		}
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0]) // never happens
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Alhambra) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownColor)
+func (*Alhambra) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		if pile.Label() == "A" {
+			return cardPair{c1, c2}.compare_UpSuit()
+		} else if pile.Label() == "K" {
+			return cardPair{c1, c2}.compare_DownSuit()
+		}
+	case *Tableau:
+		return cardPair{c1, c2}.compare_UpOrDownSuitWrap()
+	}
+	return true, nil
 }
 
 func (self *Alhambra) TailTapped(tail []*Card) {

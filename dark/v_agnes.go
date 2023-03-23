@@ -80,25 +80,20 @@ func (self *Agnes) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Agnes) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_UpSuitWrap()
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_DownAltColorWrap()
-		}
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Agnes) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownAltColorWrap)
+func (*Agnes) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuitWrap()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownAltColorWrap()
+	}
+	return true, nil
 }
 
 func (self *Agnes) TailTapped(tail []*Card) {

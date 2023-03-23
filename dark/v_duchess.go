@@ -90,20 +90,16 @@ func (*Duchess) TailMoveError(tail []*Card) (bool, error) {
 
 func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	card := tail[0]
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
+	if dst.Empty() {
+		switch dst.vtable.(type) {
+		case *Foundation:
 			if dst.Label() == "" {
 				if card.owner().category != "Reserve" {
 					return false, errors.New("The first Foundation card must come from a Reserve")
 				}
 			}
 			return compare_Empty(dst, card)
-		} else {
-			return cardPair{dst.peek(), card}.compare_UpSuitWrap()
-		}
-	case *Tableau:
-		if dst.Empty() {
+		case *Tableau:
 			var rescards int = 0
 			for _, p := range self.reserves {
 				rescards += p.Len()
@@ -115,15 +111,19 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 				}
 			}
 			return true, nil
-		} else {
-			return cardPair{dst.peek(), card}.compare_DownAltColorWrap()
 		}
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
-func (*Duchess) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.compare_DownAltColorWrap)
+func (*Duchess) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuitWrap()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownAltColorWrap()
+	}
+	return true, nil
 }
 
 func (self *Duchess) TailTapped(tail []*Card) {

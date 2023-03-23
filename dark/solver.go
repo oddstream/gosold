@@ -140,10 +140,11 @@ type tapNode struct {
 	percent  int
 	depth    int
 	crc      uint32
+	parent   *tapNode
 	children []*tapNode
 }
 
-func (b *Baize) solve2(tn *tapNode, maxDepth int) {
+func (b *Baize) solve2(root *tapNode, tn *tapNode, maxDepth int) {
 	if tn.depth > maxDepth {
 		// println("max depth reached")
 		return
@@ -182,12 +183,17 @@ func (b *Baize) solve2(tn *tapNode, maxDepth int) {
 			percent:  b.percent,
 			depth:    tn.depth + 1,
 			crc:      b.calcCRC(),
+			parent:   tn,
 			children: []*tapNode{},
 		}
-		tn.children = append(tn.children, &node)
+		if !findCRC(root, node.crc) {
+			tn.children = append(tn.children, &node)
+		} else {
+			println("skipping duplicate")
+		}
 
 		// go find children of this node
-		// b.solve2(&node, maxDepth)
+		b.solve2(&node, &node, maxDepth)
 
 		// revert baize to it's starting state
 		b.updateFromSavable(sb)
@@ -203,6 +209,18 @@ func display(tn *tapNode) {
 	}
 }
 
+func findCRC(tn *tapNode, crc uint32) bool {
+	if tn.crc == crc {
+		return true
+	}
+	for _, tc := range tn.children {
+		if findCRC(tc, crc) {
+			return true
+		}
+	}
+	return false
+}
+
 func countNodes(tn *tapNode, pcount *int) {
 	*pcount++
 	for _, tc := range tn.children {
@@ -210,34 +228,50 @@ func countNodes(tn *tapNode, pcount *int) {
 	}
 }
 
-func maxPercent(tn *tapNode, pmax *int) {
+func maxPercent(tn *tapNode, pmax *int, ptn **tapNode) {
 	if tn.percent > *pmax {
 		*pmax = tn.percent
+		*ptn = tn
 	}
 	for _, tc := range tn.children {
-		maxPercent(tc, pmax)
+		maxPercent(tc, pmax, ptn)
 	}
 }
 
-func (b *Baize) sanity() {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if c.pile != p {
-				println("insanity at", p.category, c.String())
-			}
-		}
-	}
-}
+// func (b *Baize) sanity() {
+// 	for _, p := range b.piles {
+// 		for _, c := range p.cards {
+// 			if c.pile != p {
+// 				println("insanity at", p.category, c.String())
+// 			}
+// 		}
+// 	}
+// }
 
 func (b *Baize) Solve(maxDepth int) {
 	var tn *tapNode = &tapNode{} // root node will be empty/dummy, except for children
-	b.solve2(tn, maxDepth)
+	b.solve2(tn, tn, maxDepth)
 	var count int
 	countNodes(tn, &count)
-	var percent int
-	maxPercent(tn, &percent)
-	println("max depth", maxDepth, "nodes", count, "max percent", percent)
+	var max int
+	var ptn **tapNode = &tn
+	maxPercent(tn, &max, ptn)
+	println("max depth", maxDepth, "nodes", count, "max percent", max, "card", (*ptn).cid.String())
+	tn2 := *ptn
+	var id cardid.CardID
+	for tn2.parent != nil {
+		id = tn2.cid
+		if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
+			c.weight = int16(tn2.depth)
+		}
+		// println(tn2.cid.String())
+		tn2 = tn2.parent
+	}
+	// if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
+	// 	c.weight = 5
+	// } else {
+	// 	println("card not found in map", id)
+	// }
 	// display(tapTree)
-	b.findTapTargets()
-	b.sanity()
+	// b.findTapTargets()
 }

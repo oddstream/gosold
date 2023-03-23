@@ -116,7 +116,7 @@ func NewGame() *Game {
 			}
 			g.ui.ShowAniSpeedDrawer(&AniSpeedSettings)
 		},
-		ebiten.KeyQ: func() { g.baize.solve() },
+		ebiten.KeyQ: func() { g.baize.darkBaize.Robot() },
 		ebiten.KeyF1: func() {
 			g.baize.wikipedia()
 		},

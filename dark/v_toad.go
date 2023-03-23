@@ -72,29 +72,29 @@ func (*Toad) TailMoveError(tail []*Card) (bool, error) {
 
 func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	card := tail[0]
-	switch dst.vtable.(type) {
-	case *Foundation:
-		if dst.Empty() {
+	if dst.Empty() {
+		switch dst.vtable.(type) {
+		case *Foundation:
 			return compare_Empty(dst, card)
-		} else {
-			return cardPair{dst.peek(), card}.compare_UpSuitWrap()
-		}
-	case *Tableau:
-		if dst.Empty() {
+		case *Tableau:
 			// Once the reserve is empty, spaces in the tableau can be filled with a card from the Deck [Stock/Waste], but NOT from another tableau pile.
 			// pointless rule, since tableuax move rule is MOVE_ONE_OR_ALL
 			if card.owner() != self.waste {
 				return false, errors.New("Empty tableaux must be filled with cards from the waste")
 			}
-		} else {
-			return cardPair{dst.peek(), card}.Compare_DownSuitWrap()
 		}
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), card)
 }
 
-func (*Toad) UnsortedPairs(pile *Pile) int {
-	return unsortedPairs(pile, cardPair.Compare_DownSuitWrap)
+func (*Toad) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
+	switch pile.vtable.(type) {
+	case *Foundation:
+		return cardPair{c1, c2}.compare_UpSuitWrap()
+	case *Tableau:
+		return cardPair{c1, c2}.compare_DownSuitWrap()
+	}
+	return true, nil
 }
 
 func (self *Toad) TailTapped(tail []*Card) {
