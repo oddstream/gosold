@@ -71,6 +71,10 @@ func (b *baize) eventListener(e dark.BaizeEvent, param any) {
 		}
 		b.refan()
 		b.updateUI()
+		// juice
+		// if id, ok := param.(cardid.CardID); ok {
+		// 	log.Println(id.String())
+		// }
 		if b.game.settings.AutoCollect {
 			// don't auto collect a virgin game
 			if b.darkBaize.UndoStackSize() > 1 {
@@ -162,16 +166,19 @@ func (b *baize) startGame(variant string) {
 
 func (b *baize) newDeal() {
 	b.stopSpinning()
-	b.darkBaize.NewDeal()
-	sound.Play("Fan")
+	if ok, err := b.darkBaize.NewDeal(); !ok {
+		b.game.ui.ToastError(err.Error())
+	} else {
+		sound.Play("Fan")
+	}
 }
 
 func (b *baize) restartDeal() {
 	if ok, err := b.darkBaize.RestartDeal(); !ok {
 		b.game.ui.ToastError(err.Error())
-		return
+	} else {
+		sound.Play("Fan")
 	}
-	sound.Play("Fan")
 }
 
 func (b *baize) changeVariant(variant string) {
@@ -183,7 +190,7 @@ func (b *baize) changeVariant(variant string) {
 func (b *baize) collect() {
 	if _, fmoves := b.darkBaize.Moves(); fmoves != 0 {
 		// even with fmoves > 0, SafeCollect may mean no cards are collected
-		if b.darkBaize.Collect4() > 0 {
+		if b.darkBaize.Collect() > 0 {
 			sound.Play("Shove")
 		}
 	}
@@ -436,8 +443,8 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 		}
 		if b.flagSet(dirtyPileBackgrounds) {
 			if !(CardWidth == 0 || CardHeight == 0) {
-				for i, p := range b.darkBaize.Piles() {
-					if !p.Hidden() {
+				for i, p := range b.piles {
+					if !p.hidden() {
 						b.piles[i].createPlaceholder()
 					}
 				}

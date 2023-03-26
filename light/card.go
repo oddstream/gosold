@@ -1,13 +1,11 @@
 package light
 
 import (
-	"fmt"
 	"image"
 	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"oddstream.games/gosold/cardid"
 	"oddstream.games/gosold/util"
 )
@@ -256,7 +254,7 @@ func (c *card) update() error {
 }
 
 func (c *card) draw(screen *ebiten.Image) {
-	if c.pile.darkPile.Hidden() {
+	if c.pile.hidden() {
 		return
 	}
 	op := &ebiten.DrawImageOptions{}
@@ -335,11 +333,11 @@ func (c *card) draw(screen *ebiten.Image) {
 					op.ColorScale.Scale(1.0, 1.0, 0.9, 1)
 				case 2: // Normal
 					op.ColorScale.Scale(1.0, 1.0, 0.8, 1)
-				case 3: // Suit match
+				case 3: // Open pile or turn up
 					op.ColorScale.Scale(1.0, 1.0, 0.7, 1)
-				case 4: // Discard or Foundation
+				case 4: // Suit match
 					op.ColorScale.Scale(1.0, 1.0, 0.6, 1)
-				case 5: // Solver move
+				case 5: // Discard or Foundation
 					op.ColorScale.Scale(1.0, 1.0, 0.5, 1)
 				}
 			}
@@ -348,8 +346,8 @@ func (c *card) draw(screen *ebiten.Image) {
 
 	if img != nil {
 		screen.DrawImage(img, op)
-		if DebugMode && c.pile.baize.darkBaize.CardTapWeight(c.id) > 0 {
-			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d", c.pile.baize.darkBaize.CardTapWeight(c.id)), c.pos.X+c.pile.baize.dragOffset.X, c.pos.Y+c.pile.baize.dragOffset.Y)
-		}
+		// if DebugMode && c.pile.baize.darkBaize.CardTapWeight(c.id) > 0 {
+		// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d", c.pile.baize.darkBaize.CardTapWeight(c.id)), c.pos.X+c.pile.baize.dragOffset.X, c.pos.Y+c.pile.baize.dragOffset.Y)
+		// }
 	}
 }

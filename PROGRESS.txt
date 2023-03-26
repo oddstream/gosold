@@ -1,5 +1,11 @@
 PROGRESS
 
+2023-03-25
+tweaks to Robot()
+
+2023-03-24
+more subtle card weights
+
 2023-03-23
 add script.TwoCards
 use TwoCards when assigning weight

@@ -104,6 +104,10 @@ func (p *pile) copyCardsFromDark() {
 	}
 }
 
+func (p *pile) hidden() bool {
+	return p.slot.X < 0 || p.slot.Y < 0
+}
+
 func (p *pile) createPlaceholder() {
 	// BEWARE the card fonts may not yet be loaded
 	switch p.darkPile.Category() {
@@ -390,7 +394,7 @@ func (p *pile) update() {
 
 func (p *pile) draw(screen *ebiten.Image) {
 
-	if p.img == nil || p.darkPile.Hidden() {
+	if p.img == nil || p.hidden() {
 		return
 	}
 

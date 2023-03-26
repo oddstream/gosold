@@ -82,6 +82,7 @@ func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			if card.owner() != self.waste {
 				return false, errors.New("Empty tableaux must be filled with cards from the waste")
 			}
+			return compare_Empty(dst, card)
 		}
 	}
 	return self.TwoCards(dst, dst.peek(), card)

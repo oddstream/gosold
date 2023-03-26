@@ -284,7 +284,7 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 				}
 				if b.calcCRC() != oldCRC {
 					b.afterUserMove()
-					b.fnNotify(ChangedEvent, nil)
+					b.fnNotify(ChangedEvent, tail[0].id)
 				}
 			}
 		}
@@ -312,7 +312,7 @@ func (b *Baize) TailTapped(tail []*Card) bool {
 		b.afterUserMove()
 		cardsMoved = true
 		if b.fnNotify != nil {
-			b.fnNotify(ChangedEvent, nil)
+			b.fnNotify(ChangedEvent, tail[0].id)
 		}
 	}
 	return cardsMoved
@@ -390,7 +390,7 @@ func (b *Baize) collectFromPile(pile *Pile) int {
 			if !ok {
 				break // done with this foundation, try another
 			}
-			if b.SafeCollect {
+			if b.BaizeSettings.SafeCollect {
 				if ok, safeOrd := b.doingSafeCollect(); ok {
 					if card.Ordinal() > safeOrd {
 						// can't toast here, collect all will create a lot of toasts
@@ -435,24 +435,6 @@ func (b *Baize) Collect() int {
 	return totalCardsMoved
 }
 
-func (b *Baize) Collect4() int {
-	var totalCardsMoved int
-	for {
-		var cardsMoved int
-		for _, c := range b.cardMap {
-			if c.tapTarget.weight == 4 {
-				b.CardTapped(c.id)
-				cardsMoved++
-			}
-		}
-		if cardsMoved == 0 {
-			break
-		}
-		totalCardsMoved += cardsMoved
-	}
-	return totalCardsMoved
-}
-
 func (b *Baize) countCardWeight(w int16) int {
 	var n int
 	for _, c := range b.cardMap {
@@ -464,29 +446,28 @@ func (b *Baize) countCardWeight(w int16) int {
 }
 
 // Robot
-func (b *Baize) Robot() {
+func (b *Baize) Robot() int {
 	// while !complete && moves>0
+	// collect any weight=5 cards (to honor SafeCollect)
 	// tap all the weight=4 cards
 	// tap all the weight=3 cards
 	// tap all the weight=2 cards
+	var cardsMoved int
+	if b.fmoves > 0 {
+		cardsMoved = b.Collect()
+	}
 	var w int16
-	// for w = 1; w < 5; w++ {
-	// 	println(w, b.countCardWeight(w))
-	// }
 	for w = 4; w > 1; w-- {
-		for {
-			var cardsMoved int
-			for _, c := range b.cardMap {
+		for _, c := range b.cardMap {
+			if !c.Prone() {
 				if c.tapTarget.weight == w {
 					b.CardTapped(c.id)
 					cardsMoved++
 				}
 			}
-			if cardsMoved == 0 {
-				break
-			}
 		}
 	}
+	return cardsMoved
 }
 
 func (b *Baize) Wikipedia() string {
@@ -727,22 +708,27 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 						}
 					} else if dst.peek().Suit() == headCard.Suit() {
 						// Simple Simon, Spider
-						weight = 3
+						weight = 4
 					} else {
-						// if this card is conformant with prev card, downgrade to 1
 						weight = 2
 						if cPrev := src.prev(headCard); cPrev != nil {
-							if ok, _ := b.script.TwoCards(dst, cPrev, headCard); ok {
-								weight = 1
-								// println("ARE prev", cPrev.String(), "this", headCard.String())
+							if cPrev.Prone() {
+								// moving this card would turn up a card
+								weight = 3
 							} else {
-								// println("NOT prev", cPrev.String(), "this", headCard.String())
+								// if this card is conformant with prev card, downgrade to 1
+								if ok, _ := b.script.TwoCards(dst, cPrev, headCard); ok {
+									weight = 1
+								}
 							}
+						} else {
+							// moving this card would create an open pile
+							weight = 3
 						}
 					}
 				case *Foundation, *Discard:
 					// moves to Foundation get priority when card is tapped
-					weight = 4
+					weight = 5
 				default:
 					weight = 1
 				}
