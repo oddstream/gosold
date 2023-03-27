@@ -66,6 +66,12 @@ func (u *UI) SetPercent(percent int) {
 	u.statusbar.LayoutWidgets()
 }
 
+func (u *UI) SetPercent2(str string) {
+	var l *Label = u.statusbar.widgets[3].(*Label)
+	l.UpdateText(str)
+	u.statusbar.LayoutWidgets()
+}
+
 // Layout implements Ebiten's Layout
 func (sb *Statusbar) Layout(outsideWidth, outsideHeight int) (int, int) {
 	// override BarBase.Layout to get screen height and position statusbar

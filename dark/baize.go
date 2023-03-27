@@ -27,6 +27,7 @@ type Baize struct {
 	piles     []*Pile // needed by LIGHT to display piles and cards
 	recycles  int     // needed by LIGHT to determine Stock rune
 	percent   int     // needed by LIGHT to display in status bar
+	fpercent  int
 
 	// members specific to solver
 	//	depth      int
@@ -79,7 +80,7 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	b.undoPush()
 	b.setupPilesToCheck()
 	b.findTapTargets()
-	b.percent = b.percentComplete()
+	b.percent, b.fpercent = b.percentComplete()
 	return b, nil
 }
 
@@ -136,8 +137,8 @@ func (b *Baize) LoadPosition() (bool, error) {
 	return true, nil
 }
 
-func (b *Baize) PercentComplete() int {
-	return b.percent
+func (b *Baize) PercentComplete() (int, int) {
+	return b.percent, b.fpercent
 }
 
 // Piles returns the slice of Piles
@@ -169,7 +170,7 @@ func (b *Baize) CardColors() int {
 func (b *Baize) NewDeal() (bool, error) {
 	// a virgin game has one state on the undo stack
 	if len(b.undoStack) > 1 && !b.Complete() {
-		percent := b.PercentComplete()
+		percent, _ := b.PercentComplete()
 		b.dark.stats.recordLostGame(b.variant, percent)
 		b.fnNotify(LostEvent, nil)
 	}
@@ -435,10 +436,11 @@ func (b *Baize) Collect() int {
 	return totalCardsMoved
 }
 
-func (b *Baize) countCardWeight(w int16) int {
+func (b *Baize) RobotMoves() int {
 	var n int
 	for _, c := range b.cardMap {
-		if c.tapTarget.weight == w {
+		// the top card of Stock might be flagged as movable
+		if c.tapTarget.weight > 1 && !c.Prone() {
 			n++
 		}
 	}
@@ -447,13 +449,26 @@ func (b *Baize) countCardWeight(w int16) int {
 
 // Robot
 func (b *Baize) Robot() int {
-	// while !complete && moves>0
-	// collect any weight=5 cards (to honor SafeCollect)
-	// tap all the weight=4 cards
-	// tap all the weight=3 cards
-	// tap all the weight=2 cards
+
+	if b.RobotMoves() == 0 {
+		stock := b.script.Stock()
+		if !stock.Hidden() {
+			if stock.Len() > 0 {
+				c := stock.peek()
+				b.CardTapped(c.id)
+				return 1
+			} else {
+				if b.recycles > 0 {
+					b.PileTapped(stock)
+					return 1
+				}
+			}
+		}
+	}
+
 	var cardsMoved int
 	if b.fmoves > 0 {
+		// use Collect rather than CardTapped to honor SafeCollect
 		cardsMoved = b.Collect()
 	}
 	var w int16
@@ -499,8 +514,8 @@ func (b *Baize) reset() {
 	b.bookmark = 0
 }
 
-// percentComplete used to display in status bar, and as postive progress in solver
-func (b *Baize) percentComplete() int {
+// percentComplete used to display in status bar, and as positive progress in solver
+func (b *Baize) percentComplete() (int, int) {
 	var pairs, unsorted, percent int
 	for _, p := range b.piles {
 		if p.Len() > 1 {
@@ -509,7 +524,21 @@ func (b *Baize) percentComplete() int {
 		unsorted += p.vtable.unsortedPairs()
 	}
 	percent = (int)(100.0 - util.MapValue(float64(unsorted), 0, float64(pairs), 0.0, 100.0))
-	return percent
+
+	var founds, fcards, fpercent int
+	if founds = len(b.script.Foundations()); founds > 0 {
+		for _, p := range b.script.Foundations() {
+			fcards += p.Len()
+		}
+	} else if founds = len(b.script.Discards()); founds > 0 {
+		for _, p := range b.script.Discards() {
+			fcards += p.Len()
+		}
+	}
+	if founds > 0 {
+		fpercent = (int)(util.MapValue(float64(fcards), 0, float64(founds*13), 0.0, 100.0))
+	}
+	return percent, fpercent
 }
 
 func (b *Baize) calcCRC() uint32 {
@@ -551,7 +580,7 @@ func (b *Baize) setRecycles(recycles int) {
 
 func (b *Baize) afterChange() {
 	b.findTapTargets()
-	b.percent = b.percentComplete()
+	b.percent, b.fpercent = b.percentComplete()
 	b.fnNotify(ChangedEvent, nil)
 }
 

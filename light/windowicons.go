@@ -1,39 +1,35 @@
 package light
 
 import (
+	"bytes"
+	_ "embed"
 	"image"
-
-	"github.com/fogleman/gg"
+	"log"
 )
 
-func createImg(size int) image.Image {
-	var s float64 = float64(size)
-	var halfSize float64 = s / 2.0
-	dc := gg.NewContext(size, size)
-	dc.SetColor(ExtendedColors["BaizeGreen"])
-	dc.DrawCircle(halfSize, halfSize, halfSize)
-	dc.Fill()
+// https://www.iconsdb.com/white-icons/cards-icon.html
 
-	dc.SetColor(ExtendedColors["Ivory"])
-	// draw a scaled diamond (simplest suit shape)
-	dc.MoveTo(s*0.5, s*0.2)  // top
-	dc.LineTo(s*0.75, s*0.5) // right
-	dc.LineTo(s*0.5, s*0.8)  // bottom
-	dc.LineTo(s*0.25, s*0.5) // left
-	dc.LineTo(s*0.5, s*0.25) // top
-	dc.Fill()
+//go:embed icons/cards-16.png
+var cards16IconBytes []byte
 
-	dc.Stroke()
-	return dc.Image()
-}
+//go:embed icons/cards-32.png
+var cards32IconBytes []byte
+
+//go:embed icons/cards-48.png
+var cards48IconBytes []byte
 
 // WindowIcons create window icons in various resolutions.
-// Exportorted so it can be used in package main.
+// Exported so it can be used in package main.
 func WindowIcons() []image.Image {
 	var images []image.Image
-	var sizes []int = []int{16, 32, 48, 96, 128}
-	for i := 0; i < len(sizes); i++ {
-		images = append(images, createImg(sizes[i]))
+
+	for _, b := range [][]byte{cards16IconBytes, cards32IconBytes, cards48IconBytes} {
+		img, _, err := image.Decode(bytes.NewReader(b))
+		if err != nil {
+			log.Panic(err)
+		}
+		images = append(images, img)
 	}
+
 	return images
 }

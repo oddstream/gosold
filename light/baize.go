@@ -722,7 +722,12 @@ func (b *baize) updateStatusbar() {
 	b.game.ui.SetStock(b.darkBaize.StockLen())
 	b.game.ui.SetWaste(b.darkBaize.WasteLen())
 	b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d", b.darkBaize.UndoStackSize()-1))
-	b.game.ui.SetPercent(b.darkBaize.PercentComplete())
+	percent, fpercent := b.darkBaize.PercentComplete()
+	if DebugMode {
+		b.game.ui.SetPercent2(fmt.Sprintf("%d%%/%d%%", percent, fpercent))
+	} else {
+		b.game.ui.SetPercent(percent)
+	}
 }
 
 func (b *baize) updateDrawers() {

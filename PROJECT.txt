@@ -11,14 +11,20 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] Stock and pile tap in Robot()?
+	certainly in Solver
+[ ] Do all the Hapgood variants
+	requires rotating cards
+	which only gets tricky when fanned
+	and choose an origin to rotate about
+[ ] go Solve() when weights are 1
+	Robot() when there are weights > 1
 [ ] https://garden.bradwoods.io/notes/design/juice
 	fly-away % complete, that animates upward from the card dst?
 [ ] Stock tapped cards are not always flipping
 [ ] Robot()
-	Collect() is really just auto-playing the weight=4 cards
-	so have an AutoPlay() for the weight=2,3 cards
 	only do one round in case of circulars
-	36x36 white robot icon
+	36x36 white robot/wizard/assist icon
 [x] why save >1 tap target for each card? just makes the solver more complicated.
 [x] packs, suits in ScriptBase AND Stock!?
 [x] only calc Baize crc when it's needed, only use Baize.crc in solver
@@ -45,6 +51,13 @@ foreach pile
 
 SOLVER
 ======
+[ ] Score each baize
+	percent complete
+	number of free/used cells
+	foundation percent complete
+		13 x 4 = 52
+		18 cards
+
 [x] doing a Q makes autoCollect not work
 
 put tapTargets in a map?

@@ -174,7 +174,7 @@ func (b *Baize) solve2(root *tapNode, tn *tapNode, maxDepth int) {
 		b.script.TailTapped(tail)
 		b.script.AfterMove()
 		b.findTapTargets()
-		b.percent = b.percentComplete()
+		b.percent, _ = b.percentComplete()
 
 		// we now have a new baize
 		// create a child node with result of this move

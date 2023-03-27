@@ -1,5 +1,8 @@
 PROGRESS
 
+2023-03-27
+better window icons
+
 2023-03-25
 tweaks to Robot()
 
