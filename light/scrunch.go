@@ -70,7 +70,7 @@ func (p *pile) sizeWithFanFactor(fanFactor float64) int {
 	case dark.FAN_DOWN:
 		for i := 0; i < len(p.cards)-1; i++ {
 			c := p.cards[i]
-			if c.lightProne {
+			if c.prone() {
 				max += int(float64(CardHeight) / CARD_BACK_FAN_FACTOR)
 			} else {
 				max += int(float64(CardHeight) / fanFactor)
@@ -80,7 +80,7 @@ func (p *pile) sizeWithFanFactor(fanFactor float64) int {
 	case dark.FAN_LEFT, dark.FAN_RIGHT:
 		for i := 0; i < len(p.cards)-1; i++ {
 			c := p.cards[i]
-			if c.lightProne {
+			if c.prone() {
 				max += int(float64(CardWidth) / CARD_BACK_FAN_FACTOR)
 			} else {
 				max += int(float64(CardWidth) / fanFactor)
@@ -91,8 +91,8 @@ func (p *pile) sizeWithFanFactor(fanFactor float64) int {
 	return max
 }
 
-// scrunch prepares to refan cards after Push() or Pop(), adjusting the amount of overlap to try to keep them fitting on the screen
-// only Scrunch piles with fanType LEFT/RIGHT/UP/DOWN, ignore the waste-style piles and those that do not fan
+// scrunch prepares to refan cards after Push() or Pop(), adjusting the amount of overlap to try to keep them fitting on the screen.
+// Only scrunch piles with fanType LEFT/RIGHT/UP/DOWN, ignore the waste-style piles and those that do not fan.
 func (p *pile) scrunch() {
 
 	p.fanFactor = defaultFanFactor[p.fanType]
@@ -106,14 +106,11 @@ func (p *pile) scrunch() {
 	switch p.fanType {
 	case dark.FAN_DOWN:
 		// baize->dragOffset is always -ve
-		// statusbar height is 24
-		// maxPileSize = TheGame.Baize.WindowHeight - scpos.Y + util.Abs(TheGame.Baize.dragOffset.Y)
 		maxPileSize = p.baize.windowHeight - p.screenPos().Y + (CardHeight / 2)
 	case dark.FAN_LEFT:
 		maxPileSize = p.screenPos().X
 	case dark.FAN_RIGHT:
 		// baize->dragOffset is always -ve
-		// maxPileSize = TheGame.Baize.WindowWidth - scpos.X + util.Abs(TheGame.Baize.dragOffset.X)
 		maxPileSize = p.baize.windowWidth - p.screenPos().X
 	}
 	if maxPileSize == 0 {
@@ -122,25 +119,15 @@ func (p *pile) scrunch() {
 		return
 	}
 
-	var nloops int
+	// var nloops int
 	var fanFactor float64
 	for fanFactor = defaultFanFactor[p.fanType]; fanFactor < 7.0; fanFactor += 0.1 {
 		size := p.sizeWithFanFactor(fanFactor)
-		switch p.fanType {
-		case dark.FAN_DOWN:
-			if size < maxPileSize {
-				goto exitloop
-			}
-		case dark.FAN_LEFT, dark.FAN_RIGHT:
-			if size < maxPileSize {
-				goto exitloop
-			}
-		default:
-			goto exitloop
+		if size < maxPileSize {
+			break
 		}
-		nloops++
+		// nloops++
 	}
-exitloop:
 	p.fanFactor = fanFactor
 	p.refan()
 }

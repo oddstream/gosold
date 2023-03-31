@@ -14,8 +14,6 @@ type card struct {
 	id   cardid.CardID
 	pile *pile
 
-	// lightProne flag for displayed card
-	lightProne bool
 	// pos of card on light.baize
 	pos image.Point
 
@@ -39,6 +37,14 @@ type card struct {
 	directionX, directionY int     // direction vector when card is spinning
 	angle, spin            float64 // current angle and spin when card is spinning
 	spinStartAfter         time.Time
+}
+
+func (c *card) prone() bool {
+	return c.id.Prone()
+}
+
+func (c *card) setProne(prone bool) {
+	c.id = c.id.SetProne(prone)
 }
 
 // baizePos returns the x,y baize coords of this card
@@ -191,7 +197,7 @@ func (c *card) flipping() bool {
 	return c.flipDirection != 0 // will be -1 or +1 if flipping
 }
 
-func (c *card) update() error {
+func (c *card) update() {
 	if c.spinning() {
 		if time.Now().After(c.spinStartAfter) {
 			c.lerpingFlag = false
@@ -249,8 +255,6 @@ func (c *card) update() error {
 			}
 		}
 	}
-
-	return nil
 }
 
 func (c *card) draw(screen *ebiten.Image) {
@@ -262,7 +266,7 @@ func (c *card) draw(screen *ebiten.Image) {
 	var img *ebiten.Image
 	// card prone has already been set to destination state
 	if c.flipDirection < 0 {
-		if c.lightProne {
+		if c.prone() {
 			// card is getting narrower, and it's going to show face down, but show face up
 			img = TheCardFaceImageLibrary[(c.id.Suit()*13)+(c.id.Ordinal()-1)]
 		} else {
@@ -270,7 +274,7 @@ func (c *card) draw(screen *ebiten.Image) {
 			img = CardBackImage
 		}
 	} else {
-		if c.lightProne {
+		if c.prone() {
 			img = CardBackImage
 		} else {
 			img = TheCardFaceImageLibrary[(c.id.Suit()*13)+(c.id.Ordinal()-1)]
@@ -301,12 +305,20 @@ func (c *card) draw(screen *ebiten.Image) {
 			c.directionX = rand.Intn(5)
 			c.spin = rand.Float64() - 0.5
 		case c.pos.Y > h+CardHeight:
-			c.directionX = rand.Intn(5) // go downwards
-			c.pos.Y = -CardHeight       // start from off screen at top
+			c.directionX = rand.Intn(5)
+			c.pos.Y = -CardHeight
 		case c.pos.Y < -CardHeight:
-			c.directionY = rand.Intn(5) // go downwards
+			c.directionY = rand.Intn(5)
 		}
 	}
+
+	// if c.id.Ordinal() == 10 {
+	// rotate *before* translate
+	// card is rotated about top left corner
+	// and looks horribly jaggy
+	// and the hit rect for it is, of course, wrong
+	// op.GeoM.Rotate(15.0 * 3.14156 / 180.0)
+	// }
 
 	op.GeoM.Translate(float64(c.pos.X+c.pile.baize.dragOffset.X), float64(c.pos.Y+c.pile.baize.dragOffset.Y))
 

@@ -220,8 +220,8 @@ func createFaceImage(faceColor color.Color, pipColor color.Color, ID cardid.Card
 			// TODO would really like to draw some crown-ish symbols here
 			// the chess glyphs only have king and queen, and would look a bit off
 			// so using J Q K will have to do for now
-			var pips = pips[ID.Ordinal()-1]
-			for _, pip := range pips {
+			var cardPips = pips[ID.Ordinal()-1]
+			for _, pip := range cardPips {
 				switch pip.SZ {
 				case -1:
 					dc.SetFontFace(schriftbank.CardSymbolSmall)
@@ -280,13 +280,13 @@ func createSimpleFaceImage(ID CardID) *ebiten.Image {
 }
 ***/
 
-func createCardBackImage(color string) *ebiten.Image {
+func createCardBackImage(cardBackColor string) *ebiten.Image {
 	w := float64(CardWidth)
 	h := float64(CardHeight)
 
 	dc := gg.NewContext(CardWidth, CardHeight)
 
-	dc.SetColor(ExtendedColors[color])
+	dc.SetColor(ExtendedColors[cardBackColor])
 	dc.DrawRoundedRectangle(0, 0, w, h, CardCornerRadius)
 	dc.Fill()
 

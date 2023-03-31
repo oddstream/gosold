@@ -106,11 +106,16 @@ func (b *baize) quiet() bool {
 	if b.stroke != nil {
 		return false
 	}
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if c.spinning() || c.flipping() || c.lerping() {
-				return false
-			}
+	// for _, p := range b.piles {
+	// 	for _, c := range p.cards {
+	// 		if c.spinning() || c.flipping() || c.lerping() {
+	// 			return false
+	// 		}
+	// 	}
+	// }
+	for _, c := range b.cardMap {
+		if c.spinning() || c.flipping() || c.lerping() {
+			return false
 		}
 	}
 	return true
@@ -307,18 +312,24 @@ func (b *baize) stopDrag() {
 
 // startSpinning tells all the cards to start spinning
 func (b *baize) startSpinning() {
-	for _, p := range b.piles {
-		// use a method expression, which yields a function value with a regular first parameter taking the place of the receiver
-		p.applyToCards((*card).startSpinning)
+	for _, c := range b.cardMap {
+		c.startSpinning()
 	}
+	// for _, p := range b.piles {
+	// 	// use a method expression, which yields a function value with a regular first parameter taking the place of the receiver
+	// 	p.applyToCards((*card).startSpinning)
+	// }
 }
 
 // stopSpinning tells all the cards to stop spinning and return to their upright position
 func (b *baize) stopSpinning() {
-	for _, p := range b.piles {
-		// use a method expression, which yields a function value with a regular first parameter taking the place of the receiver
-		p.applyToCards((*card).stopSpinning)
+	for _, c := range b.cardMap {
+		c.stopSpinning()
 	}
+	// for _, p := range b.piles {
+	// 	// use a method expression, which yields a function value with a regular first parameter taking the place of the receiver
+	// 	p.applyToCards((*card).stopSpinning)
+	// }
 	b.setFlag(dirtyCardPositions)
 }
 
@@ -443,10 +454,8 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 		}
 		if b.flagSet(dirtyPileBackgrounds) {
 			if !(CardWidth == 0 || CardHeight == 0) {
-				for i, p := range b.piles {
-					if !p.hidden() {
-						b.piles[i].createPlaceholder()
-					}
+				for i := range b.piles {
+					b.piles[i].createPlaceholder()
 				}
 			}
 		}
@@ -508,13 +517,18 @@ func (b *baize) cancelTailDrag(tail []*card) {
 }
 
 func (b *baize) findCard(cid cardid.CardID) *card {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if c.id == cid {
-				return c
-			}
+	for _, c := range b.cardMap {
+		if c.id == cid {
+			return c
 		}
 	}
+	// for _, p := range b.piles {
+	// 	for _, c := range p.cards {
+	// 		if c.id == cid {
+	// 			return c
+	// 		}
+	// 	}
+	// }
 	return nil
 }
 

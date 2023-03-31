@@ -634,13 +634,10 @@ func (b *Baize) doingSafeCollect() (bool, int) {
 		return false, 0
 	}
 	var fs []*Pile = b.script.Foundations()
-	if fs == nil {
+	if len(fs) == 0 {
 		return false, 0
 	}
 	var f0 *Pile = fs[0]
-	if f0 == nil {
-		return false, 0
-	}
 	if f0.Label() != "A" {
 		return false, 0 // eg Duchess
 	}
@@ -660,21 +657,29 @@ func (b *Baize) doingSafeCollect() (bool, int) {
 
 // foreachCard applys a function to each card
 func (b *Baize) foreachCard(fn func(*Card)) {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			fn(c)
-		}
+	for _, c := range b.cardMap {
+		fn(c)
 	}
+	// for _, p := range b.piles {
+	// 	for _, c := range p.cards {
+	// 		fn(c)
+	// 	}
+	// }
 }
 
 func (b *Baize) findCard(cid cardid.CardID) *Card {
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if c.id == cid {
-				return c
-			}
+	for _, c := range b.cardMap {
+		if c.id == cid {
+			return c
 		}
 	}
+	// for _, p := range b.piles {
+	// 	for _, c := range p.cards {
+	// 		if c.id == cid {
+	// 			return c
+	// 		}
+	// 	}
+	// }
 	return nil
 }
 
@@ -791,17 +796,26 @@ func (b *Baize) countMoves() {
 		}
 	}
 
-	for _, p := range b.piles {
-		for _, c := range p.cards {
-			if c.tapTarget.dst == nil {
-				continue
-			}
-			b.moves++
-			if _, ok := c.tapTarget.dst.vtable.(*Foundation); ok {
-				b.fmoves++
-			}
+	for _, c := range b.cardMap {
+		if c.tapTarget.dst == nil {
+			continue
+		}
+		b.moves++
+		if _, ok := c.tapTarget.dst.vtable.(*Foundation); ok {
+			b.fmoves++
 		}
 	}
+	// for _, p := range b.piles {
+	// 	for _, c := range p.cards {
+	// 		if c.tapTarget.dst == nil {
+	// 			continue
+	// 		}
+	// 		b.moves++
+	// 		if _, ok := c.tapTarget.dst.vtable.(*Foundation); ok {
+	// 			b.fmoves++
+	// 		}
+	// 	}
+	// }
 
 }
 

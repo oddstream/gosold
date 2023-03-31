@@ -41,9 +41,9 @@ type pile struct {
 	pos1      image.Point // waste pos #1
 	pos2      image.Point // waste pos #1
 	fanFactor float64
-	slot      image.Point  // local copy for mirror baize
-	fanType   dark.FanType // local copy for mirror baize
-	img       *ebiten.Image
+	slot      image.Point   // local copy for mirror baize
+	fanType   dark.FanType  // local copy for mirror baize
+	img       *ebiten.Image // placeholder
 }
 
 func newPile(b *baize, darkPile *dark.Pile) *pile {
@@ -66,19 +66,22 @@ func (p *pile) peek() *card {
 	return p.cards[len(p.cards)-1]
 }
 
+// push a card onto this pile, flipping the card if light and dark prone
+// flags do not match
 func (p *pile) push(c *card) {
 	p.cards = append(p.cards, c)
 	c.pile = p
-	if darkProne := p.baize.darkBaize.IsCardProne(c.id); darkProne != c.lightProne {
-		c.lightProne = darkProne
+	if darkProne := p.baize.darkBaize.IsCardProne(c.id); darkProne != c.prone() {
+		c.setProne(darkProne)
 		c.startFlip()
 	}
 	c.lerpTo(c.pos)
 }
 
+// makeTail returns a slice of cards from c downwards
 func (p *pile) makeTail(c *card) []*card {
-	if c.pile != p {
-		log.Panic("Pile.makeTail called with a card that is not of this pile")
+	if DebugMode && c.pile != p {
+		log.Panic("pile.makeTail called with a card that is not of this pile")
 	}
 	if c == p.peek() {
 		return []*card{c}
@@ -88,27 +91,33 @@ func (p *pile) makeTail(c *card) []*card {
 			return p.cards[i:]
 		}
 	}
-	log.Panic("Pile.makeTail made an empty tail")
+	log.Panic("pile.makeTail made an empty tail")
 	return nil
 }
 
-// copyCardsFromDark
+// copyCardsFromDark resets this pile, copies all the cards from dark to light,
+// and pushes them onto this pile
 func (p *pile) copyCardsFromDark() {
 	p.cards = []*card{}
 	for _, id := range p.darkPile.Cards() {
 		if c, ok := p.baize.cardMap[id.PackSuitOrdinal()]; !ok {
-			log.Panicf("Card [%s] not found in card map", id.String())
+			log.Panicf("%s not found in card map", id.String())
 		} else {
 			p.push(c)
 		}
 	}
 }
 
+// hidden returns true if this pile is not displayed on screen
 func (p *pile) hidden() bool {
 	return p.slot.X < 0 || p.slot.Y < 0
 }
 
+// createPlaceHolder for this pile, depending on category. Sets pile.img field.
 func (p *pile) createPlaceholder() {
+	if p.hidden() {
+		return
+	}
 	// BEWARE the card fonts may not yet be loaded
 	switch p.darkPile.Category() {
 	case "Cell":
@@ -173,7 +182,7 @@ func (p *pile) createPlaceholder() {
 	}
 }
 
-// SetBaizePos sets the position of this Pile in Baize coords,
+// setBaizePos sets the position of this Pile in Baize coords,
 // and also sets the auxillary waste pile fanned positions
 func (p *pile) setBaizePos(pos image.Point) {
 	p.pos = pos
@@ -247,10 +256,10 @@ func (p *pile) fannedBaizeRect() image.Rectangle {
 // 	return r
 // }
 
-// PosAfter returns the position of the next card
+// posAfter returns the position of the next card after c
 func (p *pile) posAfter(c *card) image.Point {
-	if len(p.cards) == 0 {
-		println("Panic! PosAfter called in impossible way")
+	if DebugMode && len(p.cards) == 0 {
+		log.Panic("pile.posAfter called in impossible way")
 		return p.pos
 	}
 	var pos image.Point
@@ -262,26 +271,26 @@ func (p *pile) posAfter(c *card) image.Point {
 	if pos.X <= 0 && pos.Y <= 0 {
 		// the card is still at 0,0 where it started life
 		// and is yet to have pos calculated from the pile slot
-		// println("zero pos in PosAfter", self.category)
+		// println("zero pos in posAfter", self.category)
 		return pos
 	}
 	switch p.darkPile.FanType() {
 	case dark.FAN_NONE:
 		// nothing to do
 	case dark.FAN_DOWN:
-		if c.lightProne {
+		if c.prone() {
 			pos.Y += int(float64(CardHeight) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.Y += int(float64(CardHeight) / p.fanFactor)
 		}
 	case dark.FAN_LEFT:
-		if c.lightProne {
+		if c.prone() {
 			pos.X -= int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.X -= int(float64(CardWidth) / p.fanFactor)
 		}
 	case dark.FAN_RIGHT:
-		if c.lightProne {
+		if c.prone() {
 			pos.X += int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
 		} else {
 			pos.X += int(float64(CardWidth) / p.fanFactor)
@@ -310,8 +319,8 @@ func (p *pile) posAfter(c *card) image.Point {
 	return pos
 }
 
+// refan repositions all the cards in this pile
 func (p *pile) refan() {
-	// TODO trying set pos instead of transition
 	var doFan3 bool = false
 	switch p.darkPile.FanType() {
 	case dark.FAN_NONE:
@@ -356,11 +365,11 @@ func (p *pile) refan() {
 // applyToCards applies a function to each card in the pile
 // caller must use a method expression, eg (*Card).StartSpinning, yielding a function value
 // with a regular first parameter taking the place of the receiver
-func (p *pile) applyToCards(fn func(*card)) {
-	for _, c := range p.cards {
-		fn(c)
-	}
-}
+// func (p *pile) applyToCards(fn func(*card)) {
+// 	for _, c := range p.cards {
+// 		fn(c)
+// 	}
+// }
 
 func (p *pile) drawStaticCards(screen *ebiten.Image) {
 	for _, c := range p.cards {
@@ -392,9 +401,11 @@ func (p *pile) update() {
 	}
 }
 
+// draw the pile's placeHolder
 func (p *pile) draw(screen *ebiten.Image) {
 
-	if p.img == nil || p.hidden() {
+	if p.img == nil {
+		// hidden piles will not have a placeHolder
 		return
 	}
 

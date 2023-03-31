@@ -11,6 +11,17 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] Stock tapped cards are not always flipping
+	seems okay with -noload/-nosave
+[ ] get rid of the scrunch loop
+	Q. How do we do scrunch in gosol?
+	A. if the card positions are dirty, scrunch is called on each pile
+		scrunch works out the maximum pile size
+		then, starting from the max/default fan factor
+		the fan factor is reduced, the cards refanned, until the cards fit in the max pile size
+	Q. How do we do scrunch in lsol?
+	A.
+[ ] Given a sequence, the function continuously splits the sequence into a head and a tail. Then it processes the head, adds it to some result, and uses recursion to continue the process with the tail.
 [ ] Stock and pile tap in Robot()?
 	certainly in Solver
 [ ] Do all the Hapgood variants
@@ -21,7 +32,6 @@ TODO
 	Robot() when there are weights > 1
 [ ] https://garden.bradwoods.io/notes/design/juice
 	fly-away % complete, that animates upward from the card dst?
-[ ] Stock tapped cards are not always flipping
 [ ] Robot()
 	only do one round in case of circulars
 	36x36 white robot/wizard/assist icon
