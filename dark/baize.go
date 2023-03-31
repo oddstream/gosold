@@ -197,6 +197,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	}
 	for _, c := range stock.cards {
 		c.pile = stock
+		c.setProne(true)
 	}
 	if len(stock.cards) != b.cardCount {
 		log.Panic("the number of cards in the stock is incorrect")

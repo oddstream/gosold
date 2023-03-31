@@ -11,7 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] Stock tapped cards are not always flipping
+[ ] map reduce first rest cons (car cdr)
+[x] Stock tapped cards are not always flipping
 	seems okay with -noload/-nosave
 [ ] get rid of the scrunch loop
 	Q. How do we do scrunch in gosol?
