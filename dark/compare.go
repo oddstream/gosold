@@ -13,38 +13,16 @@ type cardPair struct {
 	c1, c2 *Card
 }
 
-type cardPairs []cardPair
-
 type cardPairCompareFunc func(cardPair) (bool, error)
 
 func tailConformant(tail []*Card, fn cardPairCompareFunc) (bool, error) {
-	for _, pair := range newCardPairs(tail) {
-		if ok, err := fn(pair); !ok {
+	for i := 1; i < len(tail); i++ {
+		if ok, err := fn(cardPair{tail[i-1], tail[i]}); !ok {
 			return false, err
 		}
 	}
 	return true, nil
 }
-
-func newCardPairs(cards []*Card) cardPairs {
-	if len(cards) < 2 {
-		return []cardPair{} // always return a list, not nil
-	}
-	var cpairs []cardPair
-	c1 := cards[0]
-	for i := 1; i < len(cards); i++ {
-		c2 := cards[i]
-		cpairs = append(cpairs, cardPair{c1, c2})
-		c1 = c2
-	}
-	return cpairs
-}
-
-// func (cpairs CardPairs) Print() {
-// 	for _, pair := range cpairs {
-// 		println(pair.c1.String(), pair.c2.String())
-// 	}
-// }
 
 func compare_Empty(p *Pile, c *Card) (bool, error) {
 	if p.Label() != "" {

@@ -6,6 +6,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"runtime/pprof"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"oddstream.games/gosold/dark"
@@ -23,6 +24,7 @@ func main() {
 	flag.BoolVar(&DebugMode, "debug", false, "turn debug mode on")
 	flag.BoolVar(&dark.NoLoad, "noload", false, "do not load saved game when starting")
 	flag.BoolVar(&dark.NoSave, "nosave", false, "do not save game before exit")
+	var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 	flag.Parse()
 
@@ -32,6 +34,18 @@ func main() {
 		for i, a := range os.Args {
 			log.Println(i, a)
 		}
+	}
+
+	if *cpuProfile != "" {
+		var f *os.File
+		var err error
+		if f, err = os.Create(*cpuProfile); err != nil {
+			log.Fatal(err)
+		}
+		if err = pprof.StartCPUProfile(f); err != nil {
+			log.Fatal(err)
+		}
+		defer pprof.StopCPUProfile()
 	}
 
 	ebiten.SetScreenClearedEveryFrame(false)

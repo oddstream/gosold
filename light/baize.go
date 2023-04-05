@@ -201,10 +201,6 @@ func (b *baize) collect() {
 	}
 }
 
-func (b *baize) solve() {
-	b.darkBaize.Solve(4)
-}
-
 func (b *baize) undo() {
 	// temporarily disable autocollect
 	var saved bool = b.game.settings.AutoCollect

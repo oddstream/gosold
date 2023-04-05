@@ -744,6 +744,7 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 					} else if dst.peek().Suit() == headCard.Suit() {
 						// Simple Simon, Spider
 						weight = 4
+						// TODO sometimes not so good for Forty Thieves
 					} else {
 						weight = 2
 						if cPrev := src.prev(headCard); cPrev != nil {

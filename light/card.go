@@ -340,18 +340,20 @@ func (c *card) draw(screen *ebiten.Image) {
 		} else {
 			var weight int16 = c.pile.baize.darkBaize.CardTapWeight(c.id)
 			if !c.flipping() && weight != 0 {
-				switch weight {
-				case 1: // Cell
-					op.ColorScale.Scale(1.0, 1.0, 0.9, 1)
-				case 2: // Normal
-					op.ColorScale.Scale(1.0, 1.0, 0.8, 1)
-				case 3: // Open pile or turn up
-					op.ColorScale.Scale(1.0, 1.0, 0.7, 1)
-				case 4: // Suit match
-					op.ColorScale.Scale(1.0, 1.0, 0.6, 1)
-				case 5: // Discard or Foundation
-					op.ColorScale.Scale(1.0, 1.0, 0.5, 1)
-				}
+				var fudgeFactor float32 = 1.0 - (float32(weight) / 10)
+				op.ColorScale.Scale(1.0, 1.0, fudgeFactor, 1.0)
+				// switch weight {
+				// case 1: // Cell
+				// 	op.ColorScale.Scale(1.0, 1.0, 0.9, 1)
+				// case 2: // Normal
+				// 	op.ColorScale.Scale(1.0, 1.0, 0.8, 1)
+				// case 3: // Open pile or turn up
+				// 	op.ColorScale.Scale(1.0, 1.0, 0.7, 1)
+				// case 4: // Suit match
+				// 	op.ColorScale.Scale(1.0, 1.0, 0.6, 1)
+				// case 5: // Discard or Foundation
+				// 	op.ColorScale.Scale(1.0, 1.0, 0.5, 1)
+				// }
 			}
 		}
 	}

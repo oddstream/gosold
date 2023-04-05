@@ -1,5 +1,5 @@
-github.com/ebitengine/purego v0.3.0 h1:BDv9pD98k6AuGNQf3IF41dDppGBOe0F4AofvhFtBXF4=
-github.com/ebitengine/purego v0.3.0/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
+github.com/ebitengine/purego v0.3.2 h1:+pV+tskAkn/bxEcUzGtDfw2VAe3bRQ26kdzFjPPrCww=
+github.com/ebitengine/purego v0.3.2/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/fogleman/gg v1.3.0 h1:/7zJX8F6AaYQc57WQCyN9cAIz+4bCJGO9B+dyW29am8=
 github.com/fogleman/gg v1.3.0/go.mod h1:R/bRT+9gY/C5z7JzPU0zXsXHKM4/ayA+zqcVNZzPa1k=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b h1:GgabKamyOYguHqHjSkDACcgoPIz3w0Dis/zJ1wyHHHU=

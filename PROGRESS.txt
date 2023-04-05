@@ -1,5 +1,10 @@
 PROGRESS
 
+2023-04-05
+retire CardPairs to lessen heap abuse
+rewrite unsortedPairs
+rewrite tailConformant
+
 2023-03-27
 better window icons
 

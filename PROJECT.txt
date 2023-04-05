@@ -11,9 +11,10 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] map reduce first rest cons (car cdr)
+[ ] id robot moves available, show FAB
 [x] Stock tapped cards are not always flipping
 	seems okay with -noload/-nosave
+	cause by new deal not setting prone flag when reforming Stock
 [ ] get rid of the scrunch loop
 	Q. How do we do scrunch in gosol?
 	A. if the card positions are dirty, scrunch is called on each pile
@@ -22,13 +23,12 @@ TODO
 		the fan factor is reduced, the cards refanned, until the cards fit in the max pile size
 	Q. How do we do scrunch in lsol?
 	A.
-[ ] Given a sequence, the function continuously splits the sequence into a head and a tail. Then it processes the head, adds it to some result, and uses recursion to continue the process with the tail.
 [ ] Stock and pile tap in Robot()?
 	certainly in Solver
 [ ] Do all the Hapgood variants
 	requires rotating cards
 	which only gets tricky when fanned
-	and choose an origin to rotate about
+	and looks jaggy
 [ ] go Solve() when weights are 1
 	Robot() when there are weights > 1
 [ ] https://garden.bradwoods.io/notes/design/juice
@@ -43,6 +43,15 @@ TODO
 [ ] Mirror Baize
 [x] dark makeTail failing after loading a game
 [x] recenter variant in toolbar after changing it
+
+PROFILING
+=========
+https://go.dev/blog/pprof
+copy __debug_bin to gosold
+./gosold -debug -cpuprofile=gsold.prof
+quit using x NOT menu
+go tool pprof gosold gosold.prof
+top30
 
 TAP DESTINATIONS
 ================

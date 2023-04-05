@@ -59,15 +59,14 @@ func (self *Tableau) Conformant() bool {
 }
 
 func (self *Tableau) unsortedPairs() int {
-	if self.pile.Len() < 2 {
-		return 0
-	}
 	var unsorted int
-	for _, pair := range newCardPairs(self.pile.cards) {
-		if pair.c1.Prone() || pair.c2.Prone() {
+	for i := 1; i < len(self.pile.cards); i++ {
+		var c1 *Card = self.pile.cards[i-1]
+		var c2 *Card = self.pile.cards[i]
+		if c1.Prone() || c2.Prone() {
 			unsorted++
 		} else {
-			if ok, _ := self.pile.baize.script.TwoCards(self.pile, pair.c1, pair.c2); !ok {
+			if ok, _ := self.pile.baize.script.TwoCards(self.pile, c1, c2); !ok {
 				unsorted++
 			}
 		}

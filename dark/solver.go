@@ -249,6 +249,7 @@ func maxPercent(tn *tapNode, pmax *int, ptn **tapNode) {
 // }
 
 func (b *Baize) Solve(maxDepth int) {
+
 	var tn *tapNode = &tapNode{} // root node will be empty/dummy, except for children
 	b.solve2(tn, tn, maxDepth)
 	var count int
@@ -257,15 +258,21 @@ func (b *Baize) Solve(maxDepth int) {
 	var ptn **tapNode = &tn
 	maxPercent(tn, &max, ptn)
 	println("max depth", maxDepth, "nodes", count, "max percent", max, "card", (*ptn).cid.String())
+
+	b.foreachCard(func(c *Card) {
+		c.tapTarget.dst = nil
+		c.tapTarget.weight = 0
+	})
+	// weight the next card to be tapped
 	tn2 := *ptn
 	var id cardid.CardID
 	for tn2.parent != nil {
 		id = tn2.cid
-		if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
-			c.weight = int16(tn2.depth)
-		}
 		// println(tn2.cid.String())
 		tn2 = tn2.parent
+	}
+	if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
+		c.weight = 1
 	}
 	// if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
 	// 	c.weight = 5
