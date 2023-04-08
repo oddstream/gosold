@@ -4,13 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-		{
-			"name": "Launch Package",
-			"type": "go",
-			"request": "launch",
-			"mode": "auto",
-			"program": "${workspaceFolder}"
-		},
     {
         "name": "Launch Package",
         "type": "go",
@@ -18,7 +11,9 @@
         "mode": "debug",
         "program": "${workspaceFolder}",
         // "args": ["-debug", "-noload", "-nosave"],
-        "args": ["-debug", "-cpuprofile=gosold.prof"],
+        // "args": ["-debug", "-cpuprofile=gosold.prof"],
+        "args": ["-debug", "-boxes"],
+        // "args": [],
         // can't do this
         // The flags specified in buildFlags and env.GOFLAGS are passed to the Go compiler when building your program for debugging.
         // Delve adds --gcflags='all=-N -l' to the list of build flags to disable optimizations.

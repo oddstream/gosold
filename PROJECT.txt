@@ -11,6 +11,7 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[x] Pile.boundaryPile from lsol
 [ ] id robot moves available, show FAB
 [x] Stock tapped cards are not always flipping
 	seems okay with -noload/-nosave
@@ -52,22 +53,6 @@ copy __debug_bin to gosold
 quit using x NOT menu
 go tool pprof gosold gosold.prof
 top30
-
-TAP DESTINATIONS
-================
-foreach pile
-	Pile vtable MovableTails2() [][]*Card
-		if cell or reserve or waste or stock, make a []tail of just top card
-		if foundation or discard, make empty/nil tail
-		if tableau, return list of pile.canMoveTail/script.TailMoveError tails
-
-	consolidate the lists with Baize findAllMovableTails2()
-
-	foreach tail from above, make a list of piles where a tap would send that tail
-	using baize.findHomesForTail
-
-	so each card now has a list of tap destinations []{*Pile, Weight}
-	the list can be sorted into descending weight order
 
 SOLVER
 ======
@@ -158,3 +143,76 @@ Q. DARK settings?
 A. Maybe have a darkSettings struct
 	containing PowerMoves, SafeCollect, AutoCollect?
 
+HAPGOOD
+=======
+"Solitaire and Patience" by George Hapgood, Esq (c) 1908
+"Seventy games to test the card player's skill and make a lonely hour pass quickly"
+
+Uncle Sam
+The Rainbow
+Tit-Tat-To
+Light and Shadow
+The Square
+The Great Pyramid
+X Square
+Nestor
+Mary Ann
+Congress
+Demon Patience
+On Honor
+Squaring the Circle
+Last Chance
+Forget Me Not
+The Shifting Eight
+Leap Frog
+The Royal Assemblage
+Filling the Well
+...
+
+get corners of rotated rectangle
+Center point = (center.x, center.y)
+ Angle        = angle
+ Height       = height
+ Width        = width
+
+TOP RIGHT VERTEX:
+Top_Right.x = center.x + ((width / 2) * cos(angle)) - ((height / 2) * sin(angle))
+Top_Right.y = center.y + ((width / 2) * sin(angle)) + ((height / 2) * cos(angle))
+
+TOP LEFT VERTEX:
+Top_Left.x = center.x - ((width / 2) * cos(angle)) - ((height / 2) * sin(angle))
+Top_Left.y = center.y - ((width / 2) * sin(angle)) + ((height / 2) * cos(angle))
+
+BOTTOM LEFT VERTEX:
+Bot_Left.x = center.x - ((width / 2) * cos(angle)) + ((height / 2) * sin(angle))
+Bot_Left.y = center.y - ((width / 2) * sin(angle)) - ((height / 2) * cos(angle))
+
+BOTTOM RIGHT VERTEX:
+Bot_Right.x = center.x + ((width / 2) * cos(angle)) + ((height / 2) * sin(angle))
+Bot_Right.y = center.y + ((width / 2) * sin(angle)) - ((height / 2) * cos(angle))
+
+// calculate the top and left points, then just flips them for the opposite corners.
+rotatedRect(float x, float y, float halfWidth, float halfHeight, float angle)
+{
+    float c = cos(angle);
+    float s = sin(angle);
+    float r1x = -halfWidth * c - halfHeight * s;
+    float r1y = -halfWidth * s + halfHeight * c;
+    float r2x =  halfWidth * c - halfHeight * s;
+    float r2y =  halfWidth * s + halfHeight * c;
+
+    // Returns four points in clockwise order starting from the top left.
+    return
+        (x + r1x, y + r1y),
+        (x + r2x, y + r2y),
+        (x - r1x, y - r1y),
+        (x - r2x, y - r2y);
+}
+
+func pointInRotatedRect() bool {}
+	https://math.stackexchange.com/search?tab=Relevance&pagesize=50&q=rotated%20rectangle&searchOn=3
+card rotation angle (degrees for human comprehension)
+fractional pile slots (currently using image.Point{int,int})
+	type SlotPosition struct {
+		X, Y float32
+	}

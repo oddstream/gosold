@@ -150,7 +150,7 @@ func (b *Baize) solve2(root *tapNode, tn *tapNode, maxDepth int) {
 		return
 	}
 	if b.moves == 0 {
-		println("no moves")
+		// println("no moves")
 		return
 	}
 	// create a list of all the tap cards in this baize
@@ -189,11 +189,11 @@ func (b *Baize) solve2(root *tapNode, tn *tapNode, maxDepth int) {
 		if !findCRC(root, node.crc) {
 			tn.children = append(tn.children, &node)
 		} else {
-			println("skipping duplicate")
+			// println("skipping duplicate")
 		}
 
 		// go find children of this node
-		b.solve2(&node, &node, maxDepth)
+		b.solve2(root, &node, maxDepth)
 
 		// revert baize to it's starting state
 		b.updateFromSavable(sb)
@@ -268,17 +268,12 @@ func (b *Baize) Solve(maxDepth int) {
 	var id cardid.CardID
 	for tn2.parent != nil {
 		id = tn2.cid
+		if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
+			c.weight = 2
+		}
 		// println(tn2.cid.String())
 		tn2 = tn2.parent
 	}
-	if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
-		c.weight = 1
-	}
-	// if c, ok := b.cardMap[id.PackSuitOrdinal()]; ok {
-	// 	c.weight = 5
-	// } else {
-	// 	println("card not found in map", id)
-	// }
 	// display(tapTree)
 	// b.findTapTargets()
 }

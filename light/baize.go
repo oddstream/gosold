@@ -69,12 +69,8 @@ func (b *baize) eventListener(e dark.BaizeEvent, param any) {
 		for _, lp := range b.piles {
 			lp.copyCardsFromDark()
 		}
-		b.refan()
+		b.setFlag(dirtyCardPositions)
 		b.updateUI()
-		// juice
-		// if id, ok := param.(cardid.CardID); ok {
-		// 	log.Println(id.String())
-		// }
 		if b.game.settings.AutoCollect {
 			// don't auto collect a virgin game
 			if b.darkBaize.UndoStackSize() > 1 {
@@ -157,6 +153,12 @@ func (b *baize) startGame(variant string) {
 		b.piles = append(b.piles, lp)
 		lp.copyCardsFromDark()
 		lp.createPlaceholder()
+	}
+	// set any boundary Piles
+	for i, dp := range b.darkBaize.Piles() {
+		if j := dp.Boundary(); j != 0 {
+			b.piles[i].boundary = b.piles[j]
+		}
 	}
 	// log.Println(len(b.piles), "piles created")
 
@@ -369,10 +371,6 @@ func (b *baize) mirrorSlots() {
 	}
 }
 
-func (b *baize) refan() {
-	b.setFlag(dirtyCardPositions)
-}
-
 func (b *baize) maxSlotX() int {
 	// nb use local copy of slot, not darkPile.Slot()
 	var maxX int
@@ -447,6 +445,9 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 					Y: TopMargin + (p.slot.Y * (CardHeight + PilePaddingY)),
 				})
 			}
+			for _, p := range b.piles {
+				p.calcBoundaryBox()
+			}
 		}
 		if b.flagSet(dirtyPileBackgrounds) {
 			if !(CardWidth == 0 || CardHeight == 0) {
@@ -460,7 +461,8 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 		}
 		if b.flagSet(dirtyCardPositions) {
 			for _, p := range b.piles {
-				p.scrunch()
+				// p.scrunch()
+				p.refan()
 			}
 		}
 		b.dirtyFlags = 0

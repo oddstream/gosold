@@ -114,7 +114,7 @@ func (self *Freecell) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*Freecell) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (*Freecell) PileTapped(*Pile) {}

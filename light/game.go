@@ -48,6 +48,8 @@ var (
 	CardShadowImage *ebiten.Image
 	// ExitRequested is set when user has had enough
 	ExitRequested bool
+	// DrawBoxes displays the pile boundary boxes
+	DrawBoxes bool
 )
 
 type Game struct {
@@ -118,7 +120,7 @@ func NewGame() *Game {
 		},
 		ebiten.KeyQ: func() {
 			if ebiten.IsKeyPressed(ebiten.KeyControl) {
-				g.baize.darkBaize.Solve(4)
+				g.baize.darkBaize.Solve(6)
 			} else {
 				if g.baize.darkBaize.Robot() > 0 {
 					sound.Play("Shove")

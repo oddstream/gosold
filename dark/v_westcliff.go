@@ -142,7 +142,7 @@ func (self *Westcliff) TailTapped(tail []*Card) {
 			}
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 

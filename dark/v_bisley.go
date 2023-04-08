@@ -92,7 +92,7 @@ func (self *Bisley) TailTapped(tail []*Card) {
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.waste)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 

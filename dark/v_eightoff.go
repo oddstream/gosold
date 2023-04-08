@@ -76,7 +76,7 @@ func (*EightOff) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*EightOff) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (*EightOff) PileTapped(*Pile) {}

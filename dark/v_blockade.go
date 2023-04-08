@@ -81,7 +81,7 @@ func (self *Blockade) TailTapped(tail []*Card) {
 			moveCard(self.stock, tab)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 

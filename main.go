@@ -22,6 +22,7 @@ func main() {
 
 	// pearl from the mudbank: don't have any flags that will overwrite ThePreferences
 	flag.BoolVar(&DebugMode, "debug", false, "turn debug mode on")
+	flag.BoolVar(&light.DrawBoxes, "boxes", false, "draw boundary boxes (in -debug mode)")
 	flag.BoolVar(&dark.NoLoad, "noload", false, "do not load saved game when starting")
 	flag.BoolVar(&dark.NoSave, "nosave", false, "do not save game before exit")
 	var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")

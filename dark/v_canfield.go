@@ -143,7 +143,7 @@ func (self *Canfield) TailTapped(tail []*Card) {
 			moveCard(self.stock, self.waste)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 

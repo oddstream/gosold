@@ -91,7 +91,7 @@ func (self *Alhambra) TailTapped(tail []*Card) {
 	if pile == self.stock && len(tail) == 1 {
 		moveCard(self.stock, self.tableaux[0])
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 

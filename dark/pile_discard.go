@@ -18,7 +18,7 @@ func (b *Baize) NewDiscard(slot image.Point, fanType FanType) *Pile {
 	return pile
 }
 
-func (self *Discard) CanAcceptTail(tail []*Card) (bool, error) {
+func (self *Discard) canAcceptTail(tail []*Card) (bool, error) {
 	if !self.pile.Empty() {
 		return false, errors.New("Can only move cards to an empty Discard")
 	}
@@ -36,11 +36,11 @@ func (self *Discard) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailMoveError(tail)
 }
 
-func (*Discard) TailTapped([]*Card) {
+func (*Discard) tailTapped([]*Card) {
 	// do nothing
 }
 
-func (*Discard) Conformant() bool {
+func (*Discard) conformant() bool {
 	// no Baize that contains any discard piles should be Conformant,
 	// because there is no use showing the collect all FAB
 	// because that would do nothing
@@ -53,6 +53,6 @@ func (*Discard) unsortedPairs() int {
 	return 0
 }
 
-func (*Discard) MovableTails2() [][]*Card {
+func (*Discard) movableTails() [][]*Card {
 	return nil
 }

@@ -18,7 +18,7 @@ func (b *Baize) NewWaste(slot image.Point, fanType FanType) *Pile {
 	return pile
 }
 
-func (*Waste) CanAcceptTail(tail []*Card) (bool, error) {
+func (*Waste) canAcceptTail(tail []*Card) (bool, error) {
 	if len(tail) > 1 {
 		return false, errors.New("Can only move a single card to Waste")
 	}
@@ -29,12 +29,12 @@ func (*Waste) CanAcceptTail(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Waste) TailTapped(tail []*Card) {
+func (self *Waste) tailTapped(tail []*Card) {
 	self.pile.defaultTailTapped(tail)
 }
 
 // Conformant when contains zero or one card(s), same as Reserve
-func (self *Waste) Conformant() bool {
+func (self *Waste) conformant() bool {
 	return self.pile.Len() < 2
 }
 
@@ -46,6 +46,6 @@ func (self *Waste) unsortedPairs() int {
 	return self.pile.Len() - 1
 }
 
-func (self *Waste) MovableTails2() [][]*Card {
+func (self *Waste) movableTails() [][]*Card {
 	return self.pile.singleCardMovableTails()
 }

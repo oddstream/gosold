@@ -81,7 +81,7 @@ func (self *Yukon) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*Yukon) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (*Yukon) PileTapped(*Pile) {}

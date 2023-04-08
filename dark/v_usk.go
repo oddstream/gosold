@@ -97,7 +97,7 @@ func (self *Usk) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*Usk) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 func (self *Usk) PileTapped(pile *Pile) {

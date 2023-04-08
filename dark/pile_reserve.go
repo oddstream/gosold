@@ -18,16 +18,16 @@ func (b *Baize) NewReserve(slot image.Point, fanType FanType) *Pile {
 	return pile
 }
 
-func (*Reserve) CanAcceptTail(tail []*Card) (bool, error) {
+func (*Reserve) canAcceptTail(tail []*Card) (bool, error) {
 	return false, errors.New("Cannot add a card to a Reserve")
 }
 
-func (self *Reserve) TailTapped(tail []*Card) {
+func (self *Reserve) tailTapped(tail []*Card) {
 	self.pile.defaultTailTapped(tail)
 }
 
 // Conformant when contains zero or one card(s), same as Waste
-func (self *Reserve) Conformant() bool {
+func (self *Reserve) conformant() bool {
 	return self.pile.Len() < 2
 }
 
@@ -39,6 +39,6 @@ func (self *Reserve) unsortedPairs() int {
 	return self.pile.Len() - 1
 }
 
-func (self *Reserve) MovableTails2() [][]*Card {
+func (self *Reserve) movableTails() [][]*Card {
 	return self.pile.singleCardMovableTails()
 }

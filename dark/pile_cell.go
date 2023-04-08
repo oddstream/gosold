@@ -18,7 +18,7 @@ func (b *Baize) NewCell(slot image.Point) *Pile {
 	return pile
 }
 
-func (self *Cell) CanAcceptTail(tail []*Card) (bool, error) {
+func (self *Cell) canAcceptTail(tail []*Card) (bool, error) {
 	if !self.pile.Empty() {
 		return false, errors.New("A Cell can only contain one card")
 	}
@@ -31,11 +31,11 @@ func (self *Cell) CanAcceptTail(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Cell) TailTapped(tail []*Card) {
+func (self *Cell) tailTapped(tail []*Card) {
 	self.pile.defaultTailTapped(tail)
 }
 
-func (*Cell) Conformant() bool {
+func (*Cell) conformant() bool {
 	return true
 }
 
@@ -43,6 +43,6 @@ func (*Cell) unsortedPairs() int {
 	return 0
 }
 
-func (self *Cell) MovableTails2() [][]*Card {
+func (self *Cell) movableTails() [][]*Card {
 	return self.pile.singleCardMovableTails()
 }

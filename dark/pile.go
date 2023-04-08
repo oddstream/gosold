@@ -38,13 +38,12 @@ const (
 
 // pileVtabler interface for each subpile type, implements the behaviours
 // specific to each subtype.
-// Made public for now, but that may change.
 type pileVtabler interface {
-	CanAcceptTail([]*Card) (bool, error)
-	TailTapped([]*Card)
-	Conformant() bool
+	canAcceptTail([]*Card) (bool, error)
+	tailTapped([]*Card)
+	conformant() bool
 	unsortedPairs() int
-	MovableTails2() [][]*Card
+	movableTails() [][]*Card
 }
 
 // Pile holds the state of the piles and cards therein.
@@ -59,6 +58,7 @@ type Pile struct {
 	cards    []*Card
 	vtable   pileVtabler // needed by DARK, not visible to LIGHT
 	slot     image.Point // needed by LIGHT when placing piles
+	boundary int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
 }
 
 // Public functions, visible to LIGHT
@@ -87,6 +87,10 @@ func (p *Pile) Cards() []cardid.CardID {
 		ids = append(ids, c.id)
 	}
 	return ids
+}
+
+func (p *Pile) Boundary() int {
+	return p.boundary
 }
 
 func (p *Pile) Slot() image.Point {

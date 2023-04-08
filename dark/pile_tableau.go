@@ -19,7 +19,7 @@ func (b *Baize) NewTableau(slot image.Point, fanType FanType, moveType MoveType)
 	return pile
 }
 
-func (self *Tableau) CanAcceptTail(tail []*Card) (bool, error) {
+func (self *Tableau) canAcceptTail(tail []*Card) (bool, error) {
 	// AnyCardsProne check done by pile.CanMoveTail
 	// checking at this level probably isn't needed
 	// if AnyCardsProne(tail) {
@@ -49,11 +49,11 @@ func (self *Tableau) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
-func (self *Tableau) TailTapped(tail []*Card) {
+func (self *Tableau) tailTapped(tail []*Card) {
 	self.pile.defaultTailTapped(tail)
 }
 
-func (self *Tableau) Conformant() bool {
+func (self *Tableau) conformant() bool {
 	// return TheGame.Baize.script.unsortedPairs(self.pile) == 0
 	return self.unsortedPairs() == 0
 }
@@ -74,7 +74,7 @@ func (self *Tableau) unsortedPairs() int {
 	return unsorted
 }
 
-func (self *Tableau) MovableTails2() [][]*Card {
+func (self *Tableau) movableTails() [][]*Card {
 	if self.pile.Len() > 0 {
 		var tails [][]*Card
 		for _, card := range self.pile.cards {

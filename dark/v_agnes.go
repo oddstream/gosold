@@ -103,7 +103,7 @@ func (self *Agnes) TailTapped(tail []*Card) {
 			moveCard(self.stock, pile)
 		}
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 

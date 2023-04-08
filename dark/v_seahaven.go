@@ -76,7 +76,7 @@ func (*Seahaven) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*Seahaven) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (*Seahaven) PileTapped(*Pile) {}

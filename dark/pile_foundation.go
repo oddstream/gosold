@@ -19,7 +19,7 @@ func (b *Baize) NewFoundation(slot image.Point) *Pile {
 }
 
 // CanAcceptTail does some obvious checks on the tail before passing it to the script
-func (self *Foundation) CanAcceptTail(tail []*Card) (bool, error) {
+func (self *Foundation) canAcceptTail(tail []*Card) (bool, error) {
 	if len(tail) > 1 {
 		return false, errors.New("Cannot move more than one card to a Foundation")
 	}
@@ -32,9 +32,9 @@ func (self *Foundation) CanAcceptTail(tail []*Card) (bool, error) {
 	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
-func (*Foundation) TailTapped([]*Card) {}
+func (*Foundation) tailTapped([]*Card) {}
 
-func (*Foundation) Conformant() bool {
+func (*Foundation) conformant() bool {
 	return true
 }
 
@@ -43,6 +43,6 @@ func (*Foundation) unsortedPairs() int {
 	return 0
 }
 
-func (*Foundation) MovableTails2() [][]*Card {
+func (*Foundation) movableTails() [][]*Card {
 	return nil
 }

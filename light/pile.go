@@ -7,14 +7,17 @@ import (
 
 	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"oddstream.games/gosold/dark"
 	"oddstream.games/gosold/schriftbank"
+	"oddstream.games/gosold/util"
 )
 
 const (
-	CARD_FACE_FAN_FACTOR_V = 3.7
-	CARD_FACE_FAN_FACTOR_H = 4
-	CARD_BACK_FAN_FACTOR   = 8
+	CARD_FACE_FAN_FACTOR_V = 1.0 / 3.7
+	CARD_FACE_FAN_FACTOR_H = 1.0 / 4.0
+	CARD_BACK_FAN_FACTOR   = 1.0 / 8.0
+	MIN_FACE_FAN_FACTOR    = 1.0 / 6.0
 )
 
 var defaultFanFactor [7]float64 = [7]float64{
@@ -41,17 +44,20 @@ type pile struct {
 	pos1      image.Point // waste pos #1
 	pos2      image.Point // waste pos #1
 	fanFactor float64
-	slot      image.Point   // local copy for mirror baize
-	fanType   dark.FanType  // local copy for mirror baize
+	slot      image.Point  // local copy for mirror baize
+	fanType   dark.FanType // local copy for mirror baize
+	boundary  *pile
+	box       image.Rectangle
 	img       *ebiten.Image // placeholder
 }
 
 func newPile(b *baize, darkPile *dark.Pile) *pile {
-	return &pile{baize: b,
+	var p *pile = &pile{baize: b,
 		darkPile:  darkPile,
 		slot:      darkPile.Slot(),
 		fanType:   darkPile.FanType(),
 		fanFactor: defaultFanFactor[darkPile.FanType()]}
+	return p
 }
 
 // func (p *pile) reset() {
@@ -106,6 +112,7 @@ func (p *pile) copyCardsFromDark() {
 			p.push(c)
 		}
 	}
+	// fanning is done once, later
 }
 
 // hidden returns true if this pile is not displayed on screen
@@ -189,18 +196,18 @@ func (p *pile) setBaizePos(pos image.Point) {
 	switch p.darkPile.FanType() {
 	case dark.FAN_DOWN3:
 		p.pos1.X = p.pos.X
-		p.pos1.Y = p.pos.Y + int(float64(CardHeight)/CARD_FACE_FAN_FACTOR_V)
+		p.pos1.Y = p.pos.Y + int(float64(CardHeight)*CARD_FACE_FAN_FACTOR_V)
 		p.pos2.X = p.pos.X
-		p.pos2.Y = p.pos1.Y + int(float64(CardHeight)/CARD_FACE_FAN_FACTOR_V)
+		p.pos2.Y = p.pos1.Y + int(float64(CardHeight)*CARD_FACE_FAN_FACTOR_V)
 	case dark.FAN_LEFT3:
-		p.pos1.X = p.pos.X - int(float64(CardWidth)/CARD_FACE_FAN_FACTOR_H)
+		p.pos1.X = p.pos.X - int(float64(CardWidth)*CARD_FACE_FAN_FACTOR_H)
 		p.pos1.Y = p.pos.Y
-		p.pos2.X = p.pos1.X - int(float64(CardWidth)/CARD_FACE_FAN_FACTOR_H)
+		p.pos2.X = p.pos1.X - int(float64(CardWidth)*CARD_FACE_FAN_FACTOR_H)
 		p.pos2.Y = p.pos.Y
 	case dark.FAN_RIGHT3:
-		p.pos1.X = p.pos.X + int(float64(CardWidth)/CARD_FACE_FAN_FACTOR_H)
+		p.pos1.X = p.pos.X + int(float64(CardWidth)*CARD_FACE_FAN_FACTOR_H)
 		p.pos1.Y = p.pos.Y
-		p.pos2.X = p.pos1.X + int(float64(CardWidth)/CARD_FACE_FAN_FACTOR_H)
+		p.pos2.X = p.pos1.X + int(float64(CardWidth)*CARD_FACE_FAN_FACTOR_H)
 		p.pos2.Y = p.pos.Y
 	}
 }
@@ -256,6 +263,54 @@ func (p *pile) fannedBaizeRect() image.Rectangle {
 // 	return r
 // }
 
+func (p *pile) calcBoundaryBox() {
+	if p.boundary == nil {
+		return
+	}
+	switch p.fanType {
+	case dark.FAN_DOWN:
+		p.box = image.Rectangle{
+			Min: p.pos, // image.Point{p.pos.X, p.pos.Y},
+			Max: image.Point{p.pos.X + CardWidth, p.boundary.pos.Y},
+		}
+	case dark.FAN_RIGHT:
+		p.box = image.Rectangle{
+			Min: p.pos, // image.Point{p.pos.X, p.pos.Y},
+			Max: image.Point{p.boundary.pos.X, p.pos.Y + CardHeight},
+		}
+	case dark.FAN_LEFT:
+		p.box = image.Rectangle{
+			Min: image.Point{p.boundary.pos.X, p.pos.Y},
+			Max: image.Point{p.pos.X + CardWidth, p.pos.Y + CardHeight},
+		}
+	}
+}
+
+func (p *pile) calcFaceFanFactor() {
+	/*
+		result = ((#cards - 1) * (cardheight * factor)) + cardheight
+		r = (n-1) * (h * f) + h
+		make factor the subject
+		f = (r - h) / (h * (n-1))
+		https://www.mymathtutors.com/algebra-tutors/adding-numerators/online-calculator---rearrange.html
+	*/
+	if p.boundary == nil || len(p.cards) < 2 {
+		p.fanFactor = defaultFanFactor[p.fanType]
+		return
+	}
+	// p.box will already be set, in screen coords (TODO check)
+	var ff float64 = defaultFanFactor[p.fanType]
+	switch p.fanType {
+	case dark.FAN_DOWN:
+		ff = float64(p.box.Dy()-CardHeight) / float64(CardHeight*(len(p.cards)-1))
+		ff = util.Clamp(ff, MIN_FACE_FAN_FACTOR, CARD_FACE_FAN_FACTOR_V)
+	case dark.FAN_RIGHT, dark.FAN_LEFT:
+		ff = float64(p.box.Dx()-CardWidth) / float64(CardWidth*(len(p.cards)-1))
+		ff = util.Clamp(ff, MIN_FACE_FAN_FACTOR, CARD_FACE_FAN_FACTOR_H)
+	}
+	p.fanFactor = ff
+}
+
 // posAfter returns the position of the next card after c
 func (p *pile) posAfter(c *card) image.Point {
 	if DebugMode && len(p.cards) == 0 {
@@ -279,37 +334,37 @@ func (p *pile) posAfter(c *card) image.Point {
 		// nothing to do
 	case dark.FAN_DOWN:
 		if c.prone() {
-			pos.Y += int(float64(CardHeight) / float64(CARD_BACK_FAN_FACTOR))
+			pos.Y += int(float64(CardHeight) * float64(CARD_BACK_FAN_FACTOR))
 		} else {
-			pos.Y += int(float64(CardHeight) / p.fanFactor)
+			pos.Y += int(float64(CardHeight) * p.fanFactor)
 		}
 	case dark.FAN_LEFT:
 		if c.prone() {
-			pos.X -= int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
+			pos.X -= int(float64(CardWidth) * float64(CARD_BACK_FAN_FACTOR))
 		} else {
-			pos.X -= int(float64(CardWidth) / p.fanFactor)
+			pos.X -= int(float64(CardWidth) * p.fanFactor)
 		}
 	case dark.FAN_RIGHT:
 		if c.prone() {
-			pos.X += int(float64(CardWidth) / float64(CARD_BACK_FAN_FACTOR))
+			pos.X += int(float64(CardWidth) * float64(CARD_BACK_FAN_FACTOR))
 		} else {
-			pos.X += int(float64(CardWidth) / p.fanFactor)
+			pos.X += int(float64(CardWidth) * p.fanFactor)
 		}
 	case dark.FAN_DOWN3, dark.FAN_LEFT3, dark.FAN_RIGHT3:
 		switch len(p.cards) {
 		case 0:
 			// nothing to do
 		case 1:
-			pos = p.pos1 // incoming card at slot 1
+			pos = p.pos1 // incoming card at position 1
 		case 2:
-			pos = p.pos2 // incoming card at slot 2
+			pos = p.pos2 // incoming card at position 2
 		default:
-			pos = p.pos2 // incoming card at slot 2
-			// top card needs to transition from slot[2] to slot[1]
+			pos = p.pos2 // incoming card at position 2
+			// top card needs to transition from position[2] to position[1]
 			i := len(p.cards) - 1
 			p.cards[i].lerpTo(p.pos1)
-			// mid card needs to transition from slot[1] to slot[0]
-			// all other cards to slot[0]
+			// mid card needs to transition from position[1] to position[0]
+			// all other cards to position[0]
 			for i > 0 {
 				i--
 				p.cards[i].lerpTo(p.pos)
@@ -321,6 +376,7 @@ func (p *pile) posAfter(c *card) image.Point {
 
 // refan repositions all the cards in this pile
 func (p *pile) refan() {
+	p.calcFaceFanFactor() // do this before using posAfter()
 	var doFan3 bool = false
 	switch p.darkPile.FanType() {
 	case dark.FAN_NONE:
@@ -425,4 +481,12 @@ func (p *pile) draw(screen *ebiten.Image) {
 	}
 
 	screen.DrawImage(p.img, op)
+
+	if DebugMode && DrawBoxes && p.boundary != nil {
+		var x float32 = float32(p.box.Min.X + p.baize.dragOffset.X) // effectively p.screenPos()
+		var y float32 = float32(p.box.Min.Y + p.baize.dragOffset.Y)
+		var width float32 = float32(p.box.Dx())
+		var height float32 = float32(p.box.Dy())
+		vector.DrawFilledRect(screen, x, y, width, height, color.NRGBA{255, 255, 255, 31}, false)
+	}
 }

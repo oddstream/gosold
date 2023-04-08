@@ -27,6 +27,11 @@ func (self *BakersDozen) BuildPiles() {
 		self.tableaux = append(self.tableaux, t)
 		t.setLabel("X")
 	}
+	for x := 0; x < 6; x++ {
+		// stock is pile index 0
+		// tableaux are piles index 1 .. 13
+		self.tableaux[x].boundary = x + 7 + 1
+	}
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
@@ -75,7 +80,7 @@ func (*BakersDozen) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*BakersDozen) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (*BakersDozen) PileTapped(*Pile) {}

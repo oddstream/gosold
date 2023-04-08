@@ -62,7 +62,7 @@ func (*SimpleSimon) TailMoveError(tail []*Card) (bool, error) {
 func (*SimpleSimon) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	switch dst.vtable.(type) {
 	case *Discard:
-		// Discard.CanAcceptTail() has already checked
+		// Discard.canAcceptTail() has already checked
 		// (1) pile is empty
 		// (2) no prone cards in tail
 		// (3) tail is the length of a complete set (eg 13)
@@ -93,7 +93,7 @@ func (*SimpleSimon) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (*SimpleSimon) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (*SimpleSimon) PileTapped(*Pile) {}

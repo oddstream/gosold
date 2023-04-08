@@ -109,7 +109,7 @@ func (b *Baize) Complete() bool {
 
 func (b *Baize) Conformant() bool {
 	for _, p := range b.piles {
-		if !p.vtable.Conformant() {
+		if !p.vtable.conformant() {
 			return false
 		}
 	}
@@ -272,7 +272,7 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 	if ok, err = src.canMoveTail(tail); !ok {
 		return false, err
 	} else {
-		if ok, err = dst.vtable.CanAcceptTail(tail); !ok {
+		if ok, err = dst.vtable.canAcceptTail(tail); !ok {
 			return false, err
 		} else {
 			if ok, err = b.script.TailMoveError(tail); !ok {
@@ -388,7 +388,7 @@ func (b *Baize) collectFromPile(pile *Pile) int {
 			if card == nil {
 				return cardsMoved
 			}
-			ok, _ := fp.vtable.CanAcceptTail([]*Card{card})
+			ok, _ := fp.vtable.canAcceptTail([]*Card{card})
 			if !ok {
 				break // done with this foundation, try another
 			}
@@ -687,7 +687,7 @@ func (b *Baize) findCard(cid cardid.CardID) *Card {
 func (b *Baize) findAllMovableTails2() [][]*Card {
 	var tails [][]*Card
 	for _, p := range b.piles {
-		if ptails := p.vtable.MovableTails2(); ptails != nil {
+		if ptails := p.vtable.movableTails(); ptails != nil {
 			tails = append(tails, ptails...)
 		}
 	}
@@ -705,7 +705,7 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 			if dst == src {
 				continue
 			}
-			if ok, _ := dst.vtable.CanAcceptTail(tail); ok {
+			if ok, _ := dst.vtable.canAcceptTail(tail); ok {
 				// moving an full tail from one pile to another empty pile of the same type is pointless
 				// eg Cell to Cell or Tableau to Tableau
 				if dst.Len() == 0 && src.Len() == len(tail) && src.label == dst.label && src.category == dst.category {

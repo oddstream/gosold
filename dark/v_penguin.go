@@ -113,7 +113,7 @@ func (*Penguin) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 }
 
 func (pen *Penguin) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.TailTapped(tail)
+	tail[0].owner().vtable.tailTapped(tail)
 }
 
 // func (pen *Penguin) PileTapped(pile *Pile) {}

@@ -94,7 +94,7 @@ func (self *Scorpion) TailTapped(tail []*Card) {
 			}
 		}
 	default:
-		tail[0].owner().vtable.TailTapped(tail)
+		tail[0].owner().vtable.tailTapped(tail)
 	}
 }
 

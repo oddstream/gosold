@@ -18,15 +18,15 @@ func (b *Baize) NewStock(slot image.Point) *Pile {
 	return pile
 }
 
-func (*Stock) CanAcceptTail([]*Card) (bool, error) {
+func (*Stock) canAcceptTail([]*Card) (bool, error) {
 	return false, errors.New("Cannot move cards to the Stock")
 }
 
-func (*Stock) TailTapped([]*Card) {
+func (*Stock) tailTapped([]*Card) {
 	// do nothing, handled by script, which had first dibs
 }
 
-func (self *Stock) Conformant() bool {
+func (self *Stock) conformant() bool {
 	return self.pile.Empty()
 }
 
@@ -38,6 +38,6 @@ func (self *Stock) unsortedPairs() int {
 	return self.pile.Len() - 1
 }
 
-func (self *Stock) MovableTails2() [][]*Card {
+func (self *Stock) movableTails() [][]*Card {
 	return self.pile.singleCardMovableTails()
 }

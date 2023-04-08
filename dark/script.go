@@ -120,7 +120,7 @@ func (sb scriptBase) SpiderComplete() bool {
 		case 0:
 			// that's fine
 		case 13:
-			if !tab.vtable.Conformant() {
+			if !tab.vtable.conformant() {
 				return false
 			}
 		default:

@@ -104,7 +104,7 @@ func (self *Toad) TailTapped(tail []*Card) {
 		c := pile.pop()
 		self.waste.push(c)
 	} else {
-		pile.vtable.TailTapped(tail)
+		pile.vtable.tailTapped(tail)
 	}
 }
 
