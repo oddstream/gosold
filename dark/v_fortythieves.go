@@ -4,8 +4,6 @@ package dark
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
 import (
-	"image"
-
 	"oddstream.games/gosold/cardid"
 )
 
@@ -33,19 +31,19 @@ func (self *FortyThieves) BuildPiles() {
 		self.tabCompareFunc = cardPair.compare_DownSuit
 	}
 
-	self.stock = self.baize.NewStock(image.Point{0, 0})
-	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
+	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
 
 	self.foundations = nil
 	for _, x := range self.founds {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 
 	self.tableaux = nil
 	for _, x := range self.tabs {
-		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, self.moveType)
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, self.moveType)
 		self.tableaux = append(self.tableaux, t)
 	}
 }

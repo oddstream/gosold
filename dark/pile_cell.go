@@ -5,14 +5,13 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type Cell struct {
 	pile *Pile
 }
 
-func (b *Baize) NewCell(slot image.Point) *Pile {
+func (b *Baize) NewCell(slot PileSlot) *Pile {
 	pile := b.newPile("Cell", slot, FAN_NONE, MOVE_ONE)
 	pile.vtable = &Cell{pile: pile}
 	return pile

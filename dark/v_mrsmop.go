@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type MrsMop struct {
@@ -15,26 +14,26 @@ type MrsMop struct {
 
 func (self *MrsMop) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5})
+	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
 	self.discards = []*Pile{}
 	for x := 0; x < 4; x++ {
-		d := self.baize.NewDiscard(image.Point{x, 0}, FAN_NONE)
+		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
 		self.discards = append(self.discards, d)
-		d = self.baize.NewDiscard(image.Point{x + 9, 0}, FAN_NONE)
+		d = self.baize.NewDiscard(newPileSlot(x+9, 0), FAN_NONE)
 		self.discards = append(self.discards, d)
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 0; x < 13; x++ {
-		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 
 	self.cells = []*Pile{}
 	if self.easy {
 		for x := 5; x < 8; x++ {
-			t := self.baize.NewCell(image.Point{x, 0})
+			t := self.baize.NewCell(newPileSlot(x, 0))
 			self.cells = append(self.cells, t)
 		}
 	}

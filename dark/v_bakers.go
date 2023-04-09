@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type BakersDozen struct {
@@ -14,16 +13,16 @@ type BakersDozen struct {
 
 func (self *BakersDozen) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5})
+	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := self.baize.NewTableau(image.Point{x, 0}, FAN_DOWN, MOVE_ONE)
+		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		t.setLabel("X")
 	}
 	for x := 0; x < 6; x++ {
-		t := self.baize.NewTableau(image.Point{x, 3}, FAN_DOWN, MOVE_ONE)
+		t := self.baize.NewTableau(newPileSlot(x, 3), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		t.setLabel("X")
 	}
@@ -35,7 +34,7 @@ func (self *BakersDozen) BuildPiles() {
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
-		f := self.baize.NewFoundation(image.Point{9, y})
+		f := self.baize.NewFoundation(newPileSlot(9, y))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}

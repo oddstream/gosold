@@ -4,8 +4,6 @@ package dark
 //lint:file-ignore ST1006 I'll call the receiver anything I like, thank you
 
 import (
-	"image"
-
 	"oddstream.games/gosold/cardid"
 )
 
@@ -15,28 +13,28 @@ type Alhambra struct {
 
 func (self *Alhambra) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 3})
+	self.stock = self.baize.NewStock(newPileSlot(0, 3))
 
 	// waste pile implemented as a tableau because cards may be built on it
 	self.tableaux = nil
-	t := self.baize.NewTableau(image.Point{1, 3}, FAN_RIGHT3, MOVE_ONE)
+	t := self.baize.NewTableau(newPileSlot(1, 3), FAN_RIGHT3, MOVE_ONE)
 	self.tableaux = append(self.tableaux, t)
 
 	self.foundations = nil
 	for x := 0; x < 4; x++ {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 	for x := 4; x < 8; x++ {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("K")
 	}
 
 	self.reserves = nil
 	for x := 0; x < 8; x++ {
-		r := self.baize.NewReserve(image.Point{x, 1}, FAN_DOWN)
+		r := self.baize.NewReserve(newPileSlot(x, 1), FAN_DOWN)
 		self.reserves = append(self.reserves, r)
 	}
 }

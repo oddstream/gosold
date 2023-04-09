@@ -11,6 +11,12 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] fractional pile slots (currently using image.Point{int,int})
+	type PileSlot struct {
+		X, Y, Deg float32
+	}
+	...it's the pile slot that has rotation angle,
+	which is transferred to all cards in the pile.
 [x] Pile.boundaryPile from lsol
 [ ] id robot moves available, show FAB
 [x] Stock tapped cards are not always flipping
@@ -212,7 +218,6 @@ rotatedRect(float x, float y, float halfWidth, float halfHeight, float angle)
 func pointInRotatedRect() bool {}
 	https://math.stackexchange.com/search?tab=Relevance&pagesize=50&q=rotated%20rectangle&searchOn=3
 card rotation angle (degrees for human comprehension)
-fractional pile slots (currently using image.Point{int,int})
 	type SlotPosition struct {
 		X, Y float32
 	}

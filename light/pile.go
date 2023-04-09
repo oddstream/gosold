@@ -44,8 +44,8 @@ type pile struct {
 	pos1      image.Point // waste pos #1
 	pos2      image.Point // waste pos #1
 	fanFactor float64
-	slot      image.Point  // local copy for mirror baize
-	fanType   dark.FanType // local copy for mirror baize
+	slot      dark.PileSlot // local copy for mirror baize
+	fanType   dark.FanType  // local copy for mirror baize
 	boundary  *pile
 	box       image.Rectangle
 	img       *ebiten.Image // placeholder

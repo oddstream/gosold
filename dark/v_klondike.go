@@ -4,7 +4,6 @@ package dark
 //lint:file-ignore ST1006 I'll call the receiver anything I like, thank you
 
 import (
-	"image"
 	"log"
 )
 
@@ -25,19 +24,19 @@ func (self *Klondike) BuildPiles() {
 	if self.draw == 0 {
 		self.draw = 1
 	}
-	self.stock = self.baize.NewStock(image.Point{0, 0})
-	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
+	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
 
 	self.foundations = []*Pile{}
 	for _, x := range self.founds {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 
 	self.tableaux = []*Pile{}
 	for _, x := range self.tabs {
-		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		t.setLabel("K")
 		self.tableaux = append(self.tableaux, t)
 	}

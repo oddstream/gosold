@@ -3,8 +3,6 @@ package dark
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 
 import (
-	"image"
-
 	"oddstream.games/gosold/util"
 )
 
@@ -15,25 +13,25 @@ type Penguin struct {
 func (pen *Penguin) BuildPiles() {
 
 	// hidden (off-screen) stock
-	pen.stock = pen.baize.NewStock(image.Point{-5, -5})
+	pen.stock = pen.baize.NewStock(newHiddenPileSlot())
 	pen.waste = nil
 
 	// the flipper, seven cells
 	pen.cells = nil
 	for x := 0; x < 7; x++ {
-		pile := pen.baize.NewCell(image.Point{x, 0})
+		pile := pen.baize.NewCell(newPileSlot(x, 0))
 		pen.cells = append(pen.cells, pile)
 	}
 
 	pen.foundations = nil
 	for y := 0; y < 4; y++ {
-		pile := pen.baize.NewFoundation(image.Point{8, y})
+		pile := pen.baize.NewFoundation(newPileSlot(8, y))
 		pen.foundations = append(pen.foundations, pile)
 	}
 
 	pen.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := pen.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := pen.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		pen.tableaux = append(pen.tableaux, t)
 	}
 }

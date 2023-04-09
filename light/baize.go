@@ -339,8 +339,8 @@ func (b *baize) mirrorSlots() {
 		0 1 2 3 4
 		4 3 2 1 0
 	*/
-	var minX int = 32767
-	var maxX int = 0
+	var minX float32 = 32767
+	var maxX float32 = 0
 	for _, p := range b.piles {
 		if p.slot.X < 0 {
 			continue // ignore hidden pile
@@ -357,7 +357,7 @@ func (b *baize) mirrorSlots() {
 		if slot.X < 0 {
 			continue // ignore hidden pile
 		}
-		p.slot = image.Point{X: maxX - slot.X + minX, Y: slot.Y}
+		p.slot = dark.PileSlot{X: maxX - slot.X + minX, Y: slot.Y}
 		switch p.fanType {
 		case dark.FAN_RIGHT:
 			p.fanType = dark.FAN_LEFT
@@ -371,9 +371,9 @@ func (b *baize) mirrorSlots() {
 	}
 }
 
-func (b *baize) maxSlotX() int {
+func (b *baize) maxSlotX() float32 {
 	// nb use local copy of slot, not darkPile.Slot()
-	var maxX int
+	var maxX float32
 	for _, p := range b.piles {
 		if p.slot.X > maxX {
 			maxX = p.slot.X
@@ -396,7 +396,7 @@ func (b *baize) ScaleCards() bool {
 	var OldWidth = CardWidth
 	var OldHeight = CardHeight
 
-	var maxX int = b.maxSlotX()
+	var maxX float32 = b.maxSlotX()
 
 	var slotWidth, slotHeight float64
 	slotWidth = float64(b.windowWidth) / float64(maxX+2)
@@ -441,8 +441,8 @@ func (b *baize) layout(outsideWidth, outsideHeight int) (int, int) {
 		if b.flagSet(dirtyPilePositions) {
 			for _, p := range b.piles {
 				p.setBaizePos(image.Point{
-					X: LeftMargin + (p.slot.X * (CardWidth + PilePaddingX)),
-					Y: TopMargin + (p.slot.Y * (CardHeight + PilePaddingY)),
+					X: LeftMargin + int(p.slot.X*float32(CardWidth+PilePaddingX)),
+					Y: TopMargin + int(p.slot.Y*float32(CardHeight+PilePaddingY)),
 				})
 			}
 			for _, p := range b.piles {

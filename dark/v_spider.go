@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"image"
 	"log"
 )
 
@@ -15,17 +14,17 @@ type Spider struct {
 
 func (self *Spider) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0})
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
 	self.discards = nil
 	for x := 2; x < 10; x++ {
-		d := self.baize.NewDiscard(image.Point{x, 0}, FAN_NONE)
+		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
 		self.discards = append(self.discards, d)
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 10; x++ {
-		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }

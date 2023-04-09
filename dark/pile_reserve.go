@@ -5,14 +5,13 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type Reserve struct {
 	pile *Pile
 }
 
-func (b *Baize) NewReserve(slot image.Point, fanType FanType) *Pile {
+func (b *Baize) NewReserve(slot PileSlot, fanType FanType) *Pile {
 	pile := b.newPile("Reserve", slot, fanType, MOVE_ONE)
 	pile.vtable = &Reserve{pile: pile}
 	return pile

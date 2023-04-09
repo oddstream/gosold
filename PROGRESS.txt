@@ -1,5 +1,8 @@
 PROGRESS
 
+2023-04-09
+fractional (float32) pile slot X, Y
+
 2023-04-08
 simple boundary-only scrunching, using lsol algorithm
 

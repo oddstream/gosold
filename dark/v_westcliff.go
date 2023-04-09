@@ -4,8 +4,6 @@ package dark
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
 import (
-	"image"
-
 	"oddstream.games/gosold/cardid"
 )
 
@@ -15,45 +13,45 @@ type Westcliff struct {
 }
 
 func (self *Westcliff) BuildPiles() {
-	self.stock = self.baize.NewStock(image.Point{0, 0})
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 	switch self.variant {
 	case "Classic":
-		self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+		self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
 		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
-			f := self.baize.NewFoundation(image.Point{x, 0})
+			f := self.baize.NewFoundation(newPileSlot(x, 0))
 			self.foundations = append(self.foundations, f)
 			f.setLabel("A")
 		}
 		self.tableaux = []*Pile{}
 		for x := 0; x < 7; x++ {
-			t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+			t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
 		}
 	case "American":
-		self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+		self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
 		self.foundations = []*Pile{}
 		for x := 6; x < 10; x++ {
-			f := self.baize.NewFoundation(image.Point{x, 0})
+			f := self.baize.NewFoundation(newPileSlot(x, 0))
 			self.foundations = append(self.foundations, f)
 			f.setLabel("A")
 		}
 		self.tableaux = []*Pile{}
 		for x := 0; x < 10; x++ {
-			t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+			t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
 		}
 	case "Easthaven":
 		self.waste = nil
 		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
-			f := self.baize.NewFoundation(image.Point{x, 0})
+			f := self.baize.NewFoundation(newPileSlot(x, 0))
 			self.foundations = append(self.foundations, f)
 			f.setLabel("A")
 		}
 		self.tableaux = []*Pile{}
 		for x := 0; x < 7; x++ {
-			t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+			t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
 			t.setLabel("K")
 		}

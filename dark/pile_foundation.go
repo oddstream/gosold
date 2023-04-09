@@ -5,14 +5,13 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type Foundation struct {
 	pile *Pile
 }
 
-func (b *Baize) NewFoundation(slot image.Point) *Pile {
+func (b *Baize) NewFoundation(slot PileSlot) *Pile {
 	pile := b.newPile("Foundation", slot, FAN_NONE, MOVE_NONE)
 	pile.vtable = &Foundation{pile: pile}
 	return pile

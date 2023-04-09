@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type Spiderette struct {
@@ -18,17 +17,17 @@ func (self *Spiderette) BuildPiles() {
 		self.cardColors = 4
 	}
 
-	self.stock = self.baize.NewStock(image.Point{0, 0})
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
 	self.discards = []*Pile{}
 	for x := 3; x < 7; x++ {
-		d := self.baize.NewDiscard(image.Point{x, 0}, FAN_NONE)
+		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
 		self.discards = append(self.discards, d)
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 0; x < 7; x++ {
-		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }

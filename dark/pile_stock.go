@@ -5,14 +5,13 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type Stock struct {
 	pile *Pile
 }
 
-func (b *Baize) NewStock(slot image.Point) *Pile {
+func (b *Baize) NewStock(slot PileSlot) *Pile {
 	pile := b.newPile("Stock", slot, FAN_NONE, MOVE_ONE)
 	pile.vtable = &Stock{pile: pile}
 	return pile

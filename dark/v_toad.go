@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"image"
 
 	"oddstream.games/gosold/util"
 )
@@ -16,21 +15,21 @@ type Toad struct {
 
 func (self *Toad) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0})
-	self.waste = self.baize.NewWaste(image.Point{1, 0}, FAN_RIGHT3)
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
+	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
 
 	self.reserves = nil
-	self.reserves = append(self.reserves, self.baize.NewReserve(image.Point{3, 0}, FAN_RIGHT))
+	self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(3, 0), FAN_RIGHT))
 
 	self.foundations = nil
 	for x := 0; x < 8; x++ {
-		self.foundations = append(self.foundations, self.baize.NewFoundation(image.Point{x, 1}))
+		self.foundations = append(self.foundations, self.baize.NewFoundation(newPileSlot(x, 1)))
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 8; x++ {
 		// When moving tableau piles, you must either move the whole pile or only the top card.
-		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ONE_OR_ALL))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ONE_OR_ALL))
 	}
 }
 

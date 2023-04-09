@@ -3,10 +3,6 @@ package dark
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
-import (
-	"image"
-)
-
 type Yukon struct {
 	scriptBase
 	extraCells int
@@ -14,11 +10,11 @@ type Yukon struct {
 
 func (self *Yukon) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5})
+	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
-		f := self.baize.NewFoundation(image.Point{8, y})
+		f := self.baize.NewFoundation(newPileSlot(8, y))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
@@ -26,14 +22,14 @@ func (self *Yukon) BuildPiles() {
 	self.cells = nil
 	y := 4
 	for i := 0; i < self.extraCells; i++ {
-		c := self.baize.NewCell(image.Point{8, y})
+		c := self.baize.NewCell(newPileSlot(8, y))
 		self.cells = append(self.cells, c)
 		y += 1
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := self.baize.NewTableau(image.Point{x, 0}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 		t.setLabel("K")
 	}

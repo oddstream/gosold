@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"image"
 
 	"oddstream.games/gosold/util"
 )
@@ -16,23 +15,23 @@ type Duchess struct {
 
 func (self *Duchess) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{1, 1})
+	self.stock = self.baize.NewStock(newPileSlot(1, 1))
 
 	self.reserves = []*Pile{}
 	for i := 0; i < 4; i++ {
-		self.reserves = append(self.reserves, self.baize.NewReserve(image.Point{i * 2, 0}, FAN_RIGHT))
+		self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(i*2, 0), FAN_RIGHT))
 	}
 
-	self.waste = self.baize.NewWaste(image.Point{1, 2}, FAN_DOWN3)
+	self.waste = self.baize.NewWaste(newPileSlot(1, 2), FAN_DOWN3)
 
 	self.foundations = []*Pile{}
 	for x := 3; x < 7; x++ {
-		self.foundations = append(self.foundations, self.baize.NewFoundation(image.Point{x, 1}))
+		self.foundations = append(self.foundations, self.baize.NewFoundation(newPileSlot(x, 1)))
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 3; x < 7; x++ {
-		self.tableaux = append(self.tableaux, self.baize.NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ANY))
+		self.tableaux = append(self.tableaux, self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY))
 	}
 }
 

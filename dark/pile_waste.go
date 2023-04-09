@@ -5,14 +5,13 @@ package dark
 
 import (
 	"errors"
-	"image"
 )
 
 type Waste struct {
 	pile *Pile
 }
 
-func (b *Baize) NewWaste(slot image.Point, fanType FanType) *Pile {
+func (b *Baize) NewWaste(slot PileSlot, fanType FanType) *Pile {
 	pile := b.newPile("Waste", slot, fanType, MOVE_ONE)
 	pile.vtable = &Waste{pile: pile}
 	return pile

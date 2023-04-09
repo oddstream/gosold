@@ -3,10 +3,6 @@ package dark
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 //lint:file-ignore ST1006 I'll call the receiver anything I damn well like, thank you
 
-import (
-	"image"
-)
-
 type UskPileInfo struct {
 	x int
 	n int
@@ -20,7 +16,7 @@ type Usk struct {
 
 func (self *Usk) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0})
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
 	self.layout = []UskPileInfo{
 		{x: 0, n: 8},
@@ -37,14 +33,14 @@ func (self *Usk) BuildPiles() {
 
 	self.foundations = nil
 	for x := 6; x < 10; x++ {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		f.setLabel("A")
 		self.foundations = append(self.foundations, f)
 	}
 
 	self.tableaux = nil
 	for _, li := range self.layout {
-		t := self.baize.NewTableau(image.Point{li.x, 1}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(li.x, 1), FAN_DOWN, MOVE_ANY)
 		t.setLabel(self.tableauLabel)
 		self.tableaux = append(self.tableaux, t)
 	}

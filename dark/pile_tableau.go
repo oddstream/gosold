@@ -6,14 +6,13 @@ package dark
 import (
 	"errors"
 	"fmt"
-	"image"
 )
 
 type Tableau struct {
 	pile *Pile
 }
 
-func (b *Baize) NewTableau(slot image.Point, fanType FanType, moveType MoveType) *Pile {
+func (b *Baize) NewTableau(slot PileSlot, fanType FanType, moveType MoveType) *Pile {
 	pile := b.newPile("Tableau", slot, fanType, moveType)
 	pile.vtable = &Tableau{pile: pile}
 	return pile

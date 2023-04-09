@@ -4,8 +4,6 @@ package dark
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
 import (
-	"image"
-
 	"oddstream.games/gosold/cardid"
 )
 
@@ -24,23 +22,23 @@ func (self *Freecell) BuildPiles() {
 		self.tabCompareFunc = cardPair.compare_DownAltColor
 	}
 
-	self.stock = self.baize.NewStock(image.Point{-5, -5})
+	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
 	self.cells = []*Pile{}
 	for x := 0; x < 4; x++ {
-		self.cells = append(self.cells, self.baize.NewCell(image.Point{x, 0}))
+		self.cells = append(self.cells, self.baize.NewCell(newPileSlot(x, 0)))
 	}
 
 	self.foundations = []*Pile{}
 	for x := 4; x < 8; x++ {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.setLabel("A")
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 0; x < 8; x++ {
-		t := self.baize.NewTableau(image.Point{x, 1}, FAN_DOWN, MOVE_ONE_PLUS)
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
 		self.tableaux = append(self.tableaux, t)
 	}
 }

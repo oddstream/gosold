@@ -4,8 +4,6 @@ package dark
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
 import (
-	"image"
-
 	"oddstream.games/gosold/util"
 )
 
@@ -15,24 +13,24 @@ type Agnes struct {
 
 func (self *Agnes) BuildPiles() {
 
-	self.stock = self.baize.NewStock(image.Point{0, 0})
+	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 	self.waste = nil
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {
-		f := self.baize.NewFoundation(image.Point{x, 0})
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 	}
 
 	self.reserves = nil
 	for x := 0; x < 7; x++ {
-		r := self.baize.NewReserve(image.Point{x, 1}, FAN_NONE)
+		r := self.baize.NewReserve(newPileSlot(x, 1), FAN_NONE)
 		self.reserves = append(self.reserves, r)
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 7; x++ {
-		t := self.baize.NewTableau(image.Point{x, 2}, FAN_DOWN, MOVE_ANY)
+		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
 	}
 }
