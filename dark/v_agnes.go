@@ -20,7 +20,7 @@ func (self *Agnes) BuildPiles() {
 	for x := 3; x < 7; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuitWrap
+		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
 	self.reserves = nil
@@ -33,8 +33,8 @@ func (self *Agnes) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownAltColorWrap
-		t.moveCmp2 = cardPair.compare_DownAltColorWrap
+		t.appendCmp2 = dyad.compare_DownAltColorWrap
+		t.moveCmp2 = dyad.compare_DownAltColorWrap
 	}
 }
 
@@ -81,14 +81,7 @@ func (self *Agnes) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Agnes) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownAltColorWrap()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *Agnes) TailTapped(tail []*Card) {

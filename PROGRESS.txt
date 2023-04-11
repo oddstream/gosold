@@ -1,7 +1,15 @@
 PROGRESS
 
+2023-04-11
+cardPair renamed dyad
+
+2023-04-10
+added Uncle Sam, which prompted:
+dark Pile now has append/move compare functions, so not more
+switches in script Move/Append functions
+
 2023-04-09
-fractional (float32) pile slot X, Y
+fractional (float32) pile slot X, Y, Deg
 
 2023-04-08
 simple boundary-only scrunching, using lsol algorithm

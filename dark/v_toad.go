@@ -25,7 +25,7 @@ func (self *Toad) BuildPiles() {
 	for x := 0; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 1))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuitWrap
+		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
 	self.tableaux = nil
@@ -33,7 +33,7 @@ func (self *Toad) BuildPiles() {
 		// When moving tableau piles, you must either move the whole pile or only the top card.
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ONE_OR_ALL)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownSuitWrap
+		t.appendCmp2 = dyad.compare_DownSuitWrap
 	}
 }
 
@@ -92,14 +92,7 @@ func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Toad) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownSuitWrap()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *Toad) TailTapped(tail []*Card) {

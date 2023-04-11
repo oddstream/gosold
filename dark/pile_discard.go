@@ -27,7 +27,7 @@ func (self *Discard) canAcceptTail(tail []*Card) (bool, error) {
 	if len(tail) != self.pile.baize.cardCount/len(self.pile.baize.script.Discards()) {
 		return false, errors.New("Can only move a full set of cards to a Discard")
 	}
-	if ok, err := tailConformant(tail, cardPair.compare_DownSuit); !ok {
+	if ok, err := tailConformant(tail, dyad.compare_DownSuit); !ok {
 		return false, err
 	}
 	// Scorpion tails can always be moved, but Mrs Mop/Simple Simon/Spider tails

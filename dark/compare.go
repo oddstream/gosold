@@ -9,25 +9,25 @@ import (
 	"oddstream.games/gosold/util"
 )
 
-type cardPair struct {
+type dyad struct {
 	c1, c2 *Card
 }
 
-type cardPairCompareFunc func(cardPair) (bool, error)
+type dyadCmpFunc func(dyad) (bool, error)
 
-func tailConformant(tail []*Card, fn cardPairCompareFunc) (bool, error) {
+func tailConformant(tail []*Card, fn dyadCmpFunc) (bool, error) {
 	for i := 1; i < len(tail); i++ {
-		if ok, err := fn(cardPair{tail[i-1], tail[i]}); !ok {
+		if ok, err := fn(dyad{tail[i-1], tail[i]}); !ok {
 			return false, err
 		}
 	}
 	return true, nil
 }
 
-func (cp cardPair) compare_NoAppending() (bool, error) {
+func (dyad) compare_NoAppending() (bool, error) {
 	return false, errors.New("No appendng")
 }
-func (cp cardPair) compare_NoMoving() (bool, error) {
+func (dyad) compare_NoMoving() (bool, error) {
 	return false, errors.New("No moving")
 }
 
@@ -46,82 +46,82 @@ func compare_Empty(dst *Pile, c *Card) (bool, error) {
 
 // little library of simple compares
 
-func (cp cardPair) compare_Up() (bool, error) {
-	if cp.c1.Ordinal() == cp.c2.Ordinal()-1 {
+func (dy dyad) compare_Up() (bool, error) {
+	if dy.c1.Ordinal() == dy.c2.Ordinal()-1 {
 		return true, nil
 	}
 	return false, errors.New("Cards must be in ascending sequence")
 }
 
-func (cp cardPair) compare_UpWrap() (bool, error) {
-	if cp.c1.Ordinal() == cp.c2.Ordinal()-1 {
+func (dy dyad) compare_UpWrap() (bool, error) {
+	if dy.c1.Ordinal() == dy.c2.Ordinal()-1 {
 		return true, nil
 	}
-	if cp.c1.Ordinal() == 13 && cp.c2.Ordinal() == 1 {
+	if dy.c1.Ordinal() == 13 && dy.c2.Ordinal() == 1 {
 		return true, nil // Ace on King
 	}
 	return false, errors.New("Cards must go up in rank (Aces on Kings allowed)")
 }
 
-func (cp cardPair) compare_Down() (bool, error) {
-	if cp.c1.Ordinal() == cp.c2.Ordinal()+1 {
+func (dy dyad) compare_Down() (bool, error) {
+	if dy.c1.Ordinal() == dy.c2.Ordinal()+1 {
 		return true, nil
 	}
 	return false, errors.New("Cards must be in descending sequence")
 }
 
-func (cp cardPair) compare_DownWrap() (bool, error) {
-	if cp.c1.Ordinal() == cp.c2.Ordinal()+1 {
+func (dy dyad) compare_DownWrap() (bool, error) {
+	if dy.c1.Ordinal() == dy.c2.Ordinal()+1 {
 		return true, nil
 	}
-	if cp.c1.Ordinal() == 1 && cp.c2.Ordinal() == 13 {
+	if dy.c1.Ordinal() == 1 && dy.c2.Ordinal() == 13 {
 		return true, nil // King on Ace
 	}
 	return false, errors.New("Cards must be in descending sequence (Kings on Aces allowed)")
 }
 
-func (cp cardPair) compare_UpOrDown() (bool, error) {
-	if !(cp.c1.Ordinal()+1 == cp.c2.Ordinal() || cp.c1.Ordinal() == cp.c2.Ordinal()+1) {
+func (dy dyad) compare_UpOrDown() (bool, error) {
+	if !(dy.c1.Ordinal()+1 == dy.c2.Ordinal() || dy.c1.Ordinal() == dy.c2.Ordinal()+1) {
 		return false, errors.New("Cards must be in ascending or descending sequence")
 	}
 	return true, nil
 }
 
-func (cp cardPair) compare_UpOrDownWrap() (bool, error) {
-	if (cp.c1.Ordinal()+1 == cp.c2.Ordinal()) || (cp.c1.Ordinal() == cp.c2.Ordinal()+1) {
+func (dy dyad) compare_UpOrDownWrap() (bool, error) {
+	if (dy.c1.Ordinal()+1 == dy.c2.Ordinal()) || (dy.c1.Ordinal() == dy.c2.Ordinal()+1) {
 		return true, nil
-	} else if cp.c1.Ordinal() == 13 && cp.c2.Ordinal() == 1 {
+	} else if dy.c1.Ordinal() == 13 && dy.c2.Ordinal() == 1 {
 		return true, nil // Ace On King
-	} else if cp.c1.Ordinal() == 1 && cp.c2.Ordinal() == 13 {
+	} else if dy.c1.Ordinal() == 1 && dy.c2.Ordinal() == 13 {
 		return true, nil // King on Ace
 	} else {
 		return false, errors.New("Cards must be in ascending or descending sequence")
 	}
 }
 
-func (cp cardPair) compare_Color() (bool, error) {
-	if cp.c1.Black() != cp.c2.Black() {
+func (dy dyad) compare_Color() (bool, error) {
+	if dy.c1.Black() != dy.c2.Black() {
 		return false, errors.New("Cards must be the same color")
 	}
 	return true, nil
 }
 
-func (cp cardPair) compare_AltColor() (bool, error) {
-	if cp.c1.Black() == cp.c2.Black() {
+func (dy dyad) compare_AltColor() (bool, error) {
+	if dy.c1.Black() == dy.c2.Black() {
 		return false, errors.New("Cards must be in alternating colors")
 	}
 	return true, nil
 }
 
-func (cp cardPair) compare_Suit() (bool, error) {
-	if cp.c1.Suit() != cp.c2.Suit() {
+func (dy dyad) compare_Suit() (bool, error) {
+	if dy.c1.Suit() != dy.c2.Suit() {
 		return false, errors.New("Cards must be the same suit")
 	}
 	return true, nil
 }
 
-func (cp cardPair) compare_OtherSuit() (bool, error) {
-	if cp.c1.Suit() == cp.c2.Suit() {
+func (dy dyad) compare_OtherSuit() (bool, error) {
+	if dy.c1.Suit() == dy.c2.Suit() {
 		return false, errors.New("Cards must not be the same suit")
 	}
 	return true, nil
@@ -129,20 +129,20 @@ func (cp cardPair) compare_OtherSuit() (bool, error) {
 
 // library of compare functions made from simple compares
 
-func (cp cardPair) compare_DownColor() (bool, error) {
-	ok, err := cp.compare_Color()
+func (dy dyad) compare_DownColor() (bool, error) {
+	ok, err := dy.compare_Color()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_Down()
+	return dy.compare_Down()
 }
 
-func (cp cardPair) compare_DownAltColor() (bool, error) {
-	ok, err := cp.compare_AltColor()
+func (dy dyad) compare_DownAltColor() (bool, error) {
+	ok, err := dy.compare_AltColor()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_Down()
+	return dy.compare_Down()
 }
 
 // compare_DownColorWrap not used
@@ -154,12 +154,12 @@ func (cp cardPair) compare_DownAltColor() (bool, error) {
 // 	return cp.compare_DownWrap()
 // }
 
-func (cp cardPair) compare_DownAltColorWrap() (bool, error) {
-	ok, err := cp.compare_AltColor()
+func (dy dyad) compare_DownAltColorWrap() (bool, error) {
+	ok, err := dy.compare_AltColor()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_DownWrap()
+	return dy.compare_DownWrap()
 }
 
 // compare_UpAltColor not used
@@ -171,72 +171,72 @@ func (cp cardPair) compare_DownAltColorWrap() (bool, error) {
 // 	return cp.compare_Up()
 // }
 
-func (cp cardPair) compare_UpSuit() (bool, error) {
-	ok, err := cp.compare_Suit()
+func (dy dyad) compare_UpSuit() (bool, error) {
+	ok, err := dy.compare_Suit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_Up()
+	return dy.compare_Up()
 }
 
-func (cp cardPair) compare_DownSuit() (bool, error) {
-	ok, err := cp.compare_Suit()
+func (dy dyad) compare_DownSuit() (bool, error) {
+	ok, err := dy.compare_Suit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_Down()
+	return dy.compare_Down()
 }
 
-func (cp cardPair) compare_UpOrDownSuit() (bool, error) {
-	ok, err := cp.compare_Suit()
+func (dy dyad) compare_UpOrDownSuit() (bool, error) {
+	ok, err := dy.compare_Suit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_UpOrDown()
+	return dy.compare_UpOrDown()
 }
 
-func (cp cardPair) compare_UpOrDownSuitWrap() (bool, error) {
-	ok, err := cp.compare_Suit()
+func (dy dyad) compare_UpOrDownSuitWrap() (bool, error) {
+	ok, err := dy.compare_Suit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_UpOrDownWrap()
+	return dy.compare_UpOrDownWrap()
 }
 
 // compare_DownOtherSuit not used
-func (cp cardPair) compare_DownOtherSuit() (bool, error) {
-	ok, err := cp.compare_OtherSuit()
+func (dy dyad) compare_DownOtherSuit() (bool, error) {
+	ok, err := dy.compare_OtherSuit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_Down()
+	return dy.compare_Down()
 }
 
-func (cp cardPair) compare_UpSuitWrap() (bool, error) {
-	ok, err := cp.compare_Suit()
+func (dy dyad) compare_UpSuitWrap() (bool, error) {
+	ok, err := dy.compare_Suit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_UpWrap()
+	return dy.compare_UpWrap()
 }
 
-func (cp cardPair) compare_DownSuitWrap() (bool, error) {
-	ok, err := cp.compare_Suit()
+func (dy dyad) compare_DownSuitWrap() (bool, error) {
+	ok, err := dy.compare_Suit()
 	if !ok {
 		return ok, err
 	}
-	return cp.compare_DownWrap()
+	return dy.compare_DownWrap()
 }
 
 // chainCall
 //
-// Call using CardPair method expressions
-// eg chainCall(CardPair.Compare_UpOrDown, CardPair.Compare_Suit)
+// Call using dyad method expressions
+// eg chainCall(dyad.compare_UpOrDown, dyad.compare_Suit)
 //
 // TODO think of something else for unsortedPairs(*Pile)
-func (cp cardPair) chainCall(fns ...func(cardPair) (bool, error)) (ok bool, err error) {
+func (dy dyad) chainCall(fns ...func(dyad) (bool, error)) (ok bool, err error) {
 	for _, fn := range fns {
-		if ok, err = fn(cp); err != nil {
+		if ok, err = fn(dy); err != nil {
 			break
 		}
 	}

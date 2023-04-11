@@ -30,7 +30,7 @@ func (self *Canfield) BuildPiles() {
 	for x := 3; x < 7; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuitWrap
+		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
 	self.tableaux = nil
@@ -38,11 +38,11 @@ func (self *Canfield) BuildPiles() {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_OR_ALL)
 		self.tableaux = append(self.tableaux, t)
 		if self.variant == "storehouse" {
-			t.appendCmp2 = cardPair.compare_DownSuitWrap
-			t.moveCmp2 = cardPair.compare_DownSuitWrap
+			t.appendCmp2 = dyad.compare_DownSuitWrap
+			t.moveCmp2 = dyad.compare_DownSuitWrap
 		} else {
-			t.appendCmp2 = cardPair.compare_DownAltColorWrap
-			t.moveCmp2 = cardPair.compare_DownAltColorWrap
+			t.appendCmp2 = dyad.compare_DownAltColorWrap
+			t.moveCmp2 = dyad.compare_DownAltColorWrap
 		}
 	}
 }
@@ -128,14 +128,7 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (self *Canfield) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
-	// case *Tableau:
-	// 	return self.tabCompareFunc(cardPair{c1, c2})
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *Canfield) TailTapped(tail []*Card) {

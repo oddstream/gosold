@@ -31,7 +31,7 @@ func (self *Klondike) BuildPiles() {
 	for _, x := range self.founds {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuit
+		f.appendCmp2 = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -39,8 +39,8 @@ func (self *Klondike) BuildPiles() {
 	for _, x := range self.tabs {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownAltColor
-		t.moveCmp2 = cardPair.compare_DownAltColor
+		t.appendCmp2 = dyad.compare_DownAltColor
+		t.moveCmp2 = dyad.compare_DownAltColor
 		t.setLabel("K")
 	}
 }
@@ -88,14 +88,7 @@ func (self *Klondike) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Klondike) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuit()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownAltColor()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *Klondike) TailTapped(tail []*Card) {

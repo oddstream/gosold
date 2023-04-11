@@ -20,7 +20,7 @@ func (self *EightOff) BuildPiles() {
 	for y := 0; y < 4; y++ {
 		f := self.baize.NewFoundation(newPileSlot(9, y))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuit
+		f.appendCmp2 = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -28,8 +28,8 @@ func (self *EightOff) BuildPiles() {
 	for x := 0; x < 8; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownSuit
-		t.moveCmp2 = cardPair.compare_DownSuit
+		t.appendCmp2 = dyad.compare_DownSuit
+		t.moveCmp2 = dyad.compare_DownSuit
 		t.setLabel("K")
 	}
 }
@@ -58,14 +58,7 @@ func (self *EightOff) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*EightOff) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuit()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownSuit()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (*EightOff) TailTapped(tail []*Card) {

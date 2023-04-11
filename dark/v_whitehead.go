@@ -16,7 +16,7 @@ func (self *Whitehead) BuildPiles() {
 	for x := 3; x < 7; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuit
+		f.appendCmp2 = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -24,8 +24,8 @@ func (self *Whitehead) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownAltColor
-		t.moveCmp2 = cardPair.compare_DownAltColor
+		t.appendCmp2 = dyad.compare_DownAltColor
+		t.moveCmp2 = dyad.compare_DownAltColor
 	}
 }
 
@@ -60,14 +60,7 @@ func (self *Whitehead) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (self *Whitehead) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuit()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownColor()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *Whitehead) TailTapped(tail []*Card) {

@@ -40,7 +40,7 @@ var variants = map[string]scripter{
 			wikipedia:  "https://en.wikipedia.org/wiki/Baker%27s_Game",
 			cardColors: 4,
 		},
-		tabCompareFunc: cardPair.compare_DownSuit,
+		tabCompareFunc: dyad.compare_DownSuit,
 	},
 	"Bisley": &Bisley{
 		scriptBase: scriptBase{
@@ -53,7 +53,7 @@ var variants = map[string]scripter{
 			wikipedia:  "https://en.wikipedia.org/wiki/FreeCell",
 			cardColors: 2,
 		},
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 		blind:          true,
 	},
 	"Blockade": &Blockade{
@@ -136,13 +136,13 @@ var variants = map[string]scripter{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/FreeCell",
 		},
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 	},
 	"Freecell Easy": &Freecell{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/FreeCell",
 		},
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 		easy:           true,
 	},
 	"Forty Thieves": &FortyThieves{
@@ -175,7 +175,7 @@ var variants = map[string]scripter{
 		tabs:           []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 		cardsPerTab:    4,
 		proneRows:      []int{0, 1, 2},
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 		moveType:       MOVE_ANY,
 	},
 	"Indian": &FortyThieves{
@@ -188,7 +188,7 @@ var variants = map[string]scripter{
 		tabs:           []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 		cardsPerTab:    3,
 		proneRows:      []int{0},
-		tabCompareFunc: cardPair.compare_DownOtherSuit,
+		tabCompareFunc: dyad.compare_DownOtherSuit,
 	},
 	"Streets": &FortyThieves{
 		scriptBase: scriptBase{
@@ -198,7 +198,7 @@ var variants = map[string]scripter{
 		founds:         []int{3, 4, 5, 6, 7, 8, 9, 10},
 		tabs:           []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 		cardsPerTab:    4,
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 	},
 	"Number Ten": &FortyThieves{
 		scriptBase: scriptBase{
@@ -209,7 +209,7 @@ var variants = map[string]scripter{
 		tabs:           []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 		cardsPerTab:    4,
 		proneRows:      []int{0, 1},
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 		moveType:       MOVE_ANY,
 	},
 	"Limited": &FortyThieves{
@@ -241,7 +241,7 @@ var variants = map[string]scripter{
 		founds:         []int{3, 4, 5, 6, 7, 8, 9, 10},
 		tabs:           []int{3, 4, 5, 6, 7, 8, 9, 10},
 		cardsPerTab:    4,
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 	},
 	"Lucas": &FortyThieves{
 		scriptBase: scriptBase{
@@ -272,7 +272,7 @@ var variants = map[string]scripter{
 		founds:         []int{3, 4, 5, 6, 7, 8, 9, 10},
 		tabs:           []int{2, 3, 4, 5, 6, 7, 8, 9, 10},
 		cardsPerTab:    4,
-		tabCompareFunc: cardPair.compare_DownAltColor,
+		tabCompareFunc: dyad.compare_DownAltColor,
 	},
 	"Sixty Thieves": &FortyThieves{
 		scriptBase: scriptBase{

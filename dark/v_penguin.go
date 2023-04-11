@@ -27,15 +27,15 @@ func (pen *Penguin) BuildPiles() {
 	for y := 0; y < 4; y++ {
 		f := pen.baize.NewFoundation(newPileSlot(8, y))
 		pen.foundations = append(pen.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuitWrap
+		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
 	pen.tableaux = nil
 	for x := 0; x < 7; x++ {
 		t := pen.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		pen.tableaux = append(pen.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownSuitWrap
-		t.moveCmp2 = cardPair.compare_DownSuitWrap
+		t.appendCmp2 = dyad.compare_DownSuitWrap
+		t.moveCmp2 = dyad.compare_DownSuitWrap
 	}
 }
 
@@ -97,14 +97,7 @@ func (pen *Penguin) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Penguin) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownSuitWrap()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (pen *Penguin) TailTapped(tail []*Card) {

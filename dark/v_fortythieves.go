@@ -16,7 +16,7 @@ type FortyThieves struct {
 	recycles       int
 	dealAces       bool
 	moveType       MoveType
-	tabCompareFunc cardPairCompareFunc
+	tabCompareFunc dyadCmpFunc
 }
 
 func (self *FortyThieves) BuildPiles() {
@@ -28,7 +28,7 @@ func (self *FortyThieves) BuildPiles() {
 		self.cardColors = 2
 	}
 	if self.tabCompareFunc == nil {
-		self.tabCompareFunc = cardPair.compare_DownSuit
+		self.tabCompareFunc = dyad.compare_DownSuit
 	}
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
@@ -38,7 +38,7 @@ func (self *FortyThieves) BuildPiles() {
 	for _, x := range self.founds {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = cardPair.compare_UpSuit
+		f.appendCmp2 = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -111,14 +111,7 @@ func (self *FortyThieves) TailAppendError(dst *Pile, tail []*Card) (bool, error)
 }
 
 func (self *FortyThieves) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Foundation:
-	// 	return cardPair{c1, c2}.compare_UpSuit()
-	// case *Tableau:
-	// 	return self.tabCompareFunc(cardPair{c1, c2})
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *FortyThieves) TailTapped(tail []*Card) {

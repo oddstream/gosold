@@ -62,7 +62,7 @@ type Pile struct {
 	vtable               pileVtabler // needed by DARK, not visible to LIGHT
 	slot                 PileSlot    // needed by LIGHT when placing piles
 	boundary             int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
-	appendCmp2, moveCmp2 cardPairCompareFunc
+	appendCmp2, moveCmp2 dyadCmpFunc
 }
 
 // Public functions, visible to LIGHT
@@ -154,8 +154,8 @@ func (b *Baize) newPile(category string, slot PileSlot, fanType FanType, moveTyp
 		fanType:    fanType,
 		moveType:   moveType,
 		slot:       slot,
-		appendCmp2: cardPair.compare_NoAppending,
-		moveCmp2:   cardPair.compare_NoMoving,
+		appendCmp2: dyad.compare_NoAppending,
+		moveCmp2:   dyad.compare_NoMoving,
 	}
 	b.addPile(p)
 	return p
@@ -338,6 +338,10 @@ func (self *Pile) canMoveTail(tail []*Card) (bool, error) {
 }
 
 func (self *Pile) makeTail(c *Card) []*Card {
+	// TODO make another version that honors moveType
+	// for use when making movable tails
+	// would save checking made tail afterwards
+	// this version would still be used when starting a tail drag
 	if c.owner() != self {
 		log.Panic("Pile.MakeTail called with a card that is not of this pile")
 	}

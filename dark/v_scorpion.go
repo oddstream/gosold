@@ -21,7 +21,7 @@ func (self *Scorpion) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = cardPair.compare_DownSuit
+		t.appendCmp2 = dyad.compare_DownSuit
 		t.setLabel("K")
 	}
 }
@@ -54,31 +54,10 @@ func (self *Scorpion) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		return compare_Empty(dst, tail[0])
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
-	// switch dst.vtable.(type) {
-	// case *Discard:
-	// 	if tail[0].Ordinal() != 13 {
-	// 		return false, errors.New("Can only discard starting from a King")
-	// 	}
-	// 	return tailConformant(tail, cardPair.compare_DownSuit)
-	// case *Tableau:
-	// 	if dst.Empty() {
-	// 		return compare_Empty(dst, tail[0])
-	// 	} else {
-	// 		return self.TwoCards(dst, dst.peek(), tail[0])
-	// 	}
-	// }
-	// return true, nil
 }
 
 func (*Scorpion) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
-	// switch pile.vtable.(type) {
-	// case *Discard:
-	// 	return cardPair{c1, c2}.compare_DownSuit()
-	// case *Tableau:
-	// 	return cardPair{c1, c2}.compare_DownSuit()
-	// }
-	// return true, nil
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *Scorpion) TailTapped(tail []*Card) {

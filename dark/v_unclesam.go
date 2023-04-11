@@ -46,16 +46,16 @@ func (self *UncleSam) BuildPiles() {
 		f := self.baize.NewFoundation(slot)
 		self.foundations = append(self.foundations, f)
 		self.u_foundations = append(self.u_foundations, f)
+		f.appendCmp2 = dyad.compare_DownSuit
 		f.setLabel("6")
-		f.appendCmp2 = cardPair.compare_DownSuit
 	}
 
 	for _, slot := range s_coords {
 		f := self.baize.NewFoundation(slot)
 		self.foundations = append(self.foundations, f)
 		self.s_foundations = append(self.s_foundations, f)
+		f.appendCmp2 = dyad.compare_UpSuit
 		f.setLabel("7")
-		f.appendCmp2 = cardPair.compare_UpSuit
 	}
 
 	for x := 1; x < 14; x++ {
@@ -91,7 +91,6 @@ func (self *UncleSam) AfterMove() {
 }
 
 func (*UncleSam) TailMoveError(tail []*Card) (bool, error) {
-	// attempt to move more than one card will be caught before this
 	return true, nil
 }
 
@@ -100,7 +99,7 @@ func (self *UncleSam) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (self *UncleSam) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(cardPair{c1, c2})
+	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *UncleSam) TailTapped(tail []*Card) {
