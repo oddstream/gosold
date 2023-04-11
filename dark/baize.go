@@ -272,10 +272,10 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 	if ok, err = src.canMoveTail(tail); !ok {
 		return false, err
 	} else {
-		if ok, err = dst.vtable.canAcceptTail(tail); !ok {
+		if ok, err = b.script.TailMoveError(tail); !ok {
 			return false, err
 		} else {
-			if ok, err = b.script.TailMoveError(tail); !ok {
+			if ok, err = dst.vtable.canAcceptTail(tail); !ok {
 				return false, err
 			} else {
 				oldCRC := b.calcCRC()

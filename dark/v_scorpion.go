@@ -3,10 +3,6 @@ package dark
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 //lint:file-ignore ST1006 I'll call the receiver anything I like, thank you
 
-import (
-	"errors"
-)
-
 type Scorpion struct {
 	scriptBase
 }
@@ -24,8 +20,9 @@ func (self *Scorpion) BuildPiles() {
 	self.tableaux = []*Pile{}
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
-		t.setLabel("K")
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_DownSuit
+		t.setLabel("K")
 	}
 }
 
@@ -52,35 +49,36 @@ func (*Scorpion) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (*Scorpion) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	// why the pretty asterisks? google method pointer receivers in interfaces; *Tableau is a different type to Tableau
-	switch dst.vtable.(type) {
-	case *Discard:
-		if tail[0].Ordinal() != 13 {
-			return false, errors.New("Can only discard starting from a King")
-		}
-		ok, err := tailConformant(tail, cardPair.compare_DownSuit)
-		if !ok {
-			return ok, err
-		}
-	case *Tableau:
-		if dst.Empty() {
-			return compare_Empty(dst, tail[0])
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_DownSuit()
-		}
+func (self *Scorpion) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
+	// switch dst.vtable.(type) {
+	// case *Discard:
+	// 	if tail[0].Ordinal() != 13 {
+	// 		return false, errors.New("Can only discard starting from a King")
+	// 	}
+	// 	return tailConformant(tail, cardPair.compare_DownSuit)
+	// case *Tableau:
+	// 	if dst.Empty() {
+	// 		return compare_Empty(dst, tail[0])
+	// 	} else {
+	// 		return self.TwoCards(dst, dst.peek(), tail[0])
+	// 	}
+	// }
+	// return true, nil
 }
 
 func (*Scorpion) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Discard:
-		return cardPair{c1, c2}.compare_DownSuit()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_DownSuit()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Discard:
+	// 	return cardPair{c1, c2}.compare_DownSuit()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_DownSuit()
+	// }
+	// return true, nil
 }
 
 func (self *Scorpion) TailTapped(tail []*Card) {

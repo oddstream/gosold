@@ -19,19 +19,25 @@ func (self *Duchess) BuildPiles() {
 
 	self.reserves = []*Pile{}
 	for i := 0; i < 4; i++ {
-		self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(i*2, 0), FAN_RIGHT))
+		r := self.baize.NewReserve(newPileSlot(i*2, 0), FAN_RIGHT)
+		self.reserves = append(self.reserves, r)
 	}
 
 	self.waste = self.baize.NewWaste(newPileSlot(1, 2), FAN_DOWN3)
 
 	self.foundations = []*Pile{}
 	for x := 3; x < 7; x++ {
-		self.foundations = append(self.foundations, self.baize.NewFoundation(newPileSlot(x, 1)))
+		f := self.baize.NewFoundation(newPileSlot(x, 1))
+		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuitWrap
 	}
 
 	self.tableaux = []*Pile{}
 	for x := 3; x < 7; x++ {
-		self.tableaux = append(self.tableaux, self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY))
+		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY)
+		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_DownAltColorWrap
+		t.moveCmp2 = cardPair.compare_DownAltColorWrap
 	}
 }
 
@@ -77,14 +83,7 @@ func (self *Duchess) AfterMove() {
 func (*Duchess) TailMoveError(tail []*Card) (bool, error) {
 	// One card can be moved at a time, but sequences can also be moved as one unit.
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, cardPair.compare_DownAltColorWrap)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -116,13 +115,14 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Duchess) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuitWrap()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_DownAltColorWrap()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_DownAltColorWrap()
+	// }
+	// return true, nil
 }
 
 func (self *Duchess) TailTapped(tail []*Card) {

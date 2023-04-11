@@ -26,13 +26,15 @@ func (self *Freecell) BuildPiles() {
 
 	self.cells = []*Pile{}
 	for x := 0; x < 4; x++ {
-		self.cells = append(self.cells, self.baize.NewCell(newPileSlot(x, 0)))
+		c := self.baize.NewCell(newPileSlot(x, 0))
+		self.cells = append(self.cells, c)
 	}
 
 	self.foundations = []*Pile{}
 	for x := 4; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -40,6 +42,8 @@ func (self *Freecell) BuildPiles() {
 	for x := 0; x < 8; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = self.tabCompareFunc
+		t.moveCmp2 = self.tabCompareFunc
 	}
 }
 
@@ -84,14 +88,7 @@ func (self *Freecell) StartGame() {
 
 func (self *Freecell) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, self.tabCompareFunc)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (self *Freecell) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -102,13 +99,14 @@ func (self *Freecell) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (self *Freecell) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuit()
-	case *Tableau:
-		return self.tabCompareFunc(cardPair{c1, c2})
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuit()
+	// case *Tableau:
+	// 	return self.tabCompareFunc(cardPair{c1, c2})
+	// }
+	// return true, nil
 }
 
 func (*Freecell) TailTapped(tail []*Card) {

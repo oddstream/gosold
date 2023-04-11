@@ -34,15 +34,18 @@ func (self *Usk) BuildPiles() {
 	self.foundations = nil
 	for x := 6; x < 10; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
-		f.setLabel("A")
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
+		f.setLabel("A")
 	}
 
 	self.tableaux = nil
 	for _, li := range self.layout {
 		t := self.baize.NewTableau(newPileSlot(li.x, 1), FAN_DOWN, MOVE_ANY)
-		t.setLabel(self.tableauLabel)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_DownAltColor
+		t.moveCmp2 = cardPair.compare_DownAltColor
+		t.setLabel(self.tableauLabel)
 	}
 }
 
@@ -65,14 +68,7 @@ func (self *Usk) StartGame() {
 
 func (*Usk) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, cardPair.compare_DownAltColor)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (self *Usk) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -83,13 +79,14 @@ func (self *Usk) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (self *Usk) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuit()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_DownAltColor()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuit()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_DownAltColor()
+	// }
+	// return true, nil
 }
 
 func (*Usk) TailTapped(tail []*Card) {

@@ -11,7 +11,16 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] fractional pile slots (currently using image.Point{int,int})
+[ ] grep case *Discard / empty
+	post Tail being dragged, the flow is:
+		pile.canMoveTail // check for prone and move type
+		script.TailMoveError // check if tail needs to be conformant
+		dst-pile.canAcceptTail // filter out by pile type
+			// check power moves (now we know dst)
+			// tableau/foundation check script.TailAppendError
+			TailAppendError // empty check before passing to TwoCards
+[x] why not give each pile a two-card compare func when it is created?
+[x] fractional pile slots (currently using image.Point{int,int})
 	type PileSlot struct {
 		X, Y, Deg float32
 	}

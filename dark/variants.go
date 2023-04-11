@@ -67,19 +67,17 @@ var variants = map[string]scripter{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
 		},
-		draw:           3,
-		recycles:       32767,
-		tabCompareFunc: cardPair.compare_DownAltColorWrap,
+		draw:     3,
+		recycles: 32767,
 	},
 	"Storehouse": &Canfield{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
 			cardColors: 4,
 		},
-		draw:           1,
-		recycles:       2,
-		tabCompareFunc: cardPair.compare_DownSuitWrap,
-		variant:        "storehouse",
+		draw:     1,
+		recycles: 2,
+		variant:  "storehouse",
 	},
 	"Duchess": &Duchess{
 		scriptBase: scriptBase{
@@ -378,6 +376,12 @@ var variants = map[string]scripter{
 			wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
 		},
 	},
+	"Uncle Sam": &UncleSam{
+		scriptBase: scriptBase{
+			cardColors: 2,
+			packs:      2,
+		},
+	},
 	"Usk": &Usk{
 		scriptBase: scriptBase{
 			wikipedia: "https://politaire.com/help/usk",
@@ -407,6 +411,7 @@ var variantGroups = map[string][]string{
 	// don't have any group that comes alphabetically before "> All"
 	"> Canfields":     {"Canfield", "Storehouse", "Duchess", "American Toad"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
+	"> Hapgood":       {"Uncle Sam"},
 	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},
 	"> Forty Thieves": {"Forty Thieves", "Number Ten", "Red and Black", "Indian", "Rank and File", "Sixty Thieves", "Josephine", "Limited", "Forty and Eight", "Lucas", "Busy Aces", "Maria", "Streets"},
 	"> Freecells":     {"Baker's Game", "Blind Freecell", "Freecell", "Freecell Easy", "Eight Off", "Seahaven Towers"},

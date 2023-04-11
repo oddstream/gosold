@@ -18,16 +18,19 @@ func (self *EightOff) BuildPiles() {
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
-		pile := self.baize.NewFoundation(newPileSlot(9, y))
-		self.foundations = append(self.foundations, pile)
-		pile.setLabel("A")
+		f := self.baize.NewFoundation(newPileSlot(9, y))
+		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
+		f.setLabel("A")
 	}
 
 	self.tableaux = nil
 	for x := 0; x < 8; x++ {
-		pile := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
-		self.tableaux = append(self.tableaux, pile)
-		pile.setLabel("K")
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
+		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_DownSuit
+		t.moveCmp2 = cardPair.compare_DownSuit
+		t.setLabel("K")
 	}
 }
 
@@ -44,14 +47,7 @@ func (self *EightOff) StartGame() {
 
 func (*EightOff) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, cardPair.compare_DownSuit)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (self *EightOff) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -62,13 +58,14 @@ func (self *EightOff) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*EightOff) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuit()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_DownSuit()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuit()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_DownSuit()
+	// }
+	// return true, nil
 }
 
 func (*EightOff) TailTapped(tail []*Card) {

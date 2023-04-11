@@ -30,9 +30,9 @@ func (self *Discard) canAcceptTail(tail []*Card) (bool, error) {
 	if ok, err := tailConformant(tail, cardPair.compare_DownSuit); !ok {
 		return false, err
 	}
-	// Scorpion tails can always be moved, but Mrs Mop/Simple Simon tails
+	// Scorpion tails can always be moved, but Mrs Mop/Simple Simon/Spider tails
 	// must be conformant, so ...
-	return self.pile.baize.script.TailMoveError(tail)
+	return self.pile.baize.script.TailMoveError(tail) // TODO this isn't needed?
 }
 
 func (*Discard) tailTapped([]*Card) {

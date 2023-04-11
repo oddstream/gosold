@@ -53,15 +53,16 @@ type PileSlot struct {
 // Pile is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Pile object as immutable, hence the unexported fields and getters.
 type Pile struct {
-	baize    *Baize
-	category string   // needed by LIGHT when creating Pile Placeholder (switch)
-	label    string   // needed by LIGHT when creating Pile Placeholder
-	moveType MoveType // needed by DARK, not visible to LIGHT
-	fanType  FanType  // needed by LIGHT when fanning cards
-	cards    []*Card
-	vtable   pileVtabler // needed by DARK, not visible to LIGHT
-	slot     PileSlot    // needed by LIGHT when placing piles
-	boundary int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
+	baize                *Baize
+	category             string   // needed by LIGHT when creating Pile Placeholder (switch)
+	label                string   // needed by LIGHT when creating Pile Placeholder
+	moveType             MoveType // needed by DARK, not visible to LIGHT
+	fanType              FanType  // needed by LIGHT when fanning cards
+	cards                []*Card
+	vtable               pileVtabler // needed by DARK, not visible to LIGHT
+	slot                 PileSlot    // needed by LIGHT when placing piles
+	boundary             int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
+	appendCmp2, moveCmp2 cardPairCompareFunc
 }
 
 // Public functions, visible to LIGHT
@@ -135,21 +136,26 @@ func (self *Pile) Hidden() bool {
 
 // Private functions
 
+// newPileSlot is a helper function for when slot was an image.Point
 func newPileSlot(x, y int) PileSlot {
 	return PileSlot{X: float32(x), Y: float32(y), Deg: 0}
 }
 
+// newHiddenPileSlot is a helper function for creating a pile (ususally stock)
+// that is off-screen. The use of -5 is arbitary.
 func newHiddenPileSlot() PileSlot {
 	return PileSlot{X: -5, Y: -5, Deg: 0}
 }
 
 func (b *Baize) newPile(category string, slot PileSlot, fanType FanType, moveType MoveType) *Pile {
 	var p *Pile = &Pile{
-		baize:    b,
-		category: category,
-		fanType:  fanType,
-		moveType: moveType,
-		slot:     slot,
+		baize:      b,
+		category:   category,
+		fanType:    fanType,
+		moveType:   moveType,
+		slot:       slot,
+		appendCmp2: cardPair.compare_NoAppending,
+		moveCmp2:   cardPair.compare_NoMoving,
 	}
 	b.addPile(p)
 	return p
@@ -208,6 +214,18 @@ func (self *Pile) extract(pack, ordinal, suit int) *Card {
 		}
 	}
 	log.Printf("Could not find card %d %d in %s", suit, ordinal, self.category)
+	return nil
+}
+
+func (self *Pile) extractOrdinal(ordinal int) *Card {
+	for i, c := range self.cards {
+		if c.Ordinal() == ordinal {
+			self.delete(i)
+			c.flipUp()
+			return c
+		}
+	}
+	log.Printf("Could not find card %d %s", ordinal, self.category)
 	return nil
 }
 

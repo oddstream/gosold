@@ -15,7 +15,6 @@ type Canfield struct {
 	scriptBase
 	variant        string
 	draw, recycles int
-	tabCompareFunc cardPairCompareFunc
 }
 
 func (self *Canfield) BuildPiles() {
@@ -29,12 +28,22 @@ func (self *Canfield) BuildPiles() {
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {
-		self.foundations = append(self.foundations, self.baize.NewFoundation(newPileSlot(x, 0)))
+		f := self.baize.NewFoundation(newPileSlot(x, 0))
+		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuitWrap
 	}
 
 	self.tableaux = nil
 	for x := 3; x < 7; x++ {
-		self.tableaux = append(self.tableaux, self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_OR_ALL))
+		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_OR_ALL)
+		self.tableaux = append(self.tableaux, t)
+		if self.variant == "storehouse" {
+			t.appendCmp2 = cardPair.compare_DownSuitWrap
+			t.moveCmp2 = cardPair.compare_DownSuitWrap
+		} else {
+			t.appendCmp2 = cardPair.compare_DownAltColorWrap
+			t.moveCmp2 = cardPair.compare_DownAltColorWrap
+		}
 	}
 }
 
@@ -85,14 +94,7 @@ func (self *Canfield) AfterMove() {
 
 func (self *Canfield) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, self.tabCompareFunc)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -119,20 +121,21 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			if tail[0].owner().category == "Tableau" {
 				return false, errors.New("An empty Tableau must be filled from the Reserve or Waste")
 			}
-			return true, nil
 		}
+		return true, nil
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
 func (self *Canfield) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuitWrap()
-	case *Tableau:
-		return self.tabCompareFunc(cardPair{c1, c2})
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
+	// case *Tableau:
+	// 	return self.tabCompareFunc(cardPair{c1, c2})
+	// }
+	// return true, nil
 }
 
 func (self *Canfield) TailTapped(tail []*Card) {

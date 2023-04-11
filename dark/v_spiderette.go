@@ -3,10 +3,6 @@ package dark
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 //lint:file-ignore ST1006 I'll call the receiver anything I like, thank you
 
-import (
-	"errors"
-)
-
 type Spiderette struct {
 	scriptBase
 }
@@ -29,6 +25,8 @@ func (self *Spiderette) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_Down
+		t.moveCmp2 = cardPair.compare_DownSuit
 	}
 }
 
@@ -53,44 +51,41 @@ func (self *Spiderette) StartGame() {
 
 func (*Spiderette) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, cardPair.compare_DownSuit)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
-func (*Spiderette) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	// why the pretty asterisks? google method pointer receivers in interfaces; *Tableau is a different type to Tableau
-	switch dst.vtable.(type) {
-	case *Discard:
-		if tail[0].Ordinal() != 13 {
-			return false, errors.New("Can only discard starting from a King")
-		}
-		ok, err := tailConformant(tail, cardPair.compare_DownSuit)
-		if !ok {
-			return ok, err
-		}
-	case *Tableau:
-		if dst.Empty() {
-		} else {
-			return cardPair{dst.peek(), tail[0]}.compare_Down()
-		}
+func (self *Spiderette) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
 	}
-	return true, nil
+	return self.TwoCards(dst, dst.peek(), tail[0])
+	// switch dst.vtable.(type) {
+	// case *Discard:
+	// 	if tail[0].Ordinal() != 13 {
+	// 		return false, errors.New("Can only discard starting from a King")
+	// 	}
+	// 	ok, err := tailConformant(tail, cardPair.compare_DownSuit)
+	// 	if !ok {
+	// 		return ok, err
+	// 	}
+	// case *Tableau:
+	// 	if dst.Empty() {
+	// 	} else {
+	// 		return cardPair{dst.peek(), tail[0]}.compare_Down()
+	// 	}
+	// }
+	// return true, nil
 }
 
 func (*Spiderette) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Discard:
-		return cardPair{c1, c2}.compare_DownSuit()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_Down()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Discard:
+	// 	return cardPair{c1, c2}.compare_DownSuit()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_Down()
+	// }
+	// return true, nil
 }
 
 func (self *Spiderette) TailTapped(tail []*Card) {

@@ -19,20 +19,23 @@ func (pen *Penguin) BuildPiles() {
 	// the flipper, seven cells
 	pen.cells = nil
 	for x := 0; x < 7; x++ {
-		pile := pen.baize.NewCell(newPileSlot(x, 0))
-		pen.cells = append(pen.cells, pile)
+		c := pen.baize.NewCell(newPileSlot(x, 0))
+		pen.cells = append(pen.cells, c)
 	}
 
 	pen.foundations = nil
 	for y := 0; y < 4; y++ {
-		pile := pen.baize.NewFoundation(newPileSlot(8, y))
-		pen.foundations = append(pen.foundations, pile)
+		f := pen.baize.NewFoundation(newPileSlot(8, y))
+		pen.foundations = append(pen.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuitWrap
 	}
 
 	pen.tableaux = nil
 	for x := 0; x < 7; x++ {
 		t := pen.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		pen.tableaux = append(pen.tableaux, t)
+		t.appendCmp2 = cardPair.compare_DownSuitWrap
+		t.moveCmp2 = cardPair.compare_DownSuitWrap
 	}
 }
 
@@ -83,14 +86,7 @@ func (pen *Penguin) StartGame() {
 
 func (*Penguin) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, cardPair.compare_DownSuitWrap)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (pen *Penguin) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -101,13 +97,14 @@ func (pen *Penguin) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Penguin) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuitWrap()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_DownSuitWrap()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuitWrap()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_DownSuitWrap()
+	// }
+	// return true, nil
 }
 
 func (pen *Penguin) TailTapped(tail []*Card) {

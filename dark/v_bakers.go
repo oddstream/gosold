@@ -3,10 +3,6 @@ package dark
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
-import (
-	"errors"
-)
-
 type BakersDozen struct {
 	scriptBase
 }
@@ -19,23 +15,27 @@ func (self *BakersDozen) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_Down
 		t.setLabel("X")
 	}
 	for x := 0; x < 6; x++ {
-		t := self.baize.NewTableau(newPileSlot(x, 3), FAN_DOWN, MOVE_ONE)
+		t := self.baize.NewTableau(PileSlot{float32(x) + 0.5, 3, 0}, FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_Down
 		t.setLabel("X")
 	}
 	for x := 0; x < 6; x++ {
 		// stock is pile index 0
 		// tableaux are piles index 1 .. 13
-		self.tableaux[x].boundary = x + 7 + 1
+		self.tableaux[x].boundary = 1 + x + 7
 	}
+	self.tableaux[6].boundary = 1 + 12
 
 	self.foundations = nil
 	for y := 0; y < 4; y++ {
 		f := self.baize.NewFoundation(newPileSlot(9, y))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
 		f.setLabel("A")
 	}
 }
@@ -58,24 +58,20 @@ func (*BakersDozen) TailMoveError(tail []*Card) (bool, error) {
 
 func (self *BakersDozen) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {
-		switch dst.vtable.(type) {
-		case *Foundation:
-			return compare_Empty(dst, tail[0])
-		case *Tableau:
-			return false, errors.New("Cannot move a card to an empty Tableau")
-		}
+		return compare_Empty(dst, tail[0])
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
 func (*BakersDozen) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuit()
-	case *Tableau:
-		return cardPair{c1, c2}.compare_Down()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuit()
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_Down()
+	// }
+	// return true, nil
 }
 
 func (*BakersDozen) TailTapped(tail []*Card) {

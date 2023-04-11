@@ -38,6 +38,7 @@ func (self *FortyThieves) BuildPiles() {
 	for _, x := range self.founds {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -45,6 +46,8 @@ func (self *FortyThieves) BuildPiles() {
 	for _, x := range self.tabs {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, self.moveType)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = self.tabCompareFunc
+		t.moveCmp2 = self.tabCompareFunc
 	}
 }
 
@@ -97,14 +100,7 @@ func (self *FortyThieves) AfterMove() {
 
 func (self *FortyThieves) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	switch pile.vtable.(type) {
-	case *Tableau:
-		ok, err := tailConformant(tail, self.tabCompareFunc)
-		if !ok {
-			return ok, err
-		}
-	}
-	return true, nil
+	return tailConformant(tail, pile.moveCmp2)
 }
 
 func (self *FortyThieves) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
@@ -115,13 +111,14 @@ func (self *FortyThieves) TailAppendError(dst *Pile, tail []*Card) (bool, error)
 }
 
 func (self *FortyThieves) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		return cardPair{c1, c2}.compare_UpSuit()
-	case *Tableau:
-		return self.tabCompareFunc(cardPair{c1, c2})
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	return cardPair{c1, c2}.compare_UpSuit()
+	// case *Tableau:
+	// 	return self.tabCompareFunc(cardPair{c1, c2})
+	// }
+	// return true, nil
 }
 
 func (self *FortyThieves) TailTapped(tail []*Card) {

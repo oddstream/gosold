@@ -24,14 +24,21 @@ func tailConformant(tail []*Card, fn cardPairCompareFunc) (bool, error) {
 	return true, nil
 }
 
-func compare_Empty(p *Pile, c *Card) (bool, error) {
-	if p.Label() != "" {
-		if p.Label() == "x" || p.Label() == "X" {
+func (cp cardPair) compare_NoAppending() (bool, error) {
+	return false, errors.New("No appendng")
+}
+func (cp cardPair) compare_NoMoving() (bool, error) {
+	return false, errors.New("No moving")
+}
+
+func compare_Empty(dst *Pile, c *Card) (bool, error) {
+	if dst.Label() != "" {
+		if dst.Label() == "x" || dst.Label() == "X" {
 			return false, errors.New("Cannot move cards to that empty pile")
 		}
 		ord := util.OrdinalToShortString(c.Ordinal())
-		if ord != p.Label() {
-			return false, fmt.Errorf("Can only accept %s, not %s", util.ShortOrdinalToLongOrdinal(p.Label()), util.ShortOrdinalToLongOrdinal(ord))
+		if ord != dst.Label() {
+			return false, fmt.Errorf("Can only accept %s, not %s", util.ShortOrdinalToLongOrdinal(dst.Label()), util.ShortOrdinalToLongOrdinal(ord))
 		}
 	}
 	return true, nil
@@ -180,14 +187,13 @@ func (cp cardPair) compare_DownSuit() (bool, error) {
 	return cp.compare_Down()
 }
 
-// compare_UpOrDownSuitnot used
-// func (cp cardPair) compare_UpOrDownSuit() (bool, error) {
-// 	ok, err := cp.compare_Suit()
-// 	if !ok {
-// 		return ok, err
-// 	}
-// 	return cp.compare_UpOrDown()
-// }
+func (cp cardPair) compare_UpOrDownSuit() (bool, error) {
+	ok, err := cp.compare_Suit()
+	if !ok {
+		return ok, err
+	}
+	return cp.compare_UpOrDown()
+}
 
 func (cp cardPair) compare_UpOrDownSuitWrap() (bool, error) {
 	ok, err := cp.compare_Suit()

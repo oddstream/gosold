@@ -20,12 +20,14 @@ func (self *Bisley) BuildPiles() {
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_DownSuit
 		f.setLabel("K")
 	}
 
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 1))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -33,6 +35,7 @@ func (self *Bisley) BuildPiles() {
 	for x := 0; x < 13; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
+		t.appendCmp2 = cardPair.compare_UpOrDownSuit
 		t.setLabel("X")
 	}
 }
@@ -72,17 +75,18 @@ func (self *Bisley) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Bisley) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		if pile.Label() == "A" {
-			return cardPair{c1, c2}.compare_UpSuit()
-		} else {
-			return cardPair{c1, c2}.compare_DownSuit()
-		}
-	case *Tableau:
-		return cardPair{c1, c2}.chainCall(cardPair.compare_UpOrDown, cardPair.compare_Suit)
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	if pile.Label() == "A" {
+	// 		return cardPair{c1, c2}.compare_UpSuit()
+	// 	} else {
+	// 		return cardPair{c1, c2}.compare_DownSuit()
+	// 	}
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.chainCall(cardPair.compare_UpOrDown, cardPair.compare_Suit)
+	// }
+	// return true, nil
 }
 
 func (self *Bisley) TailTapped(tail []*Card) {

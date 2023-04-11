@@ -19,16 +19,19 @@ func (self *Alhambra) BuildPiles() {
 	self.tableaux = nil
 	t := self.baize.NewTableau(newPileSlot(1, 3), FAN_RIGHT3, MOVE_ONE)
 	self.tableaux = append(self.tableaux, t)
+	t.appendCmp2 = cardPair.compare_UpOrDownSuitWrap
 
 	self.foundations = nil
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_UpSuit
 		f.setLabel("A")
 	}
 	for x := 4; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
+		f.appendCmp2 = cardPair.compare_DownSuit
 		f.setLabel("K")
 	}
 
@@ -71,17 +74,18 @@ func (self *Alhambra) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 }
 
 func (*Alhambra) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	switch pile.vtable.(type) {
-	case *Foundation:
-		if pile.Label() == "A" {
-			return cardPair{c1, c2}.compare_UpSuit()
-		} else if pile.Label() == "K" {
-			return cardPair{c1, c2}.compare_DownSuit()
-		}
-	case *Tableau:
-		return cardPair{c1, c2}.compare_UpOrDownSuitWrap()
-	}
-	return true, nil
+	return pile.appendCmp2(cardPair{c1, c2})
+	// switch pile.vtable.(type) {
+	// case *Foundation:
+	// 	if pile.Label() == "A" {
+	// 		return cardPair{c1, c2}.compare_UpSuit()
+	// 	} else if pile.Label() == "K" {
+	// 		return cardPair{c1, c2}.compare_DownSuit()
+	// 	}
+	// case *Tableau:
+	// 	return cardPair{c1, c2}.compare_UpOrDownSuitWrap()
+	// }
+	// return true, nil
 }
 
 func (self *Alhambra) TailTapped(tail []*Card) {
