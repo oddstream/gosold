@@ -42,7 +42,7 @@ func Smoothstep(A, B, v float64) float64 {
 	if v > 1.0 {
 		v = 1.0
 	}
-	v = (v) * (v) * (3 - 2*(v))
+	v = v * v * (3 - 2*v)
 	X := (B * v) + (A * (1.0 - v))
 	return X
 }
@@ -59,7 +59,7 @@ func Smootherstep(A, B, v float64) float64 {
 	if v > 1.0 {
 		v = 1.0
 	}
-	v = (v) * (v) * (v) * ((v)*((v)*6-15) + 10)
+	v = v * v * v * (v*(v*6-15) + 10)
 	X := (B * v) + (A * (1.0 - v))
 	return X
 }
@@ -340,35 +340,35 @@ func LoadBytesFromFile(fname string, leaveNoTrace bool) ([]byte, int, error) {
 		log.Fatal("WASM detected")
 	}
 
-	path, err := fullConfigPath(fname)
+	fullpath, err := fullConfigPath(fname)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	file, err := os.Open(path)
+	file, err := os.Open(fullpath)
 	if err == nil && file != nil {
 		var bytes []byte
 		var count int
 		fi, err := file.Stat()
 		if err != nil {
-			log.Fatal(err, " getting FileInfo ", path)
+			log.Fatal(err, " getting FileInfo ", fullpath)
 		}
 		if fi.Size() == 0 {
-			log.Print("empty file ", path)
+			log.Print("empty file ", fullpath)
 		} else {
 			bytes = make([]byte, fi.Size()+8)
 			count, err = file.Read(bytes)
 			if err != nil {
-				log.Fatal(err, " reading ", path)
+				log.Fatal(err, " reading ", fullpath)
 			}
 		}
 		err = file.Close()
 		if err != nil {
-			log.Fatal(err, " closing ", path)
+			log.Fatal(err, " closing ", fullpath)
 		}
-		log.Println("loaded", path)
+		log.Println("loaded", fullpath)
 		if leaveNoTrace {
-			os.Remove(path)
+			os.Remove(fullpath)
 		}
 		return bytes, count, nil
 	}
@@ -382,14 +382,14 @@ func SaveBytesToFile(bytes []byte, fname string) {
 		log.Fatal("WASM detected")
 	}
 
-	path, err := fullConfigPath(fname)
+	fullpath, err := fullConfigPath(fname)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	makeConfigDir()
 
-	file, err := os.Create(path)
+	file, err := os.Create(fullpath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -403,5 +403,14 @@ func SaveBytesToFile(bytes []byte, fname string) {
 		log.Fatal(err)
 	}
 
-	log.Println("saved", path)
+	log.Println("saved", fullpath)
+}
+
+func Contains[T comparable](elems []T, v T) bool {
+	for _, s := range elems {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }

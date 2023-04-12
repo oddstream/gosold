@@ -312,13 +312,15 @@ func (c *card) draw(screen *ebiten.Image) {
 		}
 	}
 
-	// if c.id.Ordinal() == 10 {
-	// rotate *before* translate
-	// card is rotated about top left corner
-	// and looks horribly jaggy
-	// and the hit rect for it is, of course, wrong
-	// op.GeoM.Rotate(15.0 * 3.14156 / 180.0)
-	// }
+	if c.pile.slot.Deg != 0.0 {
+		// rotate *before* translate
+		// card is rotated about top left corner
+		// and looks horribly jaggy
+		// and the hit rect for it is, of course, wrong
+		op.GeoM.Translate(-float64(CardWidth)/2, -float64(CardHeight)/2)
+		op.GeoM.Rotate(float64(c.pile.slot.Deg) * 3.14156 / 180.0)
+		op.GeoM.Translate(float64(CardWidth)/2, float64(CardHeight)/2)
+	}
 
 	op.GeoM.Translate(float64(c.pos.X+c.pile.baize.dragOffset.X), float64(c.pos.Y+c.pile.baize.dragOffset.Y))
 

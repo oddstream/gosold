@@ -684,7 +684,7 @@ func (b *Baize) findCard(cid cardid.CardID) *Card {
 	return nil
 }
 
-func (b *Baize) findAllMovableTails2() [][]*Card {
+func (b *Baize) findAllMovableTails() [][]*Card {
 	var tails [][]*Card
 	for _, p := range b.piles {
 		if ptails := p.vtable.movableTails(); ptails != nil {
@@ -694,7 +694,7 @@ func (b *Baize) findAllMovableTails2() [][]*Card {
 	return tails
 }
 
-func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
+func (b *Baize) findTargetsForAllMovableTails(tails [][]*Card) {
 
 	for _, tail := range tails {
 		// we already know this tail is movable, both at pile-type and script level
@@ -726,6 +726,7 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 							}
 						}
 						if contains {
+							// this target has already been noted, so skip to the next dst
 							continue
 						}
 					}
@@ -763,7 +764,7 @@ func (b *Baize) findTargetsForAllMovableTails2(tails [][]*Card) {
 						}
 					}
 				case *Foundation, *Discard:
-					// moves to Foundation get priority when card is tapped
+					// moves to Discard/Foundation get priority when card is tapped
 					weight = 5
 				default:
 					weight = 1
@@ -826,7 +827,8 @@ func (b *Baize) findTapTargets() {
 		c.tapTarget.dst = nil
 		c.tapTarget.weight = 0
 	})
-	var tails [][]*Card = b.findAllMovableTails2()
-	b.findTargetsForAllMovableTails2(tails) // adds tapTargets to movable cards
+	var tails [][]*Card = b.findAllMovableTails()
+	// log.Printf("Found %d movable tails", len(tails))
+	b.findTargetsForAllMovableTails(tails) // adds tapTargets to movable cards
 	b.countMoves()
 }

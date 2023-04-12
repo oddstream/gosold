@@ -466,6 +466,13 @@ func (p *pile) draw(screen *ebiten.Image) {
 	}
 
 	op := &ebiten.DrawImageOptions{}
+
+	if p.slot.Deg != 0.0 {
+		op.GeoM.Translate(-float64(CardWidth)/2, -float64(CardHeight)/2)
+		op.GeoM.Rotate(float64(p.slot.Deg) * 3.14156 / 180.0)
+		op.GeoM.Translate(float64(CardWidth)/2, float64(CardHeight)/2)
+	}
+
 	op.GeoM.Translate(float64(p.pos.X+p.baize.dragOffset.X), float64(p.pos.Y+p.baize.dragOffset.Y))
 	// if self.target && len(self.cards) == 0 {
 	// 	op.ColorScale.Scale(0.75, 0.75, 0.75, 1)

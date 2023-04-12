@@ -11,7 +11,11 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] grep case *Discard / empty
+[ ] transition rotated cards when going to or from a rotated pile
+	will be in pile.push; test if old card's pile has Deg (do we even know this?)
+	test if new pile has Deg
+[ ] robot to stop cyclic moves
+[x] grep case *Discard / empty
 	post Tail being dragged, the flow is:
 		pile.canMoveTail // check for prone and move type
 		script.TailMoveError // check if tail needs to be conformant

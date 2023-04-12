@@ -1,5 +1,9 @@
 PROGRESS
 
+2023-04-12
+the rainbow
+rotated piles and cards
+
 2023-04-11
 cardPair renamed dyad
 

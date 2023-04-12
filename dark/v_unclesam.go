@@ -91,6 +91,7 @@ func (self *UncleSam) AfterMove() {
 }
 
 func (*UncleSam) TailMoveError(tail []*Card) (bool, error) {
+	// attempt to move more than one card will be caught before this
 	return true, nil
 }
 
