@@ -2,6 +2,7 @@ package light
 
 import (
 	"image"
+	"math"
 	"math/rand"
 	"time"
 
@@ -37,6 +38,9 @@ type card struct {
 	directionX, directionY int     // direction vector when card is spinning
 	angle, spin            float64 // current angle and spin when card is spinning
 	spinStartAfter         time.Time
+
+	// card rotating things
+	actualDeg, targetDeg int
 }
 
 func (c *card) prone() bool {
@@ -255,6 +259,16 @@ func (c *card) update() {
 			}
 		}
 	}
+
+	if c.actualDeg != c.targetDeg {
+		// caveat: assumes slot.Deg values are multiples of 5 (15, 30, 45, 60, 75, 90)
+		// TODO could put a lerp here
+		if c.targetDeg < c.actualDeg {
+			c.actualDeg -= 5
+		} else {
+			c.actualDeg += 5
+		}
+	}
 }
 
 func (c *card) draw(screen *ebiten.Image) {
@@ -312,13 +326,14 @@ func (c *card) draw(screen *ebiten.Image) {
 		}
 	}
 
-	if c.pile.slot.Deg != 0.0 {
+	// if c.pile.slot.Deg != 0 {
+	if c.actualDeg != 0 {
 		// rotate *before* translate
 		// card is rotated about top left corner
 		// and looks horribly jaggy
 		// and the hit rect for it is, of course, wrong
 		op.GeoM.Translate(-float64(CardWidth)/2, -float64(CardHeight)/2)
-		op.GeoM.Rotate(float64(c.pile.slot.Deg) * 3.14156 / 180.0)
+		op.GeoM.Rotate(float64(c.actualDeg) * math.Pi / 180.0)
 		op.GeoM.Translate(float64(CardWidth)/2, float64(CardHeight)/2)
 	}
 

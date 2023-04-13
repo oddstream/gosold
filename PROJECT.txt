@@ -11,9 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] transition rotated cards when going to or from a rotated pile
-	will be in pile.push; test if old card's pile has Deg (do we even know this?)
-	test if new pile has Deg
+[x] PileSlot Deg becomes an int
+[x] transition rotated cards when going to or from a rotated pile
 [ ] robot to stop cyclic moves
 [x] grep case *Discard / empty
 	post Tail being dragged, the flow is:

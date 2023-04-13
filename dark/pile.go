@@ -46,7 +46,8 @@ type pileVtabler interface {
 }
 
 type PileSlot struct {
-	X, Y, Deg float32
+	X, Y float32
+	Deg  int
 }
 
 // Pile holds the state of the piles and cards therein.
@@ -62,7 +63,7 @@ type Pile struct {
 	vtable               pileVtabler // needed by DARK, not visible to LIGHT
 	slot                 PileSlot    // needed by LIGHT when placing piles
 	boundary             int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
-	appendCmp2, moveCmp2 dyadCmpFunc
+	appendCmp2, moveCmp2 dyadCmpFunc // only used by Foundation, Tableau piles
 }
 
 // Public functions, visible to LIGHT

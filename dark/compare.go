@@ -162,14 +162,13 @@ func (dy dyad) compare_DownAltColorWrap() (bool, error) {
 	return dy.compare_DownWrap()
 }
 
-// compare_UpAltColor not used
-// func (cp cardPair) compare_UpAltColor() (bool, error) {
-// 	ok, err := cp.compare_AltColor()
-// 	if !ok {
-// 		return ok, err
-// 	}
-// 	return cp.compare_Up()
-// }
+func (dy dyad) compare_UpAltColor() (bool, error) {
+	ok, err := dy.compare_AltColor()
+	if !ok {
+		return ok, err
+	}
+	return dy.compare_Up()
+}
 
 func (dy dyad) compare_UpSuit() (bool, error) {
 	ok, err := dy.compare_Suit()

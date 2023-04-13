@@ -10,7 +10,7 @@
         "request": "launch",
         "mode": "debug",
         "program": "${workspaceFolder}",
-        "args": ["-debug", "-noload", "-nosave"],
+        "args": ["-debug", "-noload", "-nosave", "-boxes"],
         // "args": ["-debug", "-cpuprofile=gosold.prof"],
         // "args": ["-debug", "-boxes"],
         // "args": [],

@@ -1,5 +1,9 @@
 PROGRESS
 
+2023-04-13
+animate rotated card transitions
+light and shadow
+
 2023-04-12
 the rainbow
 rotated piles and cards

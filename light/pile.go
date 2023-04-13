@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"math"
 
 	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -81,6 +82,7 @@ func (p *pile) push(c *card) {
 		c.setProne(darkProne)
 		c.startFlip()
 	}
+	c.targetDeg = p.slot.Deg
 	c.lerpTo(c.pos)
 }
 
@@ -467,9 +469,9 @@ func (p *pile) draw(screen *ebiten.Image) {
 
 	op := &ebiten.DrawImageOptions{}
 
-	if p.slot.Deg != 0.0 {
+	if p.slot.Deg != 0 {
 		op.GeoM.Translate(-float64(CardWidth)/2, -float64(CardHeight)/2)
-		op.GeoM.Rotate(float64(p.slot.Deg) * 3.14156 / 180.0)
+		op.GeoM.Rotate(float64(p.slot.Deg) * math.Pi / 180.0)
 		op.GeoM.Translate(float64(CardWidth)/2, float64(CardHeight)/2)
 	}
 
