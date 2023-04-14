@@ -87,16 +87,14 @@ func (*Duchess) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	card := tail[0]
 	if dst.Empty() {
 		switch dst.vtable.(type) {
 		case *Foundation:
 			if dst.Label() == "" {
-				if card.owner().category != "Reserve" {
+				if tail[0].owner().category != "Reserve" {
 					return false, errors.New("The first Foundation card must come from a Reserve")
 				}
 			}
-			return compare_Empty(dst, card)
 		case *Tableau:
 			var rescards int = 0
 			for _, p := range self.reserves {
@@ -104,15 +102,16 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			}
 			if rescards > 0 {
 				// Spaces that occur on the tableau are filled with any top card in the reserve
-				if card.owner().category != "Reserve" {
+				if tail[0].owner().category != "Reserve" {
 					return false, errors.New("An empty Tableau must be filled from a Reserve")
 				}
 			}
-			return true, nil
+		case *Waste:
+			return false, errors.New("Cannot move cards to the Waste")
 		}
+		return compare_Empty(dst, tail[0])
 	}
-	src := tail[0].owner()
-	if dst == self.Waste() && !(src == self.Stock()) {
+	if dst == self.Waste() {
 		return false, errors.New("Cannot move cards to the Waste")
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])

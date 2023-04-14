@@ -121,11 +121,12 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			if tail[0].owner().category == "Tableau" {
 				return false, errors.New("An empty Tableau must be filled from the Reserve or Waste")
 			}
+		case *Waste:
+			return false, errors.New("Cannot move cards to the Waste")
 		}
-		return true, nil
+		return compare_Empty(dst, tail[0])
 	}
-	src := tail[0].owner()
-	if dst == self.Waste() && !(src == self.Stock()) {
+	if dst == self.Waste() {
 		return false, errors.New("Cannot move cards to the Waste")
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
