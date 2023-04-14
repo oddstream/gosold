@@ -9,7 +9,7 @@ type Australian struct {
 
 func (self *Australian) BuildPiles() {
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
 	self.foundations = nil
 	for x := 4; x < 8; x++ {
@@ -34,13 +34,13 @@ func (self *Australian) StartGame() {
 			moveCard(self.stock, pile)
 		}
 	}
-	moveCard(self.stock, self.waste)
+	moveCard(self.stock, self.Waste())
 	self.baize.setRecycles(0)
 }
 
 func (self *Australian) AfterMove() {
-	if self.waste.Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.waste)
+	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
+		moveCard(self.stock, self.Waste())
 	}
 }
 
@@ -63,7 +63,7 @@ func (self *Australian) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		c := pile.pop()
-		self.waste.push(c)
+		self.Waste().push(c)
 	} else {
 		pile.vtable.tailTapped(tail)
 	}

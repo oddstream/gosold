@@ -44,7 +44,7 @@ type scriptBase struct {
 	reserves     []*Pile
 	stock        *Pile
 	tableaux     []*Pile
-	waste        *Pile
+	wastes       []*Pile
 	wikipedia    string
 	cardColors   int
 	packs, suits int
@@ -89,6 +89,13 @@ func (sb scriptBase) Reserves() []*Pile {
 	return sb.reserves
 }
 
+func (sb scriptBase) Reserve() *Pile {
+	if sb.reserves == nil {
+		return nil
+	}
+	return sb.reserves[0]
+}
+
 func (sb scriptBase) Stock() *Pile {
 	return sb.stock
 }
@@ -98,7 +105,14 @@ func (sb scriptBase) Tableaux() []*Pile {
 }
 
 func (sb scriptBase) Waste() *Pile {
-	return sb.waste
+	if sb.wastes == nil {
+		return nil
+	}
+	return sb.wastes[0]
+}
+
+func (sb scriptBase) Wastes() []*Pile {
+	return sb.wastes
 }
 
 // Complete - default is number of cards in Foundations == total number of cards.

@@ -14,7 +14,6 @@ func (pen *Penguin) BuildPiles() {
 
 	// hidden (off-screen) stock
 	pen.stock = pen.baize.NewStock(newHiddenPileSlot())
-	pen.waste = nil
 
 	// the flipper, seven cells
 	pen.cells = nil

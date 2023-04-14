@@ -25,7 +25,7 @@ func tailConformant(tail []*Card, fn dyadCmpFunc) (bool, error) {
 }
 
 func (dyad) compare_NoAppending() (bool, error) {
-	return false, errors.New("No appendng")
+	return false, errors.New("No appending")
 }
 func (dyad) compare_NoMoving() (bool, error) {
 	return false, errors.New("No moving")
@@ -45,6 +45,10 @@ func compare_Empty(dst *Pile, c *Card) (bool, error) {
 }
 
 // little library of simple compares
+
+func (dyad) compare_Any() (bool, error) {
+	return true, nil
+}
 
 func (dy dyad) compare_Up() (bool, error) {
 	if dy.c1.Ordinal() == dy.c2.Ordinal()-1 {

@@ -80,11 +80,7 @@ func (*Bisley) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 
 func (self *Bisley) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.waste)
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
+	pile.vtable.tailTapped(tail)
 }
 
 // func (*Bisley) PileTapped(*Pile) {}

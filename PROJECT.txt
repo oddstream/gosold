@@ -11,6 +11,12 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] new type of waste for colorado? generic? pile?
+	or allow waste to accept cards from ~Stock piles?
+	sounds more permissive, and simpler
+	but there is assumed to be only one waste pile (could change)
+[ ] Abandon Hapgood (games are shite)
+	instead do https://en.wikipedia.org/wiki/List_of_patience_games
 [x] PileSlot Deg becomes an int
 [x] transition rotated cards when going to or from a rotated pile
 [ ] robot to stop cyclic moves

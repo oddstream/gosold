@@ -10,7 +10,7 @@ type Whitehead struct {
 func (self *Whitehead) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {
@@ -38,12 +38,12 @@ func (self *Whitehead) StartGame() {
 		deal++
 	}
 	self.baize.setRecycles(0)
-	moveCard(self.stock, self.waste)
+	moveCard(self.stock, self.Waste())
 }
 
 func (self *Whitehead) AfterMove() {
-	if self.waste.Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.waste)
+	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
+		moveCard(self.stock, self.Waste())
 	}
 }
 
@@ -66,7 +66,7 @@ func (self *Whitehead) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 func (self *Whitehead) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.waste)
+		moveCard(self.stock, self.Waste())
 	} else {
 		pile.vtable.tailTapped(tail)
 	}

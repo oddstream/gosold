@@ -25,7 +25,7 @@ func (self *Klondike) BuildPiles() {
 		self.draw = 1
 	}
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
 	self.foundations = []*Pile{}
 	for _, x := range self.founds {
@@ -63,14 +63,14 @@ func (self *Klondike) StartGame() {
 	}
 	self.baize.setRecycles(self.recycles)
 	for i := 0; i < self.draw; i++ {
-		moveCard(self.stock, self.waste)
+		moveCard(self.stock, self.Waste())
 	}
 }
 
 func (self *Klondike) AfterMove() {
-	if self.waste.Len() == 0 && self.stock.Len() != 0 {
+	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
 		for i := 0; i < self.draw; i++ {
-			moveCard(self.stock, self.waste)
+			moveCard(self.stock, self.Waste())
 		}
 	}
 }
@@ -95,7 +95,7 @@ func (self *Klondike) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		for i := 0; i < self.draw; i++ {
-			moveCard(self.stock, self.waste)
+			moveCard(self.stock, self.Waste())
 		}
 	} else {
 		pile.vtable.tailTapped(tail)
@@ -104,6 +104,6 @@ func (self *Klondike) TailTapped(tail []*Card) {
 
 func (self *Klondike) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }

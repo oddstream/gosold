@@ -14,7 +14,6 @@ type Agnes struct {
 func (self *Agnes) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = nil
 
 	self.foundations = nil
 	for x := 3; x < 7; x++ {

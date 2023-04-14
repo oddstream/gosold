@@ -17,7 +17,7 @@ type LightAndShadow struct {
 func (self *LightAndShadow) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = self.baize.NewWaste(newPileSlot(0, 1), FAN_DOWN3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(0, 1), FAN_DOWN3))
 
 	self.tableaux = []*Pile{}
 
@@ -39,6 +39,8 @@ func (self *LightAndShadow) BuildPiles() {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_NONE, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		self.rivals = append(self.rivals, t)
+		t.appendCmp2 = dyad.compare_DownAltColor
+		t.moveCmp2 = dyad.compare_DownAltColor
 	}
 
 	// foundation
@@ -64,13 +66,13 @@ func (self *LightAndShadow) StartGame() {
 		moveCard(self.stock, t)
 	}
 
-	moveCard(self.stock, self.waste)
+	moveCard(self.stock, self.Waste())
 	self.baize.setRecycles(0)
 }
 
 func (self *LightAndShadow) AfterMove() {
-	if self.waste.Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.waste)
+	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
+		moveCard(self.stock, self.Waste())
 	}
 }
 
@@ -90,7 +92,7 @@ func (self *LightAndShadow) TailAppendError(dst *Pile, tail []*Card) (bool, erro
 	}
 	if util.Contains(self.rivals, dst) {
 		if dst.Empty() {
-			if src != self.waste {
+			if src != self.Waste() {
 				return false, errors.New("Vacancies in the rivals are filled from the waste")
 			}
 		} else {
@@ -106,6 +108,8 @@ func (self *LightAndShadow) TailAppendError(dst *Pile, tail []*Card) (bool, erro
 		return compare_Empty(dst, tail[0])
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
+
+	// TODO BUG can't tap a card in the rivals to send it to auxilliaries
 }
 
 func (*LightAndShadow) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
@@ -115,7 +119,7 @@ func (*LightAndShadow) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 func (self *LightAndShadow) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.waste)
+		moveCard(self.stock, self.Waste())
 	} else {
 		pile.vtable.tailTapped(tail)
 	}
@@ -123,6 +127,6 @@ func (self *LightAndShadow) TailTapped(tail []*Card) {
 
 func (self *LightAndShadow) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }

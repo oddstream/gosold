@@ -16,7 +16,7 @@ func (self *Westcliff) BuildPiles() {
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 	switch self.variant {
 	case "Classic":
-		self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+		self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
 			f := self.baize.NewFoundation(newPileSlot(x, 0))
@@ -32,7 +32,7 @@ func (self *Westcliff) BuildPiles() {
 			t.moveCmp2 = dyad.compare_DownAltColor
 		}
 	case "American":
-		self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+		self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 		self.foundations = []*Pile{}
 		for x := 6; x < 10; x++ {
 			f := self.baize.NewFoundation(newPileSlot(x, 0))
@@ -48,7 +48,7 @@ func (self *Westcliff) BuildPiles() {
 			t.moveCmp2 = dyad.compare_DownAltColor
 		}
 	case "Easthaven":
-		self.waste = nil
+		self.wastes = nil
 		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
 			f := self.baize.NewFoundation(newPileSlot(x, 0))
@@ -93,17 +93,17 @@ func (self *Westcliff) StartGame() {
 		for _, pile := range self.tableaux {
 			moveCard(self.stock, pile)
 		}
-		if self.waste != nil {
-			moveCard(self.stock, self.waste)
+		if self.Waste() != nil {
+			moveCard(self.stock, self.Waste())
 		}
 	}
 	self.baize.setRecycles(0)
 }
 
 func (self *Westcliff) AfterMove() {
-	if self.waste != nil {
-		if self.waste.Len() == 0 && self.stock.Len() != 0 {
-			moveCard(self.stock, self.waste)
+	if self.Waste() != nil {
+		if self.Waste().Len() == 0 && self.stock.Len() != 0 {
+			moveCard(self.stock, self.Waste())
 		}
 	}
 }
@@ -129,7 +129,7 @@ func (self *Westcliff) TailTapped(tail []*Card) {
 	if pile == self.stock && len(tail) == 1 {
 		switch self.variant {
 		case "Classic", "American":
-			moveCard(self.stock, self.waste)
+			moveCard(self.stock, self.Waste())
 		case "Easthaven":
 			for _, pile := range self.tableaux {
 				moveCard(self.stock, pile)

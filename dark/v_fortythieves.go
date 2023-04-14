@@ -32,7 +32,7 @@ func (self *FortyThieves) BuildPiles() {
 	}
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
 	self.foundations = nil
 	for _, x := range self.founds {
@@ -89,12 +89,12 @@ func (self *FortyThieves) StartGame() {
 		}
 	}
 	self.baize.setRecycles(self.recycles)
-	moveCard(self.stock, self.waste)
+	moveCard(self.stock, self.Waste())
 }
 
 func (self *FortyThieves) AfterMove() {
-	if self.waste.Empty() && !self.stock.Empty() {
-		moveCard(self.stock, self.waste)
+	if self.Waste().Empty() && !self.stock.Empty() {
+		moveCard(self.stock, self.Waste())
 	}
 }
 
@@ -117,7 +117,7 @@ func (self *FortyThieves) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 func (self *FortyThieves) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.waste)
+		moveCard(self.stock, self.Waste())
 	} else {
 		pile.vtable.tailTapped(tail)
 	}
@@ -125,6 +125,6 @@ func (self *FortyThieves) TailTapped(tail []*Card) {
 
 func (self *FortyThieves) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }

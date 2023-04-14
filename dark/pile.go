@@ -78,6 +78,11 @@ func (self *Pile) IsStock() bool {
 	return ok
 }
 
+func (self *Pile) IsWaste() bool {
+	_, ok := self.vtable.(*Waste)
+	return ok
+}
+
 func (p *Pile) Category() string {
 	return p.category
 }
@@ -155,8 +160,8 @@ func (b *Baize) newPile(category string, slot PileSlot, fanType FanType, moveTyp
 		fanType:    fanType,
 		moveType:   moveType,
 		slot:       slot,
-		appendCmp2: dyad.compare_NoAppending,
-		moveCmp2:   dyad.compare_NoMoving,
+		appendCmp2: dyad.compare_Any,
+		moveCmp2:   dyad.compare_Any,
 	}
 	b.addPile(p)
 	return p

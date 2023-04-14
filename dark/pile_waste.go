@@ -17,15 +17,15 @@ func (b *Baize) NewWaste(slot PileSlot, fanType FanType) *Pile {
 	return pile
 }
 
-func (*Waste) canAcceptTail(tail []*Card) (bool, error) {
+func (self *Waste) canAcceptTail(tail []*Card) (bool, error) {
 	if len(tail) > 1 {
 		return false, errors.New("Can only move a single card to Waste")
 	}
-	if !tail[0].owner().IsStock() {
-		return false, errors.New("Waste can only accept cards from the Stock")
-	}
+	// if !(tail[0].owner().IsStock() || tail[0].owner().IsWaste()) {
+	// 	return false, errors.New("Waste cannot accept that card")
+	// }
 	// nb card can be - usually is - face down
-	return true, nil
+	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
 func (self *Waste) tailTapped(tail []*Card) {

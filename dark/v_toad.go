@@ -16,7 +16,7 @@ type Toad struct {
 func (self *Toad) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
 	self.reserves = nil
 	self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(3, 0), FAN_RIGHT))
@@ -52,7 +52,7 @@ func (self *Toad) StartGame() {
 	for _, pile := range self.foundations {
 		pile.setLabel(util.OrdinalToShortString(c.Ordinal()))
 	}
-	moveCard(self.stock, self.waste)
+	moveCard(self.stock, self.Waste())
 	self.baize.setRecycles(1)
 }
 
@@ -63,8 +63,8 @@ func (self *Toad) AfterMove() {
 			moveCard(self.reserves[0], p)
 		}
 	}
-	if self.waste.Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.waste)
+	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
+		moveCard(self.stock, self.Waste())
 	}
 
 }
@@ -82,11 +82,15 @@ func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		case *Tableau:
 			// Once the reserve is empty, spaces in the tableau can be filled with a card from the Deck [Stock/Waste], but NOT from another tableau pile.
 			// pointless rule, since tableuax move rule is MOVE_ONE_OR_ALL
-			if card.owner() != self.waste {
+			if card.owner() != self.Waste() {
 				return false, errors.New("Empty tableaux must be filled with cards from the waste")
 			}
 			return compare_Empty(dst, card)
 		}
+	}
+	src := tail[0].owner()
+	if dst == self.Waste() && !(src == self.Stock()) {
+		return false, errors.New("Cannot move cards to the Waste")
 	}
 	return self.TwoCards(dst, dst.peek(), card)
 }
@@ -99,7 +103,7 @@ func (self *Toad) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		c := pile.pop()
-		self.waste.push(c)
+		self.Waste().push(c)
 	} else {
 		pile.vtable.tailTapped(tail)
 	}
@@ -107,6 +111,6 @@ func (self *Toad) TailTapped(tail []*Card) {
 
 func (self *Toad) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }

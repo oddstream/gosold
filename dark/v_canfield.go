@@ -21,7 +21,7 @@ func (self *Canfield) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
-	self.waste = self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
 	self.reserves = nil
 	self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(0, 1), FAN_DOWN))
@@ -124,6 +124,10 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		}
 		return true, nil
 	}
+	src := tail[0].owner()
+	if dst == self.Waste() && !(src == self.Stock()) {
+		return false, errors.New("Cannot move cards to the Waste")
+	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
@@ -135,7 +139,7 @@ func (self *Canfield) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
 		for i := 0; i < self.draw; i++ {
-			moveCard(self.stock, self.waste)
+			moveCard(self.stock, self.Waste())
 		}
 	} else {
 		pile.vtable.tailTapped(tail)
@@ -144,6 +148,6 @@ func (self *Canfield) TailTapped(tail []*Card) {
 
 func (self *Canfield) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }

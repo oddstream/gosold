@@ -1,5 +1,7 @@
 package dark
 
+import "errors"
+
 //lint:file-ignore ST1005 Error messages are toasted, so need to be capitalized
 //lint:file-ignore ST1006 Receiver name will be anything I like, thank you
 
@@ -40,7 +42,7 @@ var s_coords []PileSlot = []PileSlot{
 func (self *UncleSam) BuildPiles() {
 
 	self.stock = self.baize.NewStock(PileSlot{0, 0, 0})
-	self.waste = self.baize.NewWaste(PileSlot{0, 1, 0}, FAN_NONE)
+	self.wastes = append(self.wastes, self.baize.NewWaste(PileSlot{0, 1, 0}, FAN_NONE))
 
 	for _, slot := range u_coords {
 		f := self.baize.NewFoundation(slot)
@@ -96,6 +98,9 @@ func (*UncleSam) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *UncleSam) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst == self.Waste() {
+		return false, errors.New("Cannot move cards to the Waste")
+	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
@@ -110,7 +115,7 @@ func (self *UncleSam) TailTapped(tail []*Card) {
 		// move all reserve cards to waste
 		for _, r := range self.reserves {
 			if !r.Empty() {
-				c := moveCard(r, self.waste)
+				c := moveCard(r, self.Waste())
 				c.flipDown()
 			}
 		}
@@ -123,7 +128,7 @@ func (self *UncleSam) TailTapped(tail []*Card) {
 
 func (self *UncleSam) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }
 

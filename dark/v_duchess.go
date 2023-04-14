@@ -23,7 +23,7 @@ func (self *Duchess) BuildPiles() {
 		self.reserves = append(self.reserves, r)
 	}
 
-	self.waste = self.baize.NewWaste(newPileSlot(1, 2), FAN_DOWN3)
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 2), FAN_DOWN3))
 
 	self.foundations = []*Pile{}
 	for x := 3; x < 7; x++ {
@@ -111,6 +111,10 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			return true, nil
 		}
 	}
+	src := tail[0].owner()
+	if dst == self.Waste() && !(src == self.Stock()) {
+		return false, errors.New("Cannot move cards to the Waste")
+	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }
 
@@ -121,7 +125,7 @@ func (*Duchess) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
 func (self *Duchess) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.waste)
+		moveCard(self.stock, self.Waste())
 	} else {
 		pile.vtable.tailTapped(tail)
 	}
@@ -129,6 +133,6 @@ func (self *Duchess) TailTapped(tail []*Card) {
 
 func (self *Duchess) PileTapped(pile *Pile) {
 	if pile == self.stock {
-		recycleWasteToStock(self.waste, self.stock)
+		recycleWasteToStock(self.Waste(), self.stock)
 	}
 }

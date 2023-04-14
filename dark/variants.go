@@ -79,6 +79,11 @@ var variants = map[string]scripter{
 		recycles: 2,
 		variant:  "storehouse",
 	},
+	"Colorado": &Colorado{
+		scriptBase: scriptBase{
+			packs: 2,
+		},
+	},
 	"Duchess": &Duchess{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Duchess_(solitaire)",
@@ -425,7 +430,7 @@ var variantGroups = map[string][]string{
 	"> Freecells":     {"Baker's Game", "Blind Freecell", "Freecell", "Freecell Easy", "Eight Off", "Seahaven Towers"},
 	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three", "Thoughtful", "Whitehead"},
 	"> People":        {"Agnes Bernauer", "Duchess", "Josephine", "Maria", "Simple Simon", "Baker's Game"},
-	"> Places":        {"Australian", "Bisley", "Yukon", "Klondike", "Usk", "Usk Relaxed"},
+	"> Places":        {"Australian", "Bisley", "Colorado", "Yukon", "Klondike", "Usk", "Usk Relaxed"},
 	"> Puzzlers":      {"Bisley", "Usk", "Mrs Mop", "Penguin", "Simple Simon", "Baker's Dozen"},
 	"> Spiders":       {"Spider One Suit", "Spider Two Suits", "Spider Four Suits", "Scorpion", "Spiderette"},
 	"> Yukons":        {"Yukon", "Yukon Cells"},
