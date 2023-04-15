@@ -18,7 +18,7 @@ func (b *Baize) NewTableau(slot PileSlot, fanType FanType, moveType MoveType) *P
 	return pile
 }
 
-func (self *Tableau) canAcceptTail(tail []*Card) (bool, error) {
+func (self *Tableau) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	// AnyCardsProne check done by pile.CanMoveTail
 	// checking at this level probably isn't needed
 	// if AnyCardsProne(tail) {
@@ -26,7 +26,7 @@ func (self *Tableau) canAcceptTail(tail []*Card) (bool, error) {
 	// }
 
 	// kludge
-	// we couldn't check MOVE_PLUS_ONE in pile.CanMoveTail
+	// we couldn't check MOVE_PLUS_ONE in pile.canMoveTail
 	// because we didn't then know the destination pile
 	// which we need to know to calculate power moves
 	if self.pile.moveType == MOVE_ONE_PLUS {
@@ -79,9 +79,7 @@ func (self *Tableau) movableTails() [][]*Card {
 		for _, card := range self.pile.cards {
 			var tail = self.pile.makeTail(card)
 			if ok, _ := self.pile.canMoveTail(tail); ok {
-				if ok, _ := self.pile.baize.script.TailMoveError(tail); ok {
-					tails = append(tails, tail)
-				}
+				tails = append(tails, tail)
 			}
 		}
 		return tails

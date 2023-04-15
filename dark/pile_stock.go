@@ -17,7 +17,7 @@ func (b *Baize) NewStock(slot PileSlot) *Pile {
 	return pile
 }
 
-func (*Stock) canAcceptTail([]*Card) (bool, error) {
+func (*Stock) canSubtypeAppendTail([]*Card) (bool, error) {
 	return false, errors.New("Cannot move cards to the Stock")
 }
 

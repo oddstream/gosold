@@ -38,7 +38,7 @@ const (
 // pileVtabler interface for each subpile type, implements the behaviours
 // specific to each subtype.
 type pileVtabler interface {
-	canAcceptTail([]*Card) (bool, error)
+	canSubtypeAppendTail([]*Card) (bool, error)
 	tailTapped([]*Card)
 	conformant() bool
 	unsortedPairs() int
@@ -63,6 +63,7 @@ type Pile struct {
 	vtable               pileVtabler // needed by DARK, not visible to LIGHT
 	slot                 PileSlot    // needed by LIGHT when placing piles
 	boundary             int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
+	appendFrom           string      // can only append cards from this subtype (eg Waste > Stock)
 	appendCmp2, moveCmp2 dyadCmpFunc // only used by Foundation, Tableau piles
 }
 
@@ -310,6 +311,8 @@ func (self *Pile) buryCards(ordinal int) {
 
 // canMoveTail filters out cases where a tail can be moved from a given pile type
 // eg if only one card can be moved at a time
+// before handling off to next level of checking (the script)
+// nb we skip the pile.vtable level of checking
 func (self *Pile) canMoveTail(tail []*Card) (bool, error) {
 	if !self.IsStock() {
 		if anyCardsProne(tail) {
@@ -329,7 +332,7 @@ func (self *Pile) canMoveTail(tail []*Card) (bool, error) {
 		}
 	case MOVE_ONE_PLUS:
 		// don't (yet) know destination, so we allow this as MOVE_ANY
-		// and do power moves check later, in Tableau CanAcceptTail
+		// and do power moves check later, in Tableau canSubtypeAppendTail
 	case MOVE_ONE_OR_ALL:
 		// Canfield, Toad
 		if len(tail) == 1 {
@@ -340,7 +343,17 @@ func (self *Pile) canMoveTail(tail []*Card) (bool, error) {
 			return false, errors.New("Can only move one card, or the whole pile")
 		}
 	}
-	return true, nil
+	return self.baize.script.TailMoveError(tail)
+}
+
+func (self *Pile) canAppendTail(tail []*Card) (bool, error) {
+	if self.appendFrom != "" {
+		src := tail[0].owner()
+		if src.category != self.appendFrom {
+			return false, fmt.Errorf("A %s pile cannot accept cards from a %s pile", self.category, src.category)
+		}
+	}
+	return self.vtable.canSubtypeAppendTail(tail)
 }
 
 func (self *Pile) makeTail(c *Card) []*Card {

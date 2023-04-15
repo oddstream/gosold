@@ -17,7 +17,7 @@ func (b *Baize) NewReserve(slot PileSlot, fanType FanType) *Pile {
 	return pile
 }
 
-func (*Reserve) canAcceptTail(tail []*Card) (bool, error) {
+func (*Reserve) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	return false, errors.New("Cannot add a card to a Reserve")
 }
 

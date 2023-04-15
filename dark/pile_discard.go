@@ -14,10 +14,11 @@ type Discard struct {
 func (b *Baize) NewDiscard(slot PileSlot, fanType FanType) *Pile {
 	pile := b.newPile("Discard", slot, FAN_NONE, MOVE_NONE)
 	pile.vtable = &Discard{pile: pile}
+	pile.appendFrom = "Tableau"
 	return pile
 }
 
-func (self *Discard) canAcceptTail(tail []*Card) (bool, error) {
+func (self *Discard) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if !self.pile.Empty() {
 		return false, errors.New("Can only move cards to an empty Discard")
 	}
@@ -30,9 +31,7 @@ func (self *Discard) canAcceptTail(tail []*Card) (bool, error) {
 	if ok, err := tailConformant(tail, dyad.compare_DownSuit); !ok {
 		return false, err
 	}
-	// Scorpion tails can always be moved, but Mrs Mop/Simple Simon/Spider tails
-	// must be conformant, so ...
-	return self.pile.baize.script.TailMoveError(tail) // TODO this isn't needed?
+	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
 func (*Discard) tailTapped([]*Card) {

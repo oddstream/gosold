@@ -85,13 +85,8 @@ func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			if card.owner() != self.Waste() {
 				return false, errors.New("Empty tableaux must be filled with cards from the waste")
 			}
-		case *Waste:
-			return false, errors.New("Cannot move cards to the Waste")
 		}
 		return compare_Empty(dst, card)
-	}
-	if dst == self.Waste() {
-		return false, errors.New("Cannot move cards to the Waste")
 	}
 	return self.TwoCards(dst, dst.peek(), card)
 }

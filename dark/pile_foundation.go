@@ -17,8 +17,8 @@ func (b *Baize) NewFoundation(slot PileSlot) *Pile {
 	return pile
 }
 
-// CanAcceptTail does some obvious checks on the tail before passing it to the script
-func (self *Foundation) canAcceptTail(tail []*Card) (bool, error) {
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
+func (self *Foundation) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if len(tail) > 1 {
 		return false, errors.New("Cannot move more than one card to a Foundation")
 	}

@@ -11,10 +11,14 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] new type of waste for colorado? generic? pile?
-	or allow waste to accept cards from ~Stock piles?
-	sounds more permissive, and simpler
-	but there is assumed to be only one waste pile (could change)
+[x] pile.appendFrom
+[x]	move and append, two checks each going through 3 layers
+		pile, vtable, script
+	pile.canMoveTail
+		..should hand off to
+	script.TailMoveError
+	pile.vtable.canAcceptTail
+		...hands off to script.TailAppendError
 [ ] Abandon Hapgood (games are shite)
 	instead do https://en.wikipedia.org/wiki/List_of_patience_games
 [x] PileSlot Deg becomes an int

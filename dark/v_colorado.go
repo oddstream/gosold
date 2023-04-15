@@ -40,6 +40,7 @@ func (self *Colorado) BuildPiles() {
 		for y := 1; y < 4; y += 2 {
 			w := self.baize.NewWaste(newPileSlot(x, y), FAN_DOWN3)
 			self.wastes = append(self.wastes, w)
+			w.appendFrom = "Reserve" // default is "Stock"
 		}
 	}
 }
@@ -75,7 +76,7 @@ func (self *Colorado) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	}
 	src := tail[0].pile
 	if util.Contains(self.wastes, src) && util.Contains(self.wastes, dst) {
-		return false, errors.New("Cannot move cards between waste piles")
+		return false, errors.New("Cannot move cards between Waste piles")
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }

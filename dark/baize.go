@@ -272,22 +272,18 @@ func (b *Baize) TailDragged(src *Pile, tail []*Card, dst *Pile) (bool, error) {
 	if ok, err = src.canMoveTail(tail); !ok {
 		return false, err
 	} else {
-		if ok, err = b.script.TailMoveError(tail); !ok {
+		if ok, err = dst.canAppendTail(tail); !ok {
 			return false, err
 		} else {
-			if ok, err = dst.vtable.canAcceptTail(tail); !ok {
-				return false, err
+			oldCRC := b.calcCRC()
+			if len(tail) == 1 {
+				moveCard(src, dst)
 			} else {
-				oldCRC := b.calcCRC()
-				if len(tail) == 1 {
-					moveCard(src, dst)
-				} else {
-					moveTail(tail[0], dst)
-				}
-				if b.calcCRC() != oldCRC {
-					b.afterUserMove()
-					b.fnNotify(ChangedEvent, tail[0].id)
-				}
+				moveTail(tail[0], dst)
+			}
+			if b.calcCRC() != oldCRC {
+				b.afterUserMove()
+				b.fnNotify(ChangedEvent, tail[0].id)
 			}
 		}
 	}
@@ -388,7 +384,7 @@ func (b *Baize) collectFromPile(pile *Pile) int {
 			if card == nil {
 				return cardsMoved
 			}
-			ok, _ := fp.vtable.canAcceptTail([]*Card{card})
+			ok, _ := fp.canAppendTail([]*Card{card})
 			if !ok {
 				break // done with this foundation, try another
 			}
@@ -705,7 +701,7 @@ func (b *Baize) findTargetsForAllMovableTails(tails [][]*Card) {
 			if dst == src {
 				continue
 			}
-			if ok, _ := dst.vtable.canAcceptTail(tail); ok {
+			if ok, _ := dst.canAppendTail(tail); ok {
 				// moving an full tail from one pile to another empty pile of the same type is pointless
 				// eg Cell to Cell or Tableau to Tableau
 				if dst.Len() == 0 && src.Len() == len(tail) && src.label == dst.label && src.category == dst.category {

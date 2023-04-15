@@ -106,13 +106,8 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 					return false, errors.New("An empty Tableau must be filled from a Reserve")
 				}
 			}
-		case *Waste:
-			return false, errors.New("Cannot move cards to the Waste")
 		}
 		return compare_Empty(dst, tail[0])
-	}
-	if dst == self.Waste() {
-		return false, errors.New("Cannot move cards to the Waste")
 	}
 	return self.TwoCards(dst, dst.peek(), tail[0])
 }

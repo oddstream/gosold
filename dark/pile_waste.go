@@ -14,17 +14,14 @@ type Waste struct {
 func (b *Baize) NewWaste(slot PileSlot, fanType FanType) *Pile {
 	pile := b.newPile("Waste", slot, fanType, MOVE_ONE)
 	pile.vtable = &Waste{pile: pile}
+	pile.appendFrom = "Stock"
 	return pile
 }
 
-func (self *Waste) canAcceptTail(tail []*Card) (bool, error) {
+func (self *Waste) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if len(tail) > 1 {
 		return false, errors.New("Can only move a single card to Waste")
 	}
-	// if !(tail[0].owner().IsStock() || tail[0].owner().IsWaste()) {
-	// 	return false, errors.New("Waste cannot accept that card")
-	// }
-	// nb card can be - usually is - face down
 	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 

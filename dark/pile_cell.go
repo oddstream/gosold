@@ -17,7 +17,7 @@ func (b *Baize) NewCell(slot PileSlot) *Pile {
 	return pile
 }
 
-func (self *Cell) canAcceptTail(tail []*Card) (bool, error) {
+func (self *Cell) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if !self.pile.Empty() {
 		return false, errors.New("A Cell can only contain one card")
 	}
@@ -27,7 +27,7 @@ func (self *Cell) canAcceptTail(tail []*Card) (bool, error) {
 	if anyCardsProne(tail) {
 		return false, errors.New("Cannot move a face down card")
 	}
-	return true, nil
+	return self.pile.baize.script.TailAppendError(self.pile, tail)
 }
 
 func (self *Cell) tailTapped(tail []*Card) {
