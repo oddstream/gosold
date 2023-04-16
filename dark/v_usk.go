@@ -31,7 +31,6 @@ func (self *Usk) BuildPiles() {
 		{x: 9, n: 1},
 	}
 
-	self.foundations = nil
 	for x := 6; x < 10; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
@@ -39,7 +38,6 @@ func (self *Usk) BuildPiles() {
 		f.setLabel("A")
 	}
 
-	self.tableaux = nil
 	for _, li := range self.layout {
 		t := self.baize.NewTableau(newPileSlot(li.x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)

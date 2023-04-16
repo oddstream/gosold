@@ -11,12 +11,10 @@ func (self *Seahaven) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
-	self.cells = nil
 	for x := 0; x < 4; x++ {
 		self.cells = append(self.cells, self.baize.NewCell(newPileSlot(x, 0)))
 	}
 
-	self.foundations = nil
 	for x := 6; x < 10; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
@@ -24,7 +22,6 @@ func (self *Seahaven) BuildPiles() {
 		f.setLabel("A")
 	}
 
-	self.tableaux = nil
 	for x := 0; x < 10; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
 		self.tableaux = append(self.tableaux, t)

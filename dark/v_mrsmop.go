@@ -12,7 +12,6 @@ func (self *MrsMop) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
-	self.discards = []*Pile{}
 	for x := 0; x < 4; x++ {
 		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
 		self.discards = append(self.discards, d)
@@ -20,7 +19,6 @@ func (self *MrsMop) BuildPiles() {
 		self.discards = append(self.discards, d)
 	}
 
-	self.tableaux = []*Pile{}
 	for x := 0; x < 13; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
@@ -28,7 +26,6 @@ func (self *MrsMop) BuildPiles() {
 		t.moveCmp2 = dyad.compare_DownSuit
 	}
 
-	self.cells = []*Pile{}
 	if self.easy {
 		for x := 5; x < 8; x++ {
 			c := self.baize.NewCell(newPileSlot(x, 0))

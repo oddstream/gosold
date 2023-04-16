@@ -79,10 +79,10 @@ func (self *Pile) IsStock() bool {
 	return ok
 }
 
-func (self *Pile) IsWaste() bool {
-	_, ok := self.vtable.(*Waste)
-	return ok
-}
+// func (self *Pile) IsWaste() bool {
+// 	_, ok := self.vtable.(*Waste)
+// 	return ok
+// }
 
 func (p *Pile) Category() string {
 	return p.category
@@ -236,7 +236,7 @@ func (self *Pile) extractOrdinal(ordinal int) *Card {
 	return nil
 }
 
-// peek topmost Card of this Pile (a stack)
+// peek topmost *Card of this Pile (a stack)
 func (self *Pile) peek() *Card {
 	if len(self.cards) == 0 {
 		return nil
@@ -244,7 +244,7 @@ func (self *Pile) peek() *Card {
 	return self.cards[len(self.cards)-1]
 }
 
-// pop a Card off the end of this Pile (a stack)
+// pop a *Card off the end of this Pile (a stack)
 func (self *Pile) pop() *Card {
 	if len(self.cards) == 0 {
 		return nil
@@ -256,7 +256,7 @@ func (self *Pile) pop() *Card {
 	return c
 }
 
-// push a Card onto the end of this Pile (a stack)
+// push a *Card onto the end of this Pile (a stack)
 func (self *Pile) push(c *Card) {
 	self.cards = append(self.cards, c)
 	if self.IsStock() {
@@ -323,15 +323,14 @@ func (self *Pile) canMoveTail(tail []*Card) (bool, error) {
 	case MOVE_NONE:
 		// eg Discard, Foundation
 		return false, fmt.Errorf("Cannot move a card from a %s", self.category)
-	case MOVE_ANY:
-		// well, that was easy
 	case MOVE_ONE:
 		// eg Cell, Reserve, Stock, Waste
 		if len(tail) > 1 {
 			return false, fmt.Errorf("Can only move one card from a %s", self.category)
 		}
-	case MOVE_ONE_PLUS:
-		// don't (yet) know destination, so we allow this as MOVE_ANY
+	case MOVE_ANY, MOVE_ONE_PLUS:
+		// MOVE_ANY: well, that was easy
+		// MOVE_ONE_PLUS: don't (yet) know destination, so we allow this as MOVE_ANY
 		// and do power moves check later, in Tableau canSubtypeAppendTail
 	case MOVE_ONE_OR_ALL:
 		// Canfield, Toad
@@ -350,7 +349,7 @@ func (self *Pile) canAppendTail(tail []*Card) (bool, error) {
 	if self.appendFrom != "" {
 		src := tail[0].owner()
 		if src.category != self.appendFrom {
-			return false, fmt.Errorf("A %s pile cannot accept cards from a %s pile", self.category, src.category)
+			return false, fmt.Errorf("A %s cannot accept cards from a %s", self.category, src.category)
 		}
 	}
 	return self.vtable.canSubtypeAppendTail(tail)

@@ -11,6 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] append or accept := build?
+[ ] separate layout struct for each variant
 [x] pile.appendFrom
 [x]	move and append, two checks each going through 3 layers
 		pile, vtable, script

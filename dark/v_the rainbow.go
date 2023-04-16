@@ -45,6 +45,7 @@ func (self *TheRainbow) BuildPiles() {
 	*/
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
+	self.rainbow = nil
 	for _, rs := range rainbow_slots {
 		t := self.baize.NewTableau(rs, FAN_NONE, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
@@ -60,6 +61,7 @@ func (self *TheRainbow) BuildPiles() {
 		f.setLabel("A")
 	}
 
+	self.tab = nil
 	for x := 1; x < 8; x++ {
 		t := self.baize.NewTableau(PileSlot{float32(x), 4.0, 0}, FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)

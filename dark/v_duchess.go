@@ -17,7 +17,6 @@ func (self *Duchess) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(1, 1))
 
-	self.reserves = []*Pile{}
 	for i := 0; i < 4; i++ {
 		r := self.baize.NewReserve(newPileSlot(i*2, 0), FAN_RIGHT)
 		self.reserves = append(self.reserves, r)
@@ -25,14 +24,12 @@ func (self *Duchess) BuildPiles() {
 
 	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 2), FAN_DOWN3))
 
-	self.foundations = []*Pile{}
 	for x := 3; x < 7; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 1))
 		self.foundations = append(self.foundations, f)
 		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
-	self.tableaux = []*Pile{}
 	for x := 3; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)

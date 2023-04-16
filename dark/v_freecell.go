@@ -24,13 +24,11 @@ func (self *Freecell) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
-	self.cells = []*Pile{}
 	for x := 0; x < 4; x++ {
 		c := self.baize.NewCell(newPileSlot(x, 0))
 		self.cells = append(self.cells, c)
 	}
 
-	self.foundations = []*Pile{}
 	for x := 4; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
@@ -38,7 +36,6 @@ func (self *Freecell) BuildPiles() {
 		f.setLabel("A")
 	}
 
-	self.tableaux = []*Pile{}
 	for x := 0; x < 8; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_PLUS)
 		self.tableaux = append(self.tableaux, t)

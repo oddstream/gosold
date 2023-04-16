@@ -32,9 +32,9 @@ func (self *FortyThieves) BuildPiles() {
 	}
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
+
 	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
-	self.foundations = nil
 	for _, x := range self.founds {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
@@ -42,7 +42,6 @@ func (self *FortyThieves) BuildPiles() {
 		f.setLabel("A")
 	}
 
-	self.tableaux = nil
 	for _, x := range self.tabs {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, self.moveType)
 		self.tableaux = append(self.tableaux, t)

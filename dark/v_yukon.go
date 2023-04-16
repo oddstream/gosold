@@ -12,7 +12,6 @@ func (self *Yukon) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
-	self.foundations = nil
 	for y := 0; y < 4; y++ {
 		f := self.baize.NewFoundation(newPileSlot(8, y))
 		self.foundations = append(self.foundations, f)
@@ -20,7 +19,6 @@ func (self *Yukon) BuildPiles() {
 		f.setLabel("A")
 	}
 
-	self.cells = nil
 	y := 4
 	for i := 0; i < self.extraCells; i++ {
 		c := self.baize.NewCell(newPileSlot(8, y))
@@ -28,7 +26,6 @@ func (self *Yukon) BuildPiles() {
 		y += 1
 	}
 
-	self.tableaux = nil
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)

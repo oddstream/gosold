@@ -11,7 +11,6 @@ func (self *BakersDozen) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
 
-	self.tableaux = nil
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
@@ -31,7 +30,6 @@ func (self *BakersDozen) BuildPiles() {
 	}
 	self.tableaux[6].boundary = 1 + 12
 
-	self.foundations = nil
 	for y := 0; y < 4; y++ {
 		f := self.baize.NewFoundation(newPileSlot(9, y))
 		self.foundations = append(self.foundations, f)

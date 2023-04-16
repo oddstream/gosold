@@ -17,9 +17,8 @@ type LightAndShadow struct {
 func (self *LightAndShadow) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
-	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(0, 1), FAN_DOWN3))
 
-	self.tableaux = []*Pile{}
+	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(0, 1), FAN_DOWN3))
 
 	// auxilliaries
 	for x := 2; x < 6; x++ {
@@ -43,8 +42,7 @@ func (self *LightAndShadow) BuildPiles() {
 		t.moveCmp2 = dyad.compare_DownAltColor
 	}
 
-	// foundation
-	self.foundations = []*Pile{}
+	// foundations
 	for x := 0; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 3))
 		self.foundations = append(self.foundations, f)

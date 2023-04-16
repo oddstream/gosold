@@ -16,12 +16,10 @@ func (self *Alhambra) BuildPiles() {
 	self.stock = self.baize.NewStock(newPileSlot(0, 3))
 
 	// waste pile implemented as a tableau because cards may be built on it
-	self.tableaux = nil
 	t := self.baize.NewTableau(newPileSlot(1, 3), FAN_RIGHT3, MOVE_ONE)
 	self.tableaux = append(self.tableaux, t)
 	t.appendCmp2 = dyad.compare_UpOrDownSuitWrap
 
-	self.foundations = nil
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
@@ -35,7 +33,6 @@ func (self *Alhambra) BuildPiles() {
 		f.setLabel("K")
 	}
 
-	self.reserves = nil
 	for x := 0; x < 8; x++ {
 		r := self.baize.NewReserve(newPileSlot(x, 1), FAN_DOWN)
 		self.reserves = append(self.reserves, r)

@@ -15,20 +15,17 @@ func (self *Agnes) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
-	self.foundations = nil
 	for x := 3; x < 7; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
-	self.reserves = nil
 	for x := 0; x < 7; x++ {
 		r := self.baize.NewReserve(newPileSlot(x, 1), FAN_NONE)
 		self.reserves = append(self.reserves, r)
 	}
 
-	self.tableaux = nil
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)

@@ -11,13 +11,11 @@ func (self *Scorpion) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
-	self.discards = []*Pile{}
 	for x := 3; x < 7; x++ {
 		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
 		self.discards = append(self.discards, d)
 	}
 
-	self.tableaux = []*Pile{}
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)

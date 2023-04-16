@@ -42,6 +42,7 @@ var s_coords []PileSlot = []PileSlot{
 func (self *UncleSam) BuildPiles() {
 
 	self.stock = self.baize.NewStock(PileSlot{0, 0, 0})
+
 	self.wastes = append(self.wastes, self.baize.NewWaste(PileSlot{0, 1, 0}, FAN_NONE))
 
 	for _, slot := range u_coords {

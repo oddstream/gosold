@@ -70,6 +70,21 @@ var variants = map[string]scripter{
 		draw:     3,
 		recycles: 32767,
 	},
+	"Rainbow Canfield": &Canfield{
+		scriptBase: scriptBase{
+			wikipedia: "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
+		},
+		draw:     1,
+		recycles: 2,
+	},
+	"Selective Canfield": &Canfield{
+		scriptBase: scriptBase{
+			wikipedia: "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
+		},
+		draw:     3,
+		recycles: 32767,
+		variant:  "selective",
+	},
 	"Storehouse": &Canfield{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
@@ -422,7 +437,7 @@ var variants = map[string]scripter{
 var variantGroups = map[string][]string{
 	// "> All" added dynamically by func init()
 	// don't have any group that comes alphabetically before "> All"
-	"> Canfields":     {"Canfield", "Storehouse", "Duchess", "American Toad"},
+	"> Canfields":     {"Canfield", "Rainbow Canfield", "Selective Canfield", "Storehouse", "Duchess", "American Toad"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
 	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},

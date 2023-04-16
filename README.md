@@ -251,7 +251,7 @@ Some cards in the tableau pile may start life face down; the game will automatic
 
 Foundation piles are where the player is trying to move the cards to, so that the game is completed.
 
-The cards in each foundation usually start with an Ace, and build up, always the same suit. A foundation pile is full (complete) when it contains 13 cards.
+The cards in each foundation usually start with an Ace, and build up, usually the same suit. A foundation pile is full (complete) when it contains 13 cards.
 
 Only one card at a time can be moved to a foundation. Cards cannot be taken off a foundation.
 
@@ -265,7 +265,7 @@ Moving completed sets of cards to a discard is optional, and is usally done to c
 
 ### Waste
 
-A waste pile can store any number of cards, all face up. You can only move one card at a time to a waste pile, and that card must come from the stock pile. There is only ever one waste pile.
+A waste pile can store any number of cards, all face up. You can only move one card at a time to a waste pile, and that card usually comes from the stock pile. There is usually one waste pile (exception: Colorado)
 
 In some games (like Klondike) cards in the waste pile can be recycled back to the stock pile, by tapping on an empty stock pile. The game may restrict the number of times this can happen.
 

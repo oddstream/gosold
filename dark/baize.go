@@ -67,6 +67,7 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	}
 	b := &Baize{dark: d, variant: variant, script: script, cardMap: make(map[cardid.CardID]*Card), fnNotify: fnNotify}
 	b.script.SetBaize(b)
+	b.script.Reset()
 	b.script.BuildPiles()
 	// BuildPiles() must not create or move any cards
 	// so fill and shuffle Stock here

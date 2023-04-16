@@ -16,20 +16,17 @@ func (pen *Penguin) BuildPiles() {
 	pen.stock = pen.baize.NewStock(newHiddenPileSlot())
 
 	// the flipper, seven cells
-	pen.cells = nil
 	for x := 0; x < 7; x++ {
 		c := pen.baize.NewCell(newPileSlot(x, 0))
 		pen.cells = append(pen.cells, c)
 	}
 
-	pen.foundations = nil
 	for y := 0; y < 4; y++ {
 		f := pen.baize.NewFoundation(newPileSlot(8, y))
 		pen.foundations = append(pen.foundations, f)
 		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
-	pen.tableaux = nil
 	for x := 0; x < 7; x++ {
 		t := pen.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		pen.tableaux = append(pen.tableaux, t)

@@ -2,7 +2,6 @@ package dark
 
 import (
 	"errors"
-	"log"
 
 	"oddstream.games/gosold/util"
 )
@@ -17,11 +16,8 @@ type Colorado struct {
 func (self *Colorado) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newHiddenPileSlot())
-	self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(0, 0), FAN_NONE))
 
-	if self.foundations != nil {
-		log.Panic("self.foundations is not nil")
-	}
+	self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(0, 0), FAN_NONE))
 
 	for x := 2; x < 6; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))

@@ -17,14 +17,12 @@ func (self *Westcliff) BuildPiles() {
 	switch self.variant {
 	case "Classic":
 		self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
-		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
 			f := self.baize.NewFoundation(newPileSlot(x, 0))
 			self.foundations = append(self.foundations, f)
 			f.appendCmp2 = dyad.compare_UpSuit
 			f.setLabel("A")
 		}
-		self.tableaux = []*Pile{}
 		for x := 0; x < 7; x++ {
 			t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
@@ -33,14 +31,12 @@ func (self *Westcliff) BuildPiles() {
 		}
 	case "American":
 		self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
-		self.foundations = []*Pile{}
 		for x := 6; x < 10; x++ {
 			f := self.baize.NewFoundation(newPileSlot(x, 0))
 			self.foundations = append(self.foundations, f)
 			f.appendCmp2 = dyad.compare_UpSuit
 			f.setLabel("A")
 		}
-		self.tableaux = []*Pile{}
 		for x := 0; x < 10; x++ {
 			t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)
@@ -48,15 +44,12 @@ func (self *Westcliff) BuildPiles() {
 			t.moveCmp2 = dyad.compare_DownAltColor
 		}
 	case "Easthaven":
-		self.wastes = nil
-		self.foundations = []*Pile{}
 		for x := 3; x < 7; x++ {
 			f := self.baize.NewFoundation(newPileSlot(x, 0))
 			self.foundations = append(self.foundations, f)
 			f.appendCmp2 = dyad.compare_UpSuit
 			f.setLabel("A")
 		}
-		self.tableaux = []*Pile{}
 		for x := 0; x < 7; x++ {
 			t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 			self.tableaux = append(self.tableaux, t)

@@ -11,7 +11,6 @@ func (self *Blockade) BuildPiles() {
 
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
-	self.foundations = nil
 	for x := 4; x < 12; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
@@ -19,7 +18,6 @@ func (self *Blockade) BuildPiles() {
 		f.setLabel("A")
 	}
 
-	self.tableaux = nil
 	for x := 0; x < 12; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)

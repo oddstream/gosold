@@ -5,7 +5,6 @@ package dark
 
 import (
 	"errors"
-	"fmt"
 
 	"oddstream.games/gosold/cardid"
 	"oddstream.games/gosold/util"
@@ -23,17 +22,14 @@ func (self *Canfield) BuildPiles() {
 
 	self.wastes = append(self.wastes, self.baize.NewWaste(newPileSlot(1, 0), FAN_RIGHT3))
 
-	self.reserves = nil
 	self.reserves = append(self.reserves, self.baize.NewReserve(newPileSlot(0, 1), FAN_DOWN))
 
-	self.foundations = nil
 	for x := 3; x < 7; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
 		f.appendCmp2 = dyad.compare_UpSuitWrap
 	}
 
-	self.tableaux = nil
 	for x := 3; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ONE_OR_ALL)
 		self.tableaux = append(self.tableaux, t)
@@ -62,6 +58,8 @@ func (self *Canfield) StartGame() {
 		if c := self.stock.extract(0, 2, cardid.SPADE); c != nil {
 			self.foundations[3].push(c)
 		}
+	} else if self.variant == "selective" {
+		self.baize.fnNotify(MessageEvent, "Move a Tableaux card to a Foundation")
 	} else {
 		card := moveCard(self.stock, self.foundations[0])
 		for _, pile := range self.foundations {
@@ -72,7 +70,7 @@ func (self *Canfield) StartGame() {
 	for i := 0; i < 12; i++ {
 		moveCard(self.stock, self.reserves[0]).flipDown()
 	}
-	moveCard(self.stock, self.reserves[0])
+	moveCard(self.stock, self.reserves[0]) // face up
 
 	for _, pile := range self.tableaux {
 		moveCard(self.stock, pile)
@@ -82,6 +80,23 @@ func (self *Canfield) StartGame() {
 }
 
 func (self *Canfield) AfterMove() {
+	if self.foundations[0].label == "" {
+		var ord int = 0
+		for _, f := range self.foundations {
+			// find where the first card landed
+			if len(f.cards) > 0 {
+				ord = f.peek().id.Ordinal()
+				break
+			}
+		}
+		if ord == 0 {
+			self.baize.fnNotify(MessageEvent, "Move a Tableaux card to a Foundation")
+		} else {
+			for _, f := range self.foundations {
+				f.setLabel(util.OrdinalToShortString(ord))
+			}
+		}
+	}
 	// "fill each [tableau] space at once with the top card of the reserve,
 	// after the reserve is exhausted, fill spaces from the waste pile,
 	// but at this time a space may be kept open for as long as desired"
@@ -103,18 +118,12 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {
 		switch dst.vtable.(type) {
 		case *Foundation:
-			c := tail[0]
-			ord := util.OrdinalToShortString(c.Ordinal())
 			if dst.Label() == "" {
-				if c.owner().category != "Reserve" {
-					return false, errors.New("The first Foundation card must come from a Reserve")
+				if self.variant == "selective" {
+					if tail[0].owner().category != "Tableau" {
+						return false, errors.New("The first Foundation card must come from a Tableau")
+					}
 				}
-				for _, pile := range self.foundations {
-					pile.setLabel(ord)
-				}
-			}
-			if ord != dst.Label() {
-				return false, fmt.Errorf("Foundations can only accept an %s, not a %s", dst.Label(), ord)
 			}
 		case *Tableau:
 			// Spaces that occur on the tableau are filled only from reserve or waste

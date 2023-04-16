@@ -9,6 +9,7 @@ import (
 // TODO for the moment, methods are published.
 type scripter interface {
 	SetBaize(*Baize)
+	Reset()
 	BuildPiles()
 	StartGame()
 	AfterMove()
@@ -55,6 +56,17 @@ type scriptBase struct {
 
 func (sb *scriptBase) SetBaize(b *Baize) {
 	sb.baize = b
+}
+
+// Reset is needed when changing variants that use the same class
+func (sb *scriptBase) Reset() {
+	sb.cells = nil
+	sb.discards = nil
+	sb.foundations = nil
+	sb.reserves = nil
+	sb.stock = nil
+	sb.tableaux = nil
+	sb.wastes = nil
 }
 
 // no default for BuildPiles
