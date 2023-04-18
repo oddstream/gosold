@@ -166,7 +166,7 @@ func createFaceImage(faceColor color.Color, pipColor color.Color, ID cardid.Card
 	var suitRune rune = ID.SuitRune()
 	// if ID.Joker() {
 	// 	// if a joker is pretending to be a certain card, then show it's pretend ordinal and suit, but faded
-	// 	cardColor.A = 64
+	// 	pipColor.A = 64
 	// }
 
 	// draw the card ordinals in top left and bottom right corners
@@ -219,7 +219,8 @@ func createFaceImage(faceColor color.Color, pipColor color.Color, ID cardid.Card
 			dc.SetColor(pipColor)
 			// TODO would really like to draw some crown-ish symbols here
 			// the chess glyphs only have king and queen, and would look a bit off
-			// so using J Q K will have to do for now
+			// rendering some SVG would be good
+			// using J Q K will have to do for now
 			var cardPips = pips[ID.Ordinal()-1]
 			for _, pip := range cardPips {
 				switch pip.SZ {

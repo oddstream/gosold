@@ -25,7 +25,10 @@ func (self *Discard) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if anyCardsProne(tail) {
 		return false, errors.New("Cannot move a face down card to a Discard")
 	}
-	if len(tail) != self.pile.baize.cardCount/len(self.pile.baize.script.Discards()) {
+	// TODO this should be number of cards in a suit
+	// which is usually 13
+	// but may be fewer in a stripped deck
+	if len(tail) != 13 {
 		return false, errors.New("Can only move a full set of cards to a Discard")
 	}
 	if ok, err := tailConformant(tail, dyad.compare_DownSuit); !ok {

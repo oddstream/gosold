@@ -28,6 +28,7 @@ type scripter interface {
 	Stock() *Pile
 	Tableaux() []*Pile
 	Waste() *Pile
+	Wastes() []*Pile
 
 	Complete() bool
 	Wikipedia() string
@@ -137,7 +138,7 @@ func (sb scriptBase) Complete() bool {
 	for _, f := range sb.foundations {
 		n += len(f.cards)
 	}
-	return n == sb.baize.cardCount
+	return n == sb.baize.numberOfCards()
 }
 
 func (sb scriptBase) SpiderComplete() bool {

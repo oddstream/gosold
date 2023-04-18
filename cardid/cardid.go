@@ -92,6 +92,14 @@ func (cid CardID) SetProne(prone bool) CardID {
 	if prone {
 		cid = cid | proneFlag
 	} else {
+		/*
+			Precedence    Operator
+			5             *  /  %  <<  >>  &  &^
+			4             +  -  |  ^
+			3             ==  !=  <  <=  >  >=
+			2             &&
+			1             ||
+		*/
 		cid = cid & (^proneFlag)
 	}
 	return cid
@@ -107,7 +115,11 @@ func (cid CardID) Black() bool {
 	return suit == CLUB || suit == SPADE
 }
 
-// NewCardID constructor
+func (cid CardID) Red() bool {
+	return !cid.Black()
+}
+
+// NewCardID constructor. Create a joker by specifiying suit == NOSUIT(0) and ordinal == 0.
 func NewCardID(pack, suit, ordinal int) CardID {
 	var u uint32
 	u += uint32(pack) << 8

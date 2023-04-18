@@ -11,6 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] read about Tengo
+[x] b.cardCount is len(b.cardMap)
 [ ] append or accept := build?
 [ ] separate layout struct for each variant
 [x] pile.appendFrom
@@ -83,6 +85,19 @@ copy __debug_bin to gosold
 quit using x NOT menu
 go tool pprof gosold gosold.prof
 top30
+
+JOKERS
+======
+joker bit set in CardID
+create card with suit=0, ord=0 to create a joker
+set suit, ord when joker is 'resolved'
+...so the compare functions still work
+jokers display faded suit, ord, and maybe the word 'JOKER' across card
+discard calculation (or anything relying on len(b.cardMap)) will be wrong
+maybe use len(cardMap) - numberOfJokers
+the jokers don't figure in 'complete' calculation, they are spare at the end of the game
+(where do they go? specific pile type for jokers?)
+an unresolved joker will match with anything, and afterwards will resolve to a match
 
 SOLVER
 ======

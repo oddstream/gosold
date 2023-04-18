@@ -22,12 +22,11 @@ type Baize struct {
 	cardMap      map[cardid.CardID]*Card
 
 	// members needed by solver
-	script    scripter
-	cardCount int
-	piles     []*Pile // needed by LIGHT to display piles and cards
-	recycles  int     // needed by LIGHT to determine Stock rune
-	percent   int     // needed by LIGHT to display in status bar
-	fpercent  int
+	script   scripter
+	piles    []*Pile // needed by LIGHT to display piles and cards
+	recycles int     // needed by LIGHT to determine Stock rune
+	percent  int     // needed by LIGHT to display in status bar
+	fpercent int
 
 	// members specific to solver
 	//	depth      int
@@ -73,7 +72,8 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	// so fill and shuffle Stock here
 	{
 		stock := b.script.Stock()
-		b.cardCount = stock.fill(b.script.Packs(), b.script.Suits())
+		stock.fill(b.script.Packs(), b.script.Suits())
+		// TODO add jokers here
 		stock.shuffle()
 	}
 	b.script.StartGame()
@@ -186,7 +186,7 @@ func (b *Baize) NewDeal() (bool, error) {
 	// for _, p := range b.piles {
 	// 	p.cards = p.cards[:0]
 	// }
-	// b.cardCount = b.script.Stock().fill(b.script.Packs(), b.script.Suits())
+	// b.script.Stock().fill(b.script.Packs(), b.script.Suits())
 
 	stock := b.script.Stock()
 	for _, p := range b.piles {
@@ -199,9 +199,6 @@ func (b *Baize) NewDeal() (bool, error) {
 	for _, c := range stock.cards {
 		c.pile = stock
 		c.setProne(true)
-	}
-	if len(stock.cards) != b.cardCount {
-		log.Panic("the number of cards in the stock is incorrect")
 	}
 
 	b.script.Stock().shuffle()
@@ -365,9 +362,9 @@ func (b *Baize) StockLen() int {
 	return b.script.Stock().Len()
 }
 
-// WasteLen returns number of cards in Waste, or -1 if there is no Waste.
+// WasteLen returns number of cards in Waste, or -1 if there is no Waste or multiple Wastes.
 func (b *Baize) WasteLen() int {
-	if b.script.Waste() == nil {
+	if b.script.Waste() == nil || len(b.script.Wastes()) > 0 {
 		return -1
 	}
 	return b.script.Waste().Len()
@@ -510,6 +507,10 @@ func (b *Baize) CardTapWeight(id cardid.CardID) int16 {
 func (b *Baize) reset() {
 	b.undoStack = nil
 	b.bookmark = 0
+}
+
+func (b *Baize) numberOfCards() int {
+	return len(b.cardMap) // TODO minus numer of jokers
 }
 
 // percentComplete used to display in status bar, and as positive progress in solver

@@ -168,10 +168,9 @@ func (b *Baize) newPile(category string, slot PileSlot, fanType FanType, moveTyp
 	return p
 }
 
-func (self *Pile) fill(packs, suits int) int {
-	var count int = packs * suits * 13
+func (self *Pile) fill(packs, suits int) {
 
-	self.cards = make([]*Card, 0, count)
+	self.cards = make([]*Card, 0, packs*suits*13)
 
 	for pack := 0; pack < packs; pack++ {
 		for suit := 0; suit < suits; suit++ {
@@ -190,8 +189,15 @@ func (self *Pile) fill(packs, suits int) int {
 		}
 	}
 
-	return count
 }
+
+// func (self *Pile) addJokers(n int) {
+// 	for i := 0; i < n; i++ {
+// 		var c Card = Card{id: cardid.NewCardID(i, cardid.NOSUIT, 0)}
+// 		self.baize.cardMap[c.id] = &c
+// 		self.push(&c)
+// 	}
+// }
 
 func (self *Pile) shuffle() {
 	rand.Seed(time.Now().UTC().UnixNano())
