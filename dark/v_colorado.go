@@ -74,11 +74,7 @@ func (self *Colorado) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if util.Contains(self.wastes, src) && util.Contains(self.wastes, dst) {
 		return false, errors.New("Cannot move cards between Waste piles")
 	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (*Colorado) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
 func (self *Colorado) TailTapped(tail []*Card) {

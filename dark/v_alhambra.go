@@ -63,16 +63,7 @@ func (*Alhambra) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Alhambra) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	if dst.Empty() {
-		return compare_Empty(dst, tail[0]) // never happens
-	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (*Alhambra) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
-}
+// default TailAppendError
 
 func (self *Alhambra) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()

@@ -133,11 +133,7 @@ func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		}
 		return compare_Empty(dst, tail[0])
 	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (self *Canfield) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
 func (self *Canfield) TailTapped(tail []*Card) {

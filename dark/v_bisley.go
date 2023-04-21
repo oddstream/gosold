@@ -64,16 +64,7 @@ func (*Bisley) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Bisley) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	if dst.Empty() {
-		return compare_Empty(dst, tail[0])
-	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (*Bisley) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
-}
+// default TailAppendError
 
 func (self *Bisley) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()

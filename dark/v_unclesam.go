@@ -102,11 +102,7 @@ func (self *UncleSam) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst == self.Waste() {
 		return false, errors.New("Cannot move cards to the Waste")
 	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (self *UncleSam) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
 func (self *UncleSam) TailTapped(tail []*Card) {

@@ -103,13 +103,9 @@ func (self *LightAndShadow) TailAppendError(dst *Pile, tail []*Card) (bool, erro
 	if dst.Empty() {
 		return compare_Empty(dst, tail[0])
 	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 
 	// TODO BUG can't tap a card in the rivals to send it to auxilliaries
-}
-
-func (*LightAndShadow) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
 }
 
 func (self *LightAndShadow) TailTapped(tail []*Card) {

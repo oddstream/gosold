@@ -45,16 +45,7 @@ func (*Australian) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *Australian) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	if dst.Empty() {
-		return compare_Empty(dst, tail[0])
-	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (*Australian) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
-}
+// default TailAppendError
 
 func (self *Australian) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()

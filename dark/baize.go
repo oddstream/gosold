@@ -809,7 +809,7 @@ func (b *Baize) findTargetsForAllMovableTails(tails [][]*Card) {
 								weight = 3
 							} else {
 								// if this card is conformant with prev card, downgrade to 1
-								if ok, _ := b.script.TwoCards(dst, cPrev, headCard); ok {
+								if ok, _ := dst.appendCmp2(dyad{cPrev, headCard}); ok {
 									weight = 1
 								}
 							}

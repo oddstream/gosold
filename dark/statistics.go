@@ -65,29 +65,27 @@ func (stats *VariantStatistics) strings(v string) []string {
 		strs = append(strs, fmt.Sprintf("Win rate: %d%%", winRate))
 		strs = append(strs, " ")
 
-		avpc := stats.averagePercent()
-		if avpc < 100 {
-			strs = append(strs, fmt.Sprintf("Average incomplete: %d%%", avpc))
-		}
 		if stats.BestPercent < 100 {
 			// not yet won a game
 			strs = append(strs, "You have yet to win a game")
+			avpc := stats.averagePercent()
+			strs = append(strs, fmt.Sprintf("Average percent: %d%%", avpc))
 			strs = append(strs, fmt.Sprintf("Best percent: %d%%", stats.BestPercent))
 		} else {
 			// won at least one game
 			strs = append(strs, fmt.Sprintf("Best number of moves: %d", stats.BestMoves))
 			strs = append(strs, fmt.Sprintf("Worst number of moves: %d", stats.WorstMoves))
 			strs = append(strs, fmt.Sprintf("Average number of moves: %d", stats.SumMoves/stats.Won))
-		}
 
-		if stats.CurrStreak != 0 {
-			strs = append(strs, fmt.Sprintf("Current streak: %d", stats.CurrStreak))
-		}
-		if stats.BestStreak != 0 {
-			strs = append(strs, fmt.Sprintf("Best streak: %d", stats.BestStreak))
-		}
-		if stats.WorstStreak != 0 {
-			strs = append(strs, fmt.Sprintf("Worst streak: %d", stats.WorstStreak))
+			if stats.CurrStreak != 0 {
+				strs = append(strs, fmt.Sprintf("Current streak: %d", stats.CurrStreak))
+			}
+			if stats.BestStreak != 0 {
+				strs = append(strs, fmt.Sprintf("Best streak: %d", stats.BestStreak))
+			}
+			if stats.WorstStreak != 0 {
+				strs = append(strs, fmt.Sprintf("Worst streak: %d", stats.WorstStreak))
+			}
 		}
 	}
 

@@ -16,7 +16,6 @@ type scripter interface {
 
 	TailMoveError([]*Card) (bool, error)
 	TailAppendError(*Pile, []*Card) (bool, error)
-	TwoCards(*Pile, *Card, *Card) (bool, error)
 
 	TailTapped([]*Card)
 	PileTapped(*Pile)
@@ -78,7 +77,12 @@ func (sb scriptBase) AfterMove() {}
 
 // no default for TailMoveError
 
-// no default for TailAppendError
+func (sb scriptBase) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
+	if dst.Empty() {
+		return compare_Empty(dst, tail[0])
+	}
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
+}
 
 // no default for unsortedPairs
 

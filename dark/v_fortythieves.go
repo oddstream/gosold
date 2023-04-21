@@ -102,16 +102,7 @@ func (self *FortyThieves) TailMoveError(tail []*Card) (bool, error) {
 	return tailConformant(tail, pile.moveCmp2)
 }
 
-func (self *FortyThieves) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	if dst.Empty() {
-		return compare_Empty(dst, tail[0])
-	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (self *FortyThieves) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
-}
+// default TailAppendError
 
 func (self *FortyThieves) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()

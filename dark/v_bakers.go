@@ -54,16 +54,7 @@ func (*BakersDozen) TailMoveError(tail []*Card) (bool, error) {
 	return true, nil
 }
 
-func (self *BakersDozen) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	if dst.Empty() {
-		return compare_Empty(dst, tail[0])
-	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (*BakersDozen) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
-}
+// default TailAppendError
 
 func (*BakersDozen) TailTapped(tail []*Card) {
 	tail[0].owner().vtable.tailTapped(tail)

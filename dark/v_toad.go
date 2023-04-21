@@ -84,11 +84,7 @@ func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		}
 		return compare_Empty(dst, card)
 	}
-	return self.TwoCards(dst, dst.peek(), card)
-}
-
-func (*Toad) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
 func (self *Toad) TailTapped(tail []*Card) {

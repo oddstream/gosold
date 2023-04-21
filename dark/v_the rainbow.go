@@ -119,11 +119,7 @@ func (self *TheRainbow) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if util.Contains(self.rainbow, src) && util.Contains(self.rainbow, dst) {
 		return false, errors.New("Cannot move cards between rainbow piles")
 	}
-	return self.TwoCards(dst, dst.peek(), tail[0])
-}
-
-func (self *TheRainbow) TwoCards(pile *Pile, c1, c2 *Card) (bool, error) {
-	return pile.appendCmp2(dyad{c1, c2})
+	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
 func (self *TheRainbow) TailTapped(tail []*Card) {

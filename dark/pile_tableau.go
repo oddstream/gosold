@@ -64,7 +64,7 @@ func (self *Tableau) unsortedPairs() int {
 		if c1.Prone() || c2.Prone() {
 			unsorted++
 		} else {
-			if ok, _ := self.pile.baize.script.TwoCards(self.pile, c1, c2); !ok {
+			if ok, _ := self.pile.appendCmp2(dyad{c1, c2}); !ok {
 				unsorted++
 			}
 		}
