@@ -1,5 +1,8 @@
 PROGRESS
 
+2023-04-21
+Chameleon
+
 2023-04-15
 pile.appendFrom category string
 two layer checks (move, append), each checking pile subtype, then script

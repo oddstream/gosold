@@ -238,6 +238,16 @@ func moveTail(card *Card, dst *Pile) {
 	}
 }
 
+func (sb *scriptBase) populateWasteFromStock(n int) {
+	if sb.Waste() != nil {
+		if sb.Waste().Len() == 0 {
+			for i := 0; i < n; i++ {
+				moveCard(sb.stock, sb.Waste())
+			}
+		}
+	}
+}
+
 func recycleWasteToStock(waste *Pile, stock *Pile) {
 	if stock.baize.Recycles() > 0 {
 		for waste.Len() > 0 {

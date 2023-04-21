@@ -35,14 +35,12 @@ func (self *Whitehead) StartGame() {
 		}
 		deal++
 	}
+	self.populateWasteFromStock(1)
 	self.baize.setRecycles(0)
-	moveCard(self.stock, self.Waste())
 }
 
 func (self *Whitehead) AfterMove() {
-	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.Waste())
-	}
+	self.populateWasteFromStock(1)
 }
 
 func (*Whitehead) TailMoveError(tail []*Card) (bool, error) {

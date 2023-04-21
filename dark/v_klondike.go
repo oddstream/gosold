@@ -60,18 +60,12 @@ func (self *Klondike) StartGame() {
 		dealDown++
 		moveCard(self.stock, pile)
 	}
+	self.populateWasteFromStock(self.draw)
 	self.baize.setRecycles(self.recycles)
-	for i := 0; i < self.draw; i++ {
-		moveCard(self.stock, self.Waste())
-	}
 }
 
 func (self *Klondike) AfterMove() {
-	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
-		for i := 0; i < self.draw; i++ {
-			moveCard(self.stock, self.Waste())
-		}
-	}
+	self.populateWasteFromStock(self.draw)
 }
 
 func (*Klondike) TailMoveError(tail []*Card) (bool, error) {

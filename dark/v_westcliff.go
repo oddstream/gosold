@@ -90,15 +90,12 @@ func (self *Westcliff) StartGame() {
 			moveCard(self.stock, self.Waste())
 		}
 	}
+	self.populateWasteFromStock(1)
 	self.baize.setRecycles(0)
 }
 
 func (self *Westcliff) AfterMove() {
-	if self.Waste() != nil {
-		if self.Waste().Len() == 0 && self.stock.Len() != 0 {
-			moveCard(self.stock, self.Waste())
-		}
-	}
+	self.populateWasteFromStock(1)
 }
 
 func (*Westcliff) TailMoveError(tail []*Card) (bool, error) {

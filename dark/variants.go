@@ -94,6 +94,11 @@ var variants = map[string]scripter{
 		recycles: 2,
 		variant:  "storehouse",
 	},
+	"Chameleon": &Chameleon{
+		scriptBase: scriptBase{
+			wikipedia: "https://en.wikipedia.org/wiki/Chameleon_(solitaire)",
+		},
+	},
 	"Colorado": &Colorado{
 		scriptBase: scriptBase{
 			packs: 2,
@@ -437,7 +442,7 @@ var variants = map[string]scripter{
 var variantGroups = map[string][]string{
 	// "> All" added dynamically by func init()
 	// don't have any group that comes alphabetically before "> All"
-	"> Canfields":     {"Canfield", "Rainbow Canfield", "Selective Canfield", "Storehouse", "Duchess", "American Toad"},
+	"> Canfields":     {"Canfield", "Chameleon", "Rainbow Canfield", "Selective Canfield", "Storehouse", "Duchess", "American Toad"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
 	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},

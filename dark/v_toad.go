@@ -51,7 +51,7 @@ func (self *Toad) StartGame() {
 	for _, pile := range self.foundations {
 		pile.setLabel(util.OrdinalToShortString(c.Ordinal()))
 	}
-	moveCard(self.stock, self.Waste())
+	self.populateWasteFromStock(1)
 	self.baize.setRecycles(1)
 }
 
@@ -62,10 +62,7 @@ func (self *Toad) AfterMove() {
 			moveCard(self.reserves[0], p)
 		}
 	}
-	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.Waste())
-	}
-
+	self.populateWasteFromStock(1)
 }
 
 func (*Toad) TailMoveError(tail []*Card) (bool, error) {

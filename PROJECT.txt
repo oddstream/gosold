@@ -77,6 +77,53 @@ TODO
 [x] dark makeTail failing after loading a game
 [x] recenter variant in toolbar after changing it
 
+CHAMELEON
+=========
+Chameleon solitaire is a one-deck patience game that is played with four foundations and three tableau piles. The object of the game is to build all of the cards in the foundations, in ascending order by suit. The cards of the starting rank must be played first.
+
+To set up the game, deal three cards face up to each tableau pile. Deal one card face up to the first foundation. The remaining cards form the stock. The waste pile is beside the stock.
+
+To play, you can build the cards in the following ways:
+
+You can build the cards in the foundations up in suit, from Ace to King.
+You can build the cards in the tableau piles down in any order, regardless of suit.
+You can move cards from one tableau pile to another, as long as the move follows the rules above.
+You can fill empty spaces in the tableau piles with cards from the reserve pile or from the stock.
+If you can no longer make any moves, the game is over. If you are able to build all of the cards in the foundations, you win the game.
+
+Here are some additional tips for playing chameleon solitaire:
+
+Pay attention to the ranks of the cards in the tableau piles. If you can identify a sequence of cards that can be moved to the foundations, do so as soon as possible.
+Use the reserve pile to your advantage. If you have a card that you can't use in the tableau piles, but that can be used on the foundations, move it to the reserve pile.
+Don't give up too easily. Even if it seems like you're stuck, there may be a way to win the game. Keep trying different moves until you find a solution.
+Chameleon solitaire is a challenging but rewarding game. With a little practice, you'll be able to win more and more games.
+
+SCRIPTING
+=========
+Load/compile a script from file
+gosold.dark calls functions in that script
+	eg BuildPiles, StartGame, AfterMove
+..that return values
+	eg TailMoveError,
+The script functions call gosold.dark funcs
+	eg pile.SetLabel("A"), moveCard()
+Pass objects to script functions
+	[]*Card
+	*Pile
+	*Card
+maintain collections; add, contains, ...
+for loops
+
+...in Tengo, these should implement an Object interface
+...but how do you call a func in Tengo!?
+
+Tengo
+TCL (skx/critical)
+Yaegi (Go interpreter)
+GoAWK (Ben Hoyt) (no embed)
+Monkey (Thorsten Ball)
+https://github.com/yuin/gopher-lua
+
 PROFILING
 =========
 https://go.dev/blog/pprof

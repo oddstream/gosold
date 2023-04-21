@@ -33,14 +33,12 @@ func (self *Australian) StartGame() {
 			moveCard(self.stock, pile)
 		}
 	}
-	moveCard(self.stock, self.Waste())
+	self.populateWasteFromStock(1)
 	self.baize.setRecycles(0)
 }
 
 func (self *Australian) AfterMove() {
-	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.Waste())
-	}
+	self.populateWasteFromStock(1)
 }
 
 func (*Australian) TailMoveError(tail []*Card) (bool, error) {

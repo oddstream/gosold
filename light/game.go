@@ -173,7 +173,9 @@ func NewGame() *Game {
 }
 
 func (g *Game) ExitGame() {
-	g.baize.darkBaize.Save()
+	log.Println("Game.ExitGame")
+	g.baize.darkBaize.Close()
+	// g.baize.darkBaize.Save()
 	g.settings.save()
 }
 

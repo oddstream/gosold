@@ -64,14 +64,12 @@ func (self *LightAndShadow) StartGame() {
 		moveCard(self.stock, t)
 	}
 
-	moveCard(self.stock, self.Waste())
+	self.populateWasteFromStock(1)
 	self.baize.setRecycles(0)
 }
 
 func (self *LightAndShadow) AfterMove() {
-	if self.Waste().Len() == 0 && self.stock.Len() != 0 {
-		moveCard(self.stock, self.Waste())
-	}
+	self.populateWasteFromStock(1)
 }
 
 func (*LightAndShadow) TailMoveError(tail []*Card) (bool, error) {

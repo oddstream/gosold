@@ -189,7 +189,8 @@ func (b *baize) restartDeal() {
 }
 
 func (b *baize) changeVariant(variant string) {
-	b.darkBaize.Save()
+	b.darkBaize.Close()
+	// b.darkBaize.Save()
 	b.startGame(variant)
 	b.darkBaize.Load()
 }
