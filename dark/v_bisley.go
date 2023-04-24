@@ -66,9 +66,6 @@ func (*Bisley) TailMoveError(tail []*Card) (bool, error) {
 
 // default TailAppendError
 
-func (self *Bisley) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	pile.vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*Bisley) PileTapped(*Pile) {}

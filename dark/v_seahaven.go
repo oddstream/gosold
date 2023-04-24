@@ -42,15 +42,10 @@ func (self *Seahaven) StartGame() {
 	self.baize.setRecycles(0)
 }
 
-func (*Seahaven) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (*Seahaven) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*Seahaven) PileTapped(*Pile) {}

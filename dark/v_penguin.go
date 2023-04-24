@@ -80,15 +80,10 @@ func (pen *Penguin) StartGame() {
 	}
 }
 
-func (*Penguin) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (pen *Penguin) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (pen *Penguin) PileTapped(pile *Pile) {}

@@ -65,6 +65,7 @@ type Pile struct {
 	boundary             int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
 	appendFrom           string      // can only append cards from this subtype (eg Waste > Stock)
 	appendCmp2, moveCmp2 dyadCmpFunc // only used by Foundation, Tableau piles
+	maxLen               int         // TODO Cell=1, Discard & Foundation=13?
 }
 
 // Public functions, visible to LIGHT
@@ -358,6 +359,16 @@ func (self *Pile) canAppendTail(tail []*Card) (bool, error) {
 			return false, fmt.Errorf("A %s cannot accept cards from a %s", self.category, src.category)
 		}
 	}
+	if self.maxLen > 0 {
+		if self.Len()+len(tail) > self.maxLen {
+			if self.maxLen == 1 {
+				return false, fmt.Errorf("A %s can only contain one card", self.category)
+			} else {
+				return false, fmt.Errorf("A %s can contain up to %d cards", self.category, self.maxLen)
+			}
+		}
+	}
+
 	return self.vtable.canSubtypeAppendTail(tail)
 }
 

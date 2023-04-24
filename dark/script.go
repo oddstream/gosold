@@ -75,7 +75,10 @@ func (sb *scriptBase) Reset() {
 
 func (sb scriptBase) AfterMove() {}
 
-// no default for TailMoveError
+func (sb scriptBase) TailMoveError(tail []*Card) (bool, error) {
+	var pile *Pile = tail[0].owner()
+	return tailConformant(tail, pile.moveCmp2)
+}
 
 func (sb scriptBase) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {
@@ -84,9 +87,14 @@ func (sb scriptBase) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
-// no default for unsortedPairs
-
-// no default for TailTapped (usually redirects to Pile.vtable.TailTapped)
+func (sb scriptBase) TailTapped(tail []*Card) {
+	var pile *Pile = tail[0].owner()
+	if len(tail) == 1 && pile == sb.Stock() && !sb.Stock().Hidden() && len(sb.Wastes()) == 1 {
+		moveCard(sb.Stock(), sb.Waste())
+	} else {
+		pile.vtable.tailTapped(tail)
+	}
+}
 
 func (sb scriptBase) PileTapped(*Pile) {}
 
@@ -220,7 +228,7 @@ func moveCard(src *Pile, dst *Pile) *Card {
 func moveTail(card *Card, dst *Pile) {
 	var src *Pile = card.owner()
 	tmp := make([]*Card, 0, len(src.cards))
-	// pop cards from src upto and including the head of the tail
+	// pop cards from src upto and including the head of the tail, onto a tmp stack
 	for {
 		var c *Card = src.pop()
 		if c == nil {
@@ -242,6 +250,7 @@ func moveTail(card *Card, dst *Pile) {
 	}
 }
 
+// populateWasteFromStock move n cards from stock to waste if waste is empty
 func (sb *scriptBase) populateWasteFromStock(n int) {
 	if sb.Waste() != nil {
 		if sb.Waste().Len() == 0 {
@@ -252,6 +261,7 @@ func (sb *scriptBase) populateWasteFromStock(n int) {
 	}
 }
 
+// recycleWasteToStock move all waste cards to stock, if there are are recycles available
 func recycleWasteToStock(waste *Pile, stock *Pile) {
 	if stock.baize.Recycles() > 0 {
 		for waste.Len() > 0 {

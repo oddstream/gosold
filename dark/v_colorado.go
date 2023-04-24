@@ -77,9 +77,6 @@ func (self *Colorado) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
-func (self *Colorado) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	pile.vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*Colorado) PileTapped(*Pile) {}

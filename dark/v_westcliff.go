@@ -98,10 +98,7 @@ func (self *Westcliff) AfterMove() {
 	self.populateWasteFromStock(1)
 }
 
-func (*Westcliff) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 

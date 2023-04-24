@@ -109,6 +109,11 @@ var variants = map[string]scripter{
 			wikipedia: "https://en.wikipedia.org/wiki/Duchess_(solitaire)",
 		},
 	},
+	"Eagle Wing": &EagleWing{
+		scriptBase: scriptBase{
+			wikipedia: "https://en.wikipedia.org/wiki/Eagle_Wing",
+		},
+	},
 	"Klondike": &Klondike{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
@@ -442,7 +447,7 @@ var variants = map[string]scripter{
 var variantGroups = map[string][]string{
 	// "> All" added dynamically by func init()
 	// don't have any group that comes alphabetically before "> All"
-	"> Canfields":     {"Canfield", "Chameleon", "Rainbow Canfield", "Selective Canfield", "Storehouse", "Duchess", "American Toad"},
+	"> Canfields":     {"Canfield", "Chameleon", "Eagle Wing", "Rainbow Canfield", "Selective Canfield", "Storehouse", "Duchess", "American Toad"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
 	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},

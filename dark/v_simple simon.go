@@ -42,16 +42,11 @@ func (self *SimpleSimon) StartGame() {
 	}
 }
 
-func (*SimpleSimon) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (*SimpleSimon) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*SimpleSimon) PileTapped(*Pile) {}
 

@@ -11,7 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] read about Tengo
+[ ] the only pile we ever tap is the stock pile
+	then we either recycle or recall/redeal (Usk, Cruel, Perseverence)
 [x] b.cardCount is len(b.cardMap)
 [ ] append or accept := build?
 [ ] separate layout struct for each variant

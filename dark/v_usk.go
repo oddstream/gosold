@@ -64,16 +64,11 @@ func (self *Usk) StartGame() {
 	// }
 }
 
-func (*Usk) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (*Usk) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 func (self *Usk) PileTapped(pile *Pile) {
 	if pile != self.stock {

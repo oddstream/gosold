@@ -42,15 +42,10 @@ func (self *EightOff) StartGame() {
 	}
 }
 
-func (*EightOff) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (*EightOff) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*EightOff) PileTapped(*Pile) {}

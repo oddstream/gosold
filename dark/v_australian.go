@@ -47,14 +47,6 @@ func (*Australian) TailMoveError(tail []*Card) (bool, error) {
 
 // default TailAppendError
 
-func (self *Australian) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		c := pile.pop()
-		self.Waste().push(c)
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
-}
+// default TailTapped
 
 // func (*Australian) PileTapped(*Pile) {}

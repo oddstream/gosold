@@ -13,6 +13,7 @@ type Cell struct {
 
 func (b *Baize) NewCell(slot PileSlot) *Pile {
 	pile := b.newPile("Cell", slot, FAN_NONE, MOVE_ONE)
+	pile.maxLen = 1
 	pile.vtable = &Cell{pile: pile}
 	return pile
 }

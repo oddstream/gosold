@@ -64,21 +64,11 @@ func (self *Chameleon) AfterMove() {
 	self.populateWasteFromStock(1)
 }
 
-func (self *Chameleon) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (self *Chameleon) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.Waste())
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
-}
+// default TailTapped
 
 func (self *Chameleon) PileTapped(pile *Pile) {
 	if pile == self.stock {

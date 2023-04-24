@@ -15,6 +15,7 @@ func (b *Baize) NewDiscard(slot PileSlot, fanType FanType) *Pile {
 	pile := b.newPile("Discard", slot, FAN_NONE, MOVE_NONE)
 	pile.vtable = &Discard{pile: pile}
 	pile.appendFrom = "Tableau"
+	pile.maxLen = 13 // TODO stripped decks
 	return pile
 }
 

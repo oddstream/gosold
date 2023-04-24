@@ -1,7 +1,14 @@
 PROGRESS
 
+2023-04-24
+Eagle Wing
+pile.maxLen
+
 2023-04-21
 Chameleon
+retire script.TwoCards
+default TailAppendError
+default TailTapped
 
 2023-04-15
 pile.appendFrom category string

@@ -77,11 +77,7 @@ func (self *Duchess) AfterMove() {
 	}
 }
 
-func (*Duchess) TailMoveError(tail []*Card) (bool, error) {
-	// One card can be moved at a time, but sequences can also be moved as one unit.
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {
@@ -109,14 +105,7 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
-func (self *Duchess) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.Waste())
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
-}
+// default TailTapped
 
 func (self *Duchess) PileTapped(pile *Pile) {
 	if pile == self.stock {

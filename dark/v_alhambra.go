@@ -65,6 +65,7 @@ func (*Alhambra) TailMoveError(tail []*Card) (bool, error) {
 
 // default TailAppendError
 
+// TailTapped override default to move card to tableaux[0]
 func (self *Alhambra) TailTapped(tail []*Card) {
 	var pile *Pile = tail[0].owner()
 	if pile == self.stock && len(tail) == 1 {

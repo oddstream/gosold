@@ -107,10 +107,7 @@ func (self *Canfield) AfterMove() {
 	}
 }
 
-func (self *Canfield) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 func (self *Canfield) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	// The top cards are available for play on foundations, BUT NEVER INTO SPACES

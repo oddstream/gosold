@@ -14,6 +14,7 @@ type Foundation struct {
 func (b *Baize) NewFoundation(slot PileSlot) *Pile {
 	pile := b.newPile("Foundation", slot, FAN_NONE, MOVE_NONE)
 	pile.vtable = &Foundation{pile: pile}
+	pile.maxLen = 13 // TODO stripped decks
 	return pile
 }
 

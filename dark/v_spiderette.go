@@ -47,10 +47,7 @@ func (self *Spiderette) StartGame() {
 	self.baize.setRecycles(0)
 }
 
-func (*Spiderette) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 

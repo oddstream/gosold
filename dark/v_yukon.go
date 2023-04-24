@@ -60,8 +60,6 @@ func (*Yukon) TailMoveError([]*Card) (bool, error) {
 
 // default TailAppendError
 
-func (*Yukon) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*Yukon) PileTapped(*Pile) {}

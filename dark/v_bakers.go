@@ -56,8 +56,6 @@ func (*BakersDozen) TailMoveError(tail []*Card) (bool, error) {
 
 // default TailAppendError
 
-func (*BakersDozen) TailTapped(tail []*Card) {
-	tail[0].owner().vtable.tailTapped(tail)
-}
+// default TailTapped
 
 // func (*BakersDozen) PileTapped(*Pile) {}

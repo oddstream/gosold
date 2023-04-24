@@ -72,10 +72,7 @@ func (self *LightAndShadow) AfterMove() {
 	self.populateWasteFromStock(1)
 }
 
-func (*LightAndShadow) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 func (self *LightAndShadow) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	src := tail[0].pile
@@ -108,14 +105,7 @@ func (self *LightAndShadow) TailAppendError(dst *Pile, tail []*Card) (bool, erro
 	// TODO BUG can't tap a card in the rivals to send it to auxilliaries
 }
 
-func (self *LightAndShadow) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.Waste())
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
-}
+// default TailTapped
 
 func (self *LightAndShadow) PileTapped(pile *Pile) {
 	if pile == self.stock {

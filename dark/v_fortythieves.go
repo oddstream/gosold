@@ -97,21 +97,11 @@ func (self *FortyThieves) AfterMove() {
 	}
 }
 
-func (self *FortyThieves) TailMoveError(tail []*Card) (bool, error) {
-	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
-}
+// default TailMoveError
 
 // default TailAppendError
 
-func (self *FortyThieves) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		moveCard(self.stock, self.Waste())
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
-}
+// default TailTapped
 
 func (self *FortyThieves) PileTapped(pile *Pile) {
 	if pile == self.stock {

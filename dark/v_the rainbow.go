@@ -122,9 +122,6 @@ func (self *TheRainbow) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
-func (self *TheRainbow) TailTapped(tail []*Card) {
-	pile := tail[0].owner()
-	pile.vtable.tailTapped(tail)
-}
+// default TailTapped
 
 //func (self *TheRainbow) PileTapped(pile *Pile) {}

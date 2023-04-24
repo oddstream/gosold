@@ -87,15 +87,7 @@ func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }
 
-func (self *Toad) TailTapped(tail []*Card) {
-	var pile *Pile = tail[0].owner()
-	if pile == self.stock && len(tail) == 1 {
-		c := pile.pop()
-		self.Waste().push(c)
-	} else {
-		pile.vtable.tailTapped(tail)
-	}
-}
+// default TailTapped
 
 func (self *Toad) PileTapped(pile *Pile) {
 	if pile == self.stock {
