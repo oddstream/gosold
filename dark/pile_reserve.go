@@ -17,6 +17,7 @@ func (b *Baize) NewReserve(slot PileSlot, fanType FanType) *Pile {
 	return pile
 }
 
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
 func (*Reserve) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	return false, errors.New("Cannot add a card to a Reserve")
 }

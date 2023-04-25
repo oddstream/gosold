@@ -18,6 +18,7 @@ func (b *Baize) NewCell(slot PileSlot) *Pile {
 	return pile
 }
 
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
 func (self *Cell) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if !self.pile.Empty() {
 		return false, errors.New("A Cell can only contain one card")

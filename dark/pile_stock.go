@@ -17,6 +17,7 @@ func (b *Baize) NewStock(slot PileSlot) *Pile {
 	return pile
 }
 
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
 func (*Stock) canSubtypeAppendTail([]*Card) (bool, error) {
 	return false, errors.New("Cannot move cards to the Stock")
 }

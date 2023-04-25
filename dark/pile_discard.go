@@ -19,6 +19,7 @@ func (b *Baize) NewDiscard(slot PileSlot, fanType FanType) *Pile {
 	return pile
 }
 
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
 func (self *Discard) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if !self.pile.Empty() {
 		return false, errors.New("Can only move cards to an empty Discard")

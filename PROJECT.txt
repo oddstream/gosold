@@ -101,6 +101,35 @@ Chameleon solitaire is a challenging but rewarding game. With a little practice,
 
 SCRIPTING
 =========
+go back to gopher-lua and copy csol moon model for passing data to and fro
+
+v_monkey.go is used when the variant is in a script file
+
+MoonAddPile(), MoveCard() Get Len First Last &c are Monkey builtins
+	(see csol/moon.c)
+	(that's how Monkey calls functions in DARK)
+
+MoonGame.c is a C wrapper that calls BuildPiles &c inside the script
+	check to see if function exists (or use a scriptBase default)
+	So need a way of querying Monkey AST outside of Monkey
+	and calling a Monkey function from DARK
+	search AST for a node type == *ast.CallExpression?
+	no, pass a scriptlet to lexer.New/parser.New/ParseProgram/Eval
+	need new Monkey type "opaque handle" (USERDATA)
+
+The script file is loaded and executed: it contains:
+
+	calls to dark.register for BuildPiles, StartGame, AfterMove  &c
+	(scriptBase defaults are used if not registered)
+	let AfterMove = fn() { ... }
+	register(scriptBase.AfterMove, AfterMove)
+	to let scriptBase know to call script, or use default
+
+dark then does eval("TailTapped(tail)")
+	where tail is a Go array of cards
+Card and Pile types are opaque to Monkey
+	builtin Monkey functions process them, by calling DARK functions
+
 Load/compile a script from file
 gosold.dark calls functions in that script
 	eg BuildPiles, StartGame, AfterMove
@@ -114,9 +143,6 @@ Pass objects to script functions
 	*Card
 maintain collections; add, contains, ...
 for loops
-
-...in Tengo, these should implement an Object interface
-...but how do you call a func in Tengo!?
 
 Tengo
 TCL (skx/critical)

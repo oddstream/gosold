@@ -18,6 +18,7 @@ func (b *Baize) NewWaste(slot PileSlot, fanType FanType) *Pile {
 	return pile
 }
 
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
 func (self *Waste) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	if len(tail) > 1 {
 		return false, errors.New("Can only move a single card to Waste")

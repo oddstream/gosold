@@ -368,7 +368,6 @@ func (self *Pile) canAppendTail(tail []*Card) (bool, error) {
 			}
 		}
 	}
-
 	return self.vtable.canSubtypeAppendTail(tail)
 }
 
@@ -378,7 +377,7 @@ func (self *Pile) makeTail(c *Card) []*Card {
 	// would save checking made tail afterwards
 	// this version would still be used when starting a tail drag
 	if c.owner() != self {
-		log.Panic("Pile.MakeTail called with a card that is not of this pile")
+		log.Panic("Pile.makeTail called with a card that is not of this pile")
 	}
 	if c == self.peek() {
 		return []*Card{c}
@@ -388,7 +387,7 @@ func (self *Pile) makeTail(c *Card) []*Card {
 			return self.cards[i:]
 		}
 	}
-	log.Panicf("Pile.MakeTail could not find [%s] in %s pile", c, self.category)
+	log.Panicf("Pile.makeTail could not find [%s] in %s pile", c, self.category)
 	return nil
 }
 

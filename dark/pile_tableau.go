@@ -18,6 +18,7 @@ func (b *Baize) NewTableau(slot PileSlot, fanType FanType, moveType MoveType) *P
 	return pile
 }
 
+// canSubtypeAppendTail does some obvious checks on the tail before passing it to the script
 func (self *Tableau) canSubtypeAppendTail(tail []*Card) (bool, error) {
 	// AnyCardsProne check done by pile.CanMoveTail
 	// checking at this level probably isn't needed
