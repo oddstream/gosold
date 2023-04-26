@@ -21,19 +21,27 @@ end
 
 function StartGame(moonHandle)
 	print("Hello from lua StartGame")
-	local stock = GetStock(moonHandle)
+
+	-- do
+	-- 	local cells = GetCells(moonHandle)
+	-- 	print("cells", cells)
+	-- 	for i, c in ipairs(cells) do
+	-- 		print("cell", i, c)
+	-- 	end
+	-- end
+
 	-- 4 tabs [0 .. 3] with 7 cards
 	-- 4 tabs [4 .. 7] with 6 cards
-	for i = 0, 3 do
-		local tab = GetTableau(moonHandle, i)
+	local stock = GetStock(moonHandle)
+	local tabs = GetTableaux(moonHandle)
+	for i = 1, 4 do
 		for _ = 1, 7 do
-			MoveCard(moonHandle, stock, tab)
+			MoveCard(moonHandle, stock, tabs[i])
 		end
 	end
-	for i = 4, 7 do
-		local tab = GetTableau(moonHandle, i)
+	for i = 5, 8 do
 		for _ = 1, 6 do
-			MoveCard(moonHandle, stock, tab)
+			MoveCard(moonHandle, stock, tabs[i])
 		end
 	end
 end
@@ -42,5 +50,9 @@ end
 -- 	print("Hello from lua TailMoveError")
 -- 	return false, "Cannot move that tail"
 -- end
+
+function Wikipedia()
+	return "https://en.wikipedia.org/wiki/FreeCell"
+end
 
 print("Lua FreecellScript loaded")

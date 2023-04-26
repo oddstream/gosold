@@ -110,7 +110,7 @@ func (self *MoonGame) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 			self.baize.L.Pop(2)
 		}
 	} else {
-		returnOk, returnErr = self.scriptBase.TailMoveError(tail)
+		returnOk, returnErr = self.scriptBase.TailAppendError(dst, tail)
 	}
 	return returnOk, returnErr
 }
@@ -147,7 +147,8 @@ func (self *MoonGame) PileTapped(pile *Pile) {
 	}
 }
 
-// Cells(), Discards(), Foundations(), Reserves(), Stock(), Tableaux(), Wastes() not used in Lua (?)
+// TODO Cells(), Discards(), Foundations(), Reserves(), Stock(), Tableaux(), Wastes()
+// return a Lua table of *Pile
 
 func (self *MoonGame) Complete() bool {
 	var complete bool
@@ -196,9 +197,42 @@ func (self *MoonGame) Wikipedia() string {
 
 // functions called by Lua to do DARK things
 
+// moonPileList returns a Lua list of piles of a given category
+func _moonGetPiles(L *lua.LState, category string) int {
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		tab := L.NewTable()
+		var piles []*Pile
+		switch category {
+		case "Cells":
+			piles = moonGame.cells
+		case "Discards":
+			piles = moonGame.discards
+		case "Foundations":
+			piles = moonGame.foundations
+		case "Reserves":
+			piles = moonGame.reserves
+		case "Tableaux":
+			piles = moonGame.tableaux
+		case "Wastes":
+			piles = moonGame.wastes
+		default:
+			fmt.Println("Cannot get", category, "piles")
+		}
+		for i, p := range piles {
+			udc := L.NewUserData()
+			udc.Value = p
+			L.RawSetInt(tab, i+1, udc)
+		}
+		L.Push(tab)
+		return 1
+	}
+	return 0
+}
+
 func moonNewCell(L *lua.LState) int {
 	var pile *Pile
-	ud := L.ToUserData(1)
+	ud := L.CheckUserData(1)
 	if moonGame, ok := ud.Value.(*MoonGame); ok {
 		x := L.ToNumber(2)
 		y := L.ToNumber(3)
@@ -212,20 +246,13 @@ func moonNewCell(L *lua.LState) int {
 	return 1
 }
 
-func moonGetCell(L *lua.LState) int {
-	ud := L.CheckUserData(1)
-	if moonGame, ok := ud.Value.(*MoonGame); ok {
-		n := L.CheckInt(2)
-		udPile := L.NewUserData()
-		udPile.Value = moonGame.cells[n]
-		L.Push(udPile)
-	}
-	return 1
+func moonGetCells(L *lua.LState) int {
+	return _moonGetPiles(L, "Cells")
 }
 
 func moonNewFoundation(L *lua.LState) int {
 	var pile *Pile
-	ud := L.ToUserData(1)
+	ud := L.CheckUserData(1)
 	if moonGame, ok := ud.Value.(*MoonGame); ok {
 		x := L.ToNumber(2)
 		y := L.ToNumber(3)
@@ -239,20 +266,13 @@ func moonNewFoundation(L *lua.LState) int {
 	return 1
 }
 
-func moonGetFoundation(L *lua.LState) int {
-	ud := L.CheckUserData(1)
-	if moonGame, ok := ud.Value.(*MoonGame); ok {
-		n := L.CheckInt(2)
-		udPile := L.NewUserData()
-		udPile.Value = moonGame.foundations[n]
-		L.Push(udPile)
-	}
-	return 1
+func moonGetFoundations(L *lua.LState) int {
+	return _moonGetPiles(L, "Foundations")
 }
 
 func moonNewTableau(L *lua.LState) int {
 	var pile *Pile
-	ud := L.ToUserData(1)
+	ud := L.CheckUserData(1)
 	if moonGame, ok := ud.Value.(*MoonGame); ok {
 		x := L.ToNumber(2)
 		y := L.ToNumber(3)
@@ -268,20 +288,46 @@ func moonNewTableau(L *lua.LState) int {
 	return 1
 }
 
-func moonGetTableau(L *lua.LState) int {
+func moonGetTableaux(L *lua.LState) int {
+	return _moonGetPiles(L, "Tableaux")
+}
+
+func moonNewWaste(L *lua.LState) int {
+	var pile *Pile
 	ud := L.CheckUserData(1)
 	if moonGame, ok := ud.Value.(*MoonGame); ok {
-		n := L.CheckInt(2)
-		udPile := L.NewUserData()
-		udPile.Value = moonGame.tableaux[n]
-		L.Push(udPile)
+		x := L.ToNumber(2)
+		y := L.ToNumber(3)
+		fanType := FanType(L.CheckInt(4))
+		baize := moonGame.baize
+		pile = baize.NewWaste(PileSlot{X: float32(x), Y: float32(y), Deg: 0}, fanType)
+		moonGame.wastes = append(moonGame.wastes, pile)
+	}
+	udPile := L.NewUserData()
+	udPile.Value = pile
+	L.Push(udPile)
+	return 1
+}
+
+func moonGetWaste(L *lua.LState) int {
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		if len(moonGame.wastes) > 0 {
+			udPile := L.NewUserData()
+			udPile.Value = moonGame.wastes[0]
+			L.Push(udPile)
+		}
 	}
 	return 1
 }
 
+func moonGetWastes(L *lua.LState) int {
+	return _moonGetPiles(L, "Wastes")
+}
+
 func moonNewStock(L *lua.LState) int {
 	var pile *Pile
-	ud := L.ToUserData(1)
+	ud := L.CheckUserData(1)
 	if moonGame, ok := ud.Value.(*MoonGame); ok {
 		x := L.ToNumber(2)
 		y := L.ToNumber(3)
@@ -307,11 +353,11 @@ func moonGetStock(L *lua.LState) int {
 
 func moonMoveCard(L *lua.LState) int {
 	// TODO check arity with GetTop() == 3
-	ud := L.ToUserData(1)
+	ud := L.CheckUserData(1)
 	if _, ok := ud.Value.(*MoonGame); ok {
-		udSrc := L.ToUserData(2)
+		udSrc := L.CheckUserData(2)
 		if src, ok := udSrc.Value.(*Pile); ok {
-			udDst := L.ToUserData(3)
+			udDst := L.CheckUserData(3)
 			if dst, ok := udDst.Value.(*Pile); ok {
 				card := moveCard(src, dst)
 				udCard := L.NewUserData()
@@ -319,6 +365,46 @@ func moonMoveCard(L *lua.LState) int {
 				L.Push(udCard)
 				return 1
 			}
+		}
+	}
+	return 0
+}
+
+func moonFlipDown(L *lua.LState) int {
+	// TODO check arity with GetTop() == 3
+	ud := L.CheckUserData(1)
+	if _, ok := ud.Value.(*MoonGame); ok {
+		udCard := L.CheckUserData(2)
+		if card, ok := udCard.Value.(*Card); ok {
+			card.flipDown()
+		}
+	}
+	return 0
+}
+
+func moonFlipUp(L *lua.LState) int {
+	// TODO check arity with GetTop() == 2
+	ud := L.CheckUserData(1)
+	if _, ok := ud.Value.(*MoonGame); ok {
+		udCard := L.CheckUserData(2)
+		if card, ok := udCard.Value.(*Card); ok {
+			card.flipUp()
+		}
+	}
+	return 0
+}
+
+func moonPeek(L *lua.LState) int {
+	// TODO check arity with GetTop() == 2
+	ud := L.CheckUserData(1)
+	if _, ok := ud.Value.(*MoonGame); ok {
+		udPile := L.CheckUserData(2)
+		if pile, ok := udPile.Value.(*Pile); ok {
+			card := pile.peek()
+			udCard := L.NewUserData()
+			udCard.Value = card
+			L.Push(udCard)
+			return 1
 		}
 	}
 	return 0
@@ -360,9 +446,15 @@ func moonSetCompareFunction(L *lua.LState) int {
 			// TODO check typ and fn
 			switch typ {
 			case "Append":
-				pile.appendCmp2 = moonCompareFunctions[string(fn)]
+				if pile.appendCmp2, ok = moonCompareFunctions[string(fn)]; !ok {
+					fmt.Println("Unknown append compare function", string(fn))
+				}
 			case "Move":
-				pile.moveCmp2 = moonCompareFunctions[string(fn)]
+				if pile.moveCmp2, ok = moonCompareFunctions[string(fn)]; !ok {
+					fmt.Println("Unknown move compare function", string(fn))
+				}
+			default:
+				fmt.Println("Unknown type", typ)
 			}
 		}
 	}
@@ -371,15 +463,27 @@ func moonSetCompareFunction(L *lua.LState) int {
 
 func moonSetLabel(L *lua.LState) int {
 	// TODO check arity with GetTop() == 3
-	ud := L.ToUserData(1)
+	ud := L.CheckUserData(1)
 	if _, ok := ud.Value.(*MoonGame); ok {
-		udPile := L.ToUserData(2)
+		udPile := L.CheckUserData(2)
 		if pile, ok := udPile.Value.(*Pile); ok {
 			str := L.ToString(3)
 			pile.setLabel(str)
 		} else {
 			fmt.Println("SetLabel expecting a *Pile, got a", ud.Type().String())
 		}
+	} else {
+		fmt.Println("SetLabel expecting a MoonGame, got a", ud.Type().String())
+	}
+	return 0
+}
+
+func moonSetRecycles(L *lua.LState) int {
+	// TODO check arity with GetTop() == 2
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		n := L.CheckInt(2)
+		moonGame.baize.setRecycles(n)
 	} else {
 		fmt.Println("SetLabel expecting a MoonGame, got a", ud.Type().String())
 	}
@@ -395,21 +499,35 @@ func registerMoonFunctions(L *lua.LState) {
 		name string
 		fn   lua.LGFunction //func(*lua.LState) int
 	}{
+		// Pile creation
 		{"NewCell", moonNewCell},
-		{"GetCell", moonGetCell},
+		{"GetCells", moonGetCells},
 		// {"NewDiscard", moonNewDiscard},
+		// {"GetDiscards", moonGetDiscards},
 		{"NewFoundation", moonNewFoundation},
-		{"GetFoundation", moonGetFoundation},
+		{"GetFoundations", moonGetFoundations},
 		// {"NewReserve", moonNewReserve},
+		// {"GetReserves", moonGetReserves},
 		{"NewStock", moonNewStock},
 		{"GetStock", moonGetStock},
 		{"NewTableau", moonNewTableau},
-		{"GetTableau", moonGetTableau},
-		// {"NewWaste", moonNewWaste},
+		{"GetTableaux", moonGetTableaux},
+		{"NewWaste", moonNewWaste},
+		{"GetWaste", moonGetWaste},
+		{"GetWastes", moonGetWastes},
+
+		// Baize
 		{"MoveCard", moonMoveCard},
-		{"NewStock", moonNewStock},
+		{"SetRecycles", moonSetRecycles},
+
+		// Pile
+		{"Peek", moonPeek},
 		{"SetCompareFunction", moonSetCompareFunction},
 		{"SetLabel", moonSetLabel},
+
+		// Card
+		{"FlipDown", moonFlipDown},
+		{"FlipUp", moonFlipUp},
 	}
 	for _, f := range funcs {
 		L.SetGlobal(f.name, L.NewFunction(f.fn))
