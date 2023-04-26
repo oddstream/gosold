@@ -1,6 +1,12 @@
 package dark
 
-import "sort"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+)
 
 var variants = map[string]scripter{
 	"Agnes Bernauer": &Agnes{
@@ -463,10 +469,52 @@ var variantGroups = map[string][]string{
 
 // init is used to assemble the "> All" alpha-sorted group of variants
 func init() {
+	// look in the scripts folder for *.lua files
+	{
+		var files []string
+
+		err := filepath.Walk("./scripts", func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+			if !info.IsDir() && filepath.Ext(path) == ".lua" {
+				files = append(files, path)
+			}
+			return nil
+		})
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			for _, file := range files {
+				fname := strings.TrimSuffix(filepath.Base(file), ".lua")
+				fmt.Println(fname)
+				variants[fname] = &MoonGame{scriptBase: scriptBase{fname: file}}
+			}
+		}
+
+		// files, err := filepath.Glob("./scripts/*.lua")
+		// if err != nil {
+		// 	log.Println(err) // "open scripts: no such file or directory"
+		// } else {
+		// 	fmt.Println(files) // [scripts/FreecellScript.lua]
+		// }
+		// entries, err := os.ReadDir("scripts")
+		// if err != nil {
+		// 	log.Println(err) // "open scripts: no such file or directory"
+		// } else {
+		// 	for _, e := range entries {
+		// 		println(e.Name())
+		// 	}
+		// }
+	}
+
 	var vnames []string = make([]string, 0, len(variants))
 	for k := range variants {
 		vnames = append(vnames, k)
 	}
+
 	// no need to sort here, sort gets done on-demand by func VariantNames()
 	variantGroups["> All"] = vnames
 	variantGroups["> All by Played"] = vnames

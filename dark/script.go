@@ -35,6 +35,8 @@ type scripter interface {
 	SafeCollect() bool
 	Packs() int
 	Suits() int
+
+	Fname() string
 }
 
 type scriptBase struct {
@@ -49,6 +51,7 @@ type scriptBase struct {
 	wikipedia    string
 	cardColors   int
 	packs, suits int
+	fname        string // "" for a builtin, or something like "scripts/Freecell.lua"
 	// could add suitFilter
 }
 
@@ -201,6 +204,10 @@ func (sb scriptBase) Suits() int {
 		return 4
 	}
 	return sb.suits
+}
+
+func (sb scriptBase) Fname() string {
+	return sb.fname
 }
 
 // useful generic game library of functions ///////////////////////////////////

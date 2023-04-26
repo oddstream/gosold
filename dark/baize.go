@@ -53,15 +53,6 @@ type BaizeSettings struct {
 	PowerMoves, SafeCollect bool
 }
 
-func moonNewPile(L *lua.LState) int {
-	typ := L.ToString(1) // get 1st arg
-	log.Println("Creating a", typ, "pile")
-	ud := L.NewUserData()
-	ud.Value = &Pile{}
-	L.Push(ud)
-	return 1 // number of results
-}
-
 // NewBaize creates a new Baize object
 func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize, error) {
 	var script scripter
@@ -71,65 +62,27 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	}
 	b := &Baize{dark: d, variant: variant, script: script, cardMap: make(map[cardid.CardID]*Card), fnNotify: fnNotify}
 
-	b.L = lua.NewState()
-	if err := b.L.DoString(`print(_VERSION)`); err != nil {
-		panic(err)
-	}
-	// TODO create a fake 'pass though' object that implements the scripter interface
-	// that either implements each func or calls a function in the Lua variant script
-	// TODO register the Go functions that Lua scripts can call
-	// eg AddPile, PileLabel, PileType, MoveCard
-	// TODO set Lua globals for FAN_ types, MOVE_ types, Tableaux, Stock, Foundations &c
-	{
-		ud := b.L.NewUserData()
-		ud.Value = b
-		b.L.SetGlobal("BAIZE", ud)
-	}
-	if err := b.L.DoString(`print(BAIZE)`); err != nil {
-		panic(err)
-	}
-
-	{
-		thing := b.L.GetGlobal("DoesNotExist")
-		if thing == lua.LNil {
-			println("DoesNotExist == lua.LNil")
-		} else {
-			println("DoesNotExist", thing, thing.Type(), thing.String(), lua.LNil)
-		}
-	}
-
-	b.L.SetGlobal("FAN_NONE", lua.LNumber(FAN_NONE))
-	b.L.SetGlobal("FAN_DOWN", lua.LNumber(FAN_DOWN))
-	b.L.SetGlobal("FAN_LEFT", lua.LNumber(FAN_LEFT))
-	b.L.SetGlobal("FAN_RIGHT", lua.LNumber(FAN_RIGHT))
-	b.L.SetGlobal("FAN_DOWN3", lua.LNumber(FAN_DOWN))
-	b.L.SetGlobal("FAN_LEFT3", lua.LNumber(FAN_LEFT))
-	b.L.SetGlobal("FAN_RIGHT3", lua.LNumber(FAN_RIGHT))
-
-	b.L.SetGlobal("MOVE_NONE", lua.LNumber(MOVE_NONE))
-	b.L.SetGlobal("MOVE_ANY", lua.LNumber(MOVE_ANY))
-	b.L.SetGlobal("MOVE_ONE", lua.LNumber(MOVE_ONE))
-	b.L.SetGlobal("MOVE_ONE_PLUS", lua.LNumber(MOVE_ONE_PLUS))
-	b.L.SetGlobal("MOVE_ONE_OR_ALL", lua.LNumber(MOVE_ONE_OR_ALL))
-
-	if err := b.L.DoFile("test.lua"); err != nil {
-		println(err)
-	}
-	{
-		mg := MoonGame{}
-		mg.SetBaize(b)
-		mg.BuildPiles()
-		mg.StartGame()
-		tail := []*Card{}
-		ok, err := mg.TailMoveError(tail)
-		if err != nil {
-			println("TailMoveError returned", ok, err.Error())
-		}
-	}
-	// b.L.SetGlobal("NewPile", b.L.NewFunction(moonNewPile))
-	// if err := b.L.DoString(`print(NewPile("Stock"))`); err != nil {
-	// 	panic(err)
+	// {
+	// 	thing := b.L.GetGlobal("DoesNotExist")
+	// 	if thing == lua.LNil {
+	// 		println("DoesNotExist == lua.LNil")
+	// 	} else {
+	// 		println("DoesNotExist", thing, thing.Type(), thing.String(), lua.LNil)
+	// 	}
 	// }
+
+	if script.Fname() != "" {
+		if b.L = lua.NewState(); b.L == nil {
+			log.Fatal("Cannot create new GopherLua state")
+		}
+		if err := b.L.DoString(`print(_VERSION)`); err != nil {
+			panic(err)
+		}
+		registerMoonFunctions(b.L)
+		if err := b.L.DoFile(script.Fname()); err != nil {
+			panic(err)
+		}
+	}
 
 	b.script.SetBaize(b)
 	b.script.Reset()
@@ -159,8 +112,9 @@ func (b *Baize) Close() {
 		b.save()
 	}
 
-	b.L.Close()
-
+	if b.L != nil {
+		b.L.Close()
+	}
 }
 
 func (b *Baize) setupPilesToCheck() {

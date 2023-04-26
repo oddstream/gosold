@@ -61,7 +61,7 @@ func (self *MoonGame) AfterMove() {
 			fmt.Println(err)
 		}
 	} else {
-		self.AfterMove()
+		self.scriptBase.AfterMove()
 	}
 }
 
@@ -79,12 +79,13 @@ func (self *MoonGame) TailMoveError(tail []*Card) (bool, error) {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			returnOk = self.getBool(1)
+			// returnOk = self.getBool(1)
+			returnOk = self.baize.L.CheckBool(1)
 			returnErr = self.getError(2)
 			self.baize.L.Pop(2)
 		}
 	} else {
-		returnOk, returnErr = self.TailMoveError(tail)
+		returnOk, returnErr = self.scriptBase.TailMoveError(tail)
 	}
 	return returnOk, returnErr
 }
@@ -103,12 +104,13 @@ func (self *MoonGame) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			returnOk = self.getBool(1)
+			// returnOk = self.getBool(1)
+			returnOk = self.baize.L.CheckBool(1)
 			returnErr = self.getError(2)
 			self.baize.L.Pop(2)
 		}
 	} else {
-		returnOk, returnErr = self.TailMoveError(tail)
+		returnOk, returnErr = self.scriptBase.TailMoveError(tail)
 	}
 	return returnOk, returnErr
 }
@@ -125,7 +127,7 @@ func (self *MoonGame) TailTapped(tail []*Card) {
 			fmt.Println(err)
 		}
 	} else {
-		self.TailTapped(tail)
+		self.scriptBase.TailTapped(tail)
 	}
 }
 
@@ -141,7 +143,7 @@ func (self *MoonGame) PileTapped(pile *Pile) {
 			fmt.Println(err)
 		}
 	} else {
-		self.PileTapped(pile)
+		self.scriptBase.PileTapped(pile)
 	}
 }
 
@@ -160,11 +162,12 @@ func (self *MoonGame) Complete() bool {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			complete = self.getBool(1)
+			// complete = self.getBool(1)
+			complete = self.baize.L.CheckBool(1)
 			self.baize.L.Pop(1)
 		}
 	} else {
-		complete = self.Complete()
+		complete = self.scriptBase.Complete()
 	}
 	return complete
 }
@@ -182,11 +185,11 @@ func (self *MoonGame) Wikipedia() string {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			str = self.getString(1)
+			str = self.baize.L.CheckString(1)
 			self.baize.L.Pop(1)
 		}
 	} else {
-		str = self.Wikipedia()
+		str = self.scriptBase.Wikipedia()
 	}
 	return str
 }
@@ -205,7 +208,7 @@ func moonNewCell(L *lua.LState) int {
 	}
 	udPile := L.NewUserData()
 	udPile.Value = pile
-	L.Push(ud)
+	L.Push(udPile)
 	return 1
 }
 
@@ -221,7 +224,7 @@ func moonNewFoundation(L *lua.LState) int {
 	}
 	udPile := L.NewUserData()
 	udPile.Value = pile
-	L.Push(ud)
+	L.Push(udPile)
 	return 1
 }
 
@@ -239,7 +242,7 @@ func moonNewTableau(L *lua.LState) int {
 	}
 	udPile := L.NewUserData()
 	udPile.Value = pile
-	L.Push(ud)
+	L.Push(udPile)
 	return 1
 }
 
@@ -255,11 +258,12 @@ func moonNewStock(L *lua.LState) int {
 	}
 	udPile := L.NewUserData()
 	udPile.Value = pile
-	L.Push(ud)
+	L.Push(udPile)
 	return 1
 }
 
 func moonMoveCard(L *lua.LState) int {
+	// TODO check arity with GetTop() == 3
 	ud := L.ToUserData(1)
 	if _, ok := ud.Value.(*MoonGame); ok {
 		udSrc := L.ToUserData(2)
@@ -269,7 +273,7 @@ func moonMoveCard(L *lua.LState) int {
 				card := moveCard(src, dst)
 				udCard := L.NewUserData()
 				udCard.Value = card
-				L.Push(ud)
+				L.Push(udCard)
 				return 1
 			}
 		}
@@ -278,42 +282,63 @@ func moonMoveCard(L *lua.LState) int {
 }
 
 var moonCompareFunctions = map[string]dyadCmpFunc{
-	"Any":    dyad.compare_Any,
-	"Up":     dyad.compare_Up,
-	"UpWrap": dyad.compare_UpWrap,
+	"Any":              dyad.compare_Any,
+	"Up":               dyad.compare_Up,
+	"UpWrap":           dyad.compare_UpWrap,
+	"Down":             dyad.compare_Down,
+	"DownWrap":         dyad.compare_DownWrap,
+	"UpOrDown":         dyad.compare_UpOrDown,
+	"UpOrDownWrap":     dyad.compare_UpOrDownWrap,
+	"Color":            dyad.compare_Color,
+	"AltColor":         dyad.compare_AltColor,
+	"Suit":             dyad.compare_Suit,
+	"OtherSuit":        dyad.compare_OtherSuit,
+	"DownColor":        dyad.compare_DownColor,
+	"DownAltColor":     dyad.compare_DownAltColor,
+	"DownAltColorWrap": dyad.compare_DownAltColorWrap,
+	"UpAltColor":       dyad.compare_UpAltColor,
+	"UpSuit":           dyad.compare_UpSuit,
+	"DownSuit":         dyad.compare_DownSuit,
+	"UpOrDownSuit":     dyad.compare_UpOrDownSuit,
+	"UpOrDownSuitWrap": dyad.compare_UpOrDownSuitWrap,
+	"DownOtherSuit":    dyad.compare_DownOtherSuit,
+	"UpSuitWrap":       dyad.compare_UpSuitWrap,
+	"DownSuitWrap":     dyad.compare_DownSuitWrap,
 }
 
 func moonSetCompareFunction(L *lua.LState) int {
-	ud := L.ToUserData(1)
+	// TODO check arity with GetTop() == 4
+	ud := L.CheckUserData(1)
 	if _, ok := ud.Value.(*MoonGame); ok {
-		udPile := L.ToUserData(2)
+		udPile := L.CheckUserData(2)
 		if pile, ok := udPile.Value.(*Pile); ok {
-			udTyp := L.ToUserData(3)
-			if typ, ok := udTyp.Value.(lua.LString); ok {
-				udFn := L.ToUserData(4)
-				if fn, ok := udFn.Value.(lua.LString); ok {
-					switch typ {
-					case "Append":
-						pile.appendCmp2 = moonCompareFunctions[string(fn)]
-					case "Move":
-						pile.moveCmp2 = moonCompareFunctions[string(fn)]
-					}
-				}
+			typ := L.CheckString(3)
+			fn := L.CheckString(4)
+			// TODO check typ and fn
+			switch typ {
+			case "Append":
+				pile.appendCmp2 = moonCompareFunctions[string(fn)]
+			case "Move":
+				pile.moveCmp2 = moonCompareFunctions[string(fn)]
 			}
 		}
-
 	}
 	return 0
 }
 
 func moonSetLabel(L *lua.LState) int {
+	// TODO check arity with GetTop() == 3
 	ud := L.ToUserData(1)
 	if _, ok := ud.Value.(*MoonGame); ok {
 		udPile := L.ToUserData(2)
 		if pile, ok := udPile.Value.(*Pile); ok {
 			str := L.ToString(3)
 			pile.setLabel(str)
+		} else {
+			fmt.Println("SetLabel expecting a *Pile, got a", ud.Type().String())
 		}
+	} else {
+		fmt.Println("SetLabel expecting a MoonGame, got a", ud.Type().String())
 	}
 	return 0
 }
@@ -327,6 +352,13 @@ func registerMoonFunctions(L *lua.LState) {
 		name string
 		fn   lua.LGFunction //func(*lua.LState) int
 	}{
+		{"NewCell", moonNewCell},
+		// {"NewDiscard", moonNewDiscard},
+		{"NewFoundation", moonNewFoundation},
+		// {"NewReserve", moonNewReserve},
+		{"NewStock", moonNewStock},
+		{"NewTableau", moonNewTableau},
+		// {"NewWaste", moonNewWaste},
 		{"MoveCard", moonMoveCard},
 		{"NewStock", moonNewStock},
 		{"SetCompareFunction", moonSetCompareFunction},
@@ -335,6 +367,20 @@ func registerMoonFunctions(L *lua.LState) {
 	for _, f := range funcs {
 		L.SetGlobal(f.name, L.NewFunction(f.fn))
 	}
+
+	L.SetGlobal("FAN_NONE", lua.LNumber(FAN_NONE))
+	L.SetGlobal("FAN_DOWN", lua.LNumber(FAN_DOWN))
+	L.SetGlobal("FAN_LEFT", lua.LNumber(FAN_LEFT))
+	L.SetGlobal("FAN_RIGHT", lua.LNumber(FAN_RIGHT))
+	L.SetGlobal("FAN_DOWN3", lua.LNumber(FAN_DOWN))
+	L.SetGlobal("FAN_LEFT3", lua.LNumber(FAN_LEFT))
+	L.SetGlobal("FAN_RIGHT3", lua.LNumber(FAN_RIGHT))
+
+	L.SetGlobal("MOVE_NONE", lua.LNumber(MOVE_NONE))
+	L.SetGlobal("MOVE_ANY", lua.LNumber(MOVE_ANY))
+	L.SetGlobal("MOVE_ONE", lua.LNumber(MOVE_ONE))
+	L.SetGlobal("MOVE_ONE_PLUS", lua.LNumber(MOVE_ONE_PLUS))
+	L.SetGlobal("MOVE_ONE_OR_ALL", lua.LNumber(MOVE_ONE_OR_ALL))
 }
 
 // utility functions
