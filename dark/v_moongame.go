@@ -50,7 +50,7 @@ func (self *MoonGame) StartGame() {
 }
 
 func (self *MoonGame) AfterMove() {
-	glob := self.baize.L.GetGlobal("BuildPiles") // glob == lua.LNil if it doesn't exist
+	glob := self.baize.L.GetGlobal("AfterMove") // glob == lua.LNil if it doesn't exist
 	if fn, ok := glob.(*lua.LFunction); ok {
 		err := self.baize.L.CallByParam(lua.P{
 			Fn:      fn,
@@ -132,7 +132,7 @@ func (self *MoonGame) TailTapped(tail []*Card) {
 }
 
 func (self *MoonGame) PileTapped(pile *Pile) {
-	glob := self.baize.L.GetGlobal("TailTapped") // glob == lua.LNil if it doesn't exist
+	glob := self.baize.L.GetGlobal("PileTapped") // glob == lua.LNil if it doesn't exist
 	if fn, ok := glob.(*lua.LFunction); ok {
 		err := self.baize.L.CallByParam(lua.P{
 			Fn:      fn,
@@ -212,6 +212,17 @@ func moonNewCell(L *lua.LState) int {
 	return 1
 }
 
+func moonGetCell(L *lua.LState) int {
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		n := L.CheckInt(2)
+		udPile := L.NewUserData()
+		udPile.Value = moonGame.cells[n]
+		L.Push(udPile)
+	}
+	return 1
+}
+
 func moonNewFoundation(L *lua.LState) int {
 	var pile *Pile
 	ud := L.ToUserData(1)
@@ -228,14 +239,25 @@ func moonNewFoundation(L *lua.LState) int {
 	return 1
 }
 
+func moonGetFoundation(L *lua.LState) int {
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		n := L.CheckInt(2)
+		udPile := L.NewUserData()
+		udPile.Value = moonGame.foundations[n]
+		L.Push(udPile)
+	}
+	return 1
+}
+
 func moonNewTableau(L *lua.LState) int {
 	var pile *Pile
 	ud := L.ToUserData(1)
 	if moonGame, ok := ud.Value.(*MoonGame); ok {
 		x := L.ToNumber(2)
 		y := L.ToNumber(3)
-		moveType := MoveType(L.ToNumber(4))
-		fanType := FanType(L.ToNumber(5))
+		fanType := FanType(L.CheckInt(4))
+		moveType := MoveType(L.CheckInt(5))
 		baize := moonGame.baize
 		pile = baize.NewTableau(PileSlot{X: float32(x), Y: float32(y), Deg: 0}, fanType, moveType)
 		moonGame.tableaux = append(moonGame.tableaux, pile)
@@ -243,6 +265,17 @@ func moonNewTableau(L *lua.LState) int {
 	udPile := L.NewUserData()
 	udPile.Value = pile
 	L.Push(udPile)
+	return 1
+}
+
+func moonGetTableau(L *lua.LState) int {
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		n := L.CheckInt(2)
+		udPile := L.NewUserData()
+		udPile.Value = moonGame.tableaux[n]
+		L.Push(udPile)
+	}
 	return 1
 }
 
@@ -259,6 +292,16 @@ func moonNewStock(L *lua.LState) int {
 	udPile := L.NewUserData()
 	udPile.Value = pile
 	L.Push(udPile)
+	return 1
+}
+
+func moonGetStock(L *lua.LState) int {
+	ud := L.CheckUserData(1)
+	if moonGame, ok := ud.Value.(*MoonGame); ok {
+		udPile := L.NewUserData()
+		udPile.Value = moonGame.stock
+		L.Push(udPile)
+	}
 	return 1
 }
 
@@ -353,11 +396,15 @@ func registerMoonFunctions(L *lua.LState) {
 		fn   lua.LGFunction //func(*lua.LState) int
 	}{
 		{"NewCell", moonNewCell},
+		{"GetCell", moonGetCell},
 		// {"NewDiscard", moonNewDiscard},
 		{"NewFoundation", moonNewFoundation},
+		{"GetFoundation", moonGetFoundation},
 		// {"NewReserve", moonNewReserve},
 		{"NewStock", moonNewStock},
+		{"GetStock", moonGetStock},
 		{"NewTableau", moonNewTableau},
+		{"GetTableau", moonGetTableau},
 		// {"NewWaste", moonNewWaste},
 		{"MoveCard", moonMoveCard},
 		{"NewStock", moonNewStock},
