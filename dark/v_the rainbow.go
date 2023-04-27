@@ -112,7 +112,7 @@ func (self *TheRainbow) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 		if util.Contains(self.rainbow, dst) {
 			return false, errors.New("Cannot put cards in an empty rainbow pile")
 		}
-		return compare_Empty(dst, tail[0])
+		return compare_Empty(dst, tail)
 	}
 
 	src := tail[0].pile

@@ -100,7 +100,7 @@ func (self *Duchess) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 				}
 			}
 		}
-		return compare_Empty(dst, tail[0])
+		return compare_Empty(dst, tail)
 	}
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }

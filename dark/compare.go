@@ -31,12 +31,12 @@ func (dyad) compare_NoMoving() (bool, error) {
 	return false, errors.New("No moving")
 }
 
-func compare_Empty(dst *Pile, c *Card) (bool, error) {
+func compare_Empty(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Label() != "" {
 		if dst.Label() == "x" || dst.Label() == "X" {
 			return false, errors.New("Cannot move cards to that empty pile")
 		}
-		ord := util.OrdinalToShortString(c.Ordinal())
+		ord := util.OrdinalToShortString(tail[0].Ordinal())
 		if ord != dst.Label() {
 			return false, fmt.Errorf("Can only accept %s, not %s", util.ShortOrdinalToLongOrdinal(dst.Label()), util.ShortOrdinalToLongOrdinal(ord))
 		}

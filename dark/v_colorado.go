@@ -68,7 +68,7 @@ func (*Colorado) TailMoveError(tail []*Card) (bool, error) {
 
 func (self *Colorado) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {
-		return compare_Empty(dst, tail[0])
+		return compare_Empty(dst, tail)
 	}
 	src := tail[0].pile
 	if util.Contains(self.wastes, src) && util.Contains(self.wastes, dst) {

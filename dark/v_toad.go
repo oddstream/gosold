@@ -70,19 +70,18 @@ func (*Toad) TailMoveError(tail []*Card) (bool, error) {
 }
 
 func (self *Toad) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
-	card := tail[0]
 	if dst.Empty() {
 		switch dst.vtable.(type) {
 		case *Foundation:
-			return compare_Empty(dst, card)
+			return compare_Empty(dst, tail)
 		case *Tableau:
 			// Once the reserve is empty, spaces in the tableau can be filled with a card from the Deck [Stock/Waste], but NOT from another tableau pile.
 			// pointless rule, since tableuax move rule is MOVE_ONE_OR_ALL
-			if card.owner() != self.Waste() {
+			if tail[0].owner() != self.Waste() {
 				return false, errors.New("Empty tableaux must be filled with cards from the waste")
 			}
 		}
-		return compare_Empty(dst, card)
+		return compare_Empty(dst, tail)
 	}
 	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
 }

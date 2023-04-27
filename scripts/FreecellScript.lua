@@ -51,7 +51,7 @@ end
 -- 	return false, "Cannot move that tail"
 -- end
 
-function Wikipedia()
+function Wikipedia(moonHandle)
 	return "https://en.wikipedia.org/wiki/FreeCell"
 end
 
