@@ -1,4 +1,4 @@
--- DuchessScript
+-- Duchess
 
 function BuildPiles(moonHandle)
 

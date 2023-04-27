@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 )
@@ -110,11 +111,11 @@ var variants = map[string]scripter{
 			packs: 2,
 		},
 	},
-	"Duchess": &Duchess{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Duchess_(solitaire)",
-		},
-	},
+	// "Duchess": &Duchess{
+	// 	scriptBase: scriptBase{
+	// 		wikipedia: "https://en.wikipedia.org/wiki/Duchess_(solitaire)",
+	// 	},
+	// },
 	"Eagle Wing": &EagleWing{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Eagle_Wing",
@@ -467,25 +468,37 @@ var variantGroups = map[string][]string{
 	"> Yukons":        {"Yukon", "Yukon Cells"},
 }
 
+type scriptInfo struct {
+	path, name, group string
+}
+
 // init is used to assemble the "> All" alpha-sorted group of variants
 func init() {
 	// look in the scripts folder for *.lua files
 	{
-		var files []string
+		var files []scriptInfo
 
 		err := filepath.Walk("./scripts", func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				fmt.Println(err)
 				return nil
 			}
-			// fmt.Println("filepath.Walk ./scripts", path, "dir", filepath.Dir(path), strings.Split(filepath.Dir(path), "/"))
-			// if info.IsDir() {
-			// 	splits := strings.Split(path, "/")
-			// 	cat := splits[len(splits)-1]
-			// 	fmt.Println(splits, cat)
-			// }
+
 			if !info.IsDir() && filepath.Ext(path) == ".lua" {
-				files = append(files, path)
+				var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
+				var splits []string
+				if runtime.GOOS == "windows" {
+					splits = strings.Split(path, "\\")
+				} else {
+					splits = strings.Split(path, "/")
+				}
+				// [scripts Duchess.lua]
+				// [scripts Canfields Duchess.lua]
+				if len(splits) == 3 {
+					sinfo.group = "> " + splits[1]
+				}
+				// fmt.Println(splits)
+				files = append(files, sinfo)
 			}
 			return nil
 		})
@@ -493,10 +506,19 @@ func init() {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			for _, file := range files {
-				fname := strings.TrimSuffix(filepath.Base(file), ".lua")
-				// fmt.Println("found variant", fname)
-				variants[fname] = &MoonGame{scriptBase: scriptBase{fname: file}}
+			fmt.Println(files)
+			for _, sinfo := range files {
+				variants[sinfo.name] = &MoonGame{scriptBase: scriptBase{fname: sinfo.path}}
+				if sinfo.group != "" {
+					if _, ok := variantGroups[sinfo.group]; !ok {
+						variantGroups[sinfo.group] = []string{sinfo.name}
+					} else {
+						// You can't change values associated with keys in a map, you can only reassign values
+						gameNames := variantGroups[sinfo.group]
+						gameNames = append(gameNames, sinfo.name)
+						variantGroups[sinfo.group] = gameNames
+					}
+				}
 			}
 		}
 
