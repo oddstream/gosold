@@ -478,6 +478,12 @@ func init() {
 				fmt.Println(err)
 				return nil
 			}
+			// fmt.Println("filepath.Walk ./scripts", path, "dir", filepath.Dir(path), strings.Split(filepath.Dir(path), "/"))
+			// if info.IsDir() {
+			// 	splits := strings.Split(path, "/")
+			// 	cat := splits[len(splits)-1]
+			// 	fmt.Println(splits, cat)
+			// }
 			if !info.IsDir() && filepath.Ext(path) == ".lua" {
 				files = append(files, path)
 			}
@@ -489,7 +495,7 @@ func init() {
 		} else {
 			for _, file := range files {
 				fname := strings.TrimSuffix(filepath.Base(file), ".lua")
-				fmt.Println(fname)
+				// fmt.Println("found variant", fname)
 				variants[fname] = &MoonGame{scriptBase: scriptBase{fname: file}}
 			}
 		}

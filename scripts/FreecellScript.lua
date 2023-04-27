@@ -1,7 +1,6 @@
 -- FreecellScript
 
 function BuildPiles(moonHandle)
-	print("Hello from lua BuildPiles")
 	NewStock(moonHandle, -5, -5)
 	for x = 0, 3 do
 		NewCell(moonHandle, x, 0)
@@ -20,10 +19,9 @@ function BuildPiles(moonHandle)
 end
 
 function StartGame(moonHandle)
-	print("Hello from lua StartGame")
 
 	-- do
-	-- 	local cells = GetCells(moonHandle)
+	-- 	local cells = Cells(moonHandle)
 	-- 	print("cells", cells)
 	-- 	for i, c in ipairs(cells) do
 	-- 		print("cell", i, c)
@@ -32,8 +30,8 @@ function StartGame(moonHandle)
 
 	-- 4 tabs [0 .. 3] with 7 cards
 	-- 4 tabs [4 .. 7] with 6 cards
-	local stock = GetStock(moonHandle)
-	local tabs = GetTableaux(moonHandle)
+	local stock = Stock(moonHandle)
+	local tabs = Tableaux(moonHandle)
 	for i = 1, 4 do
 		for _ = 1, 7 do
 			MoveCard(moonHandle, stock, tabs[i])
@@ -55,4 +53,4 @@ function Wikipedia(moonHandle)
 	return "https://en.wikipedia.org/wiki/FreeCell"
 end
 
-print("Lua FreecellScript loaded")
+-- print("Lua FreecellScript loaded")

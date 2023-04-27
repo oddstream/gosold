@@ -11,6 +11,12 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] Walk scripts directory tree
+		scripts/Canfields/Duchess.lua
+			add/verify "> Canfields" to variantGroups
+			add "Duchess" to that group
+			add "Duchess" to variants
+[x] BUG Undo isn't restoring stock recycle glyph
 [ ] the only pile we ever tap is the stock pile
 	then we either recycle or recall/redeal (Usk, Cruel, Perseverence)
 [x] b.cardCount is len(b.cardMap)

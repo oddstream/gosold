@@ -113,5 +113,5 @@ func (b *Baize) updateFromSavable(sb *savableBaize) {
 		b.piles[i].updateFromSavable(sb.Piles[i])
 	}
 	b.bookmark = sb.Bookmark
-	b.recycles = sb.Recycles
+	b.setRecycles(sb.Recycles)
 }

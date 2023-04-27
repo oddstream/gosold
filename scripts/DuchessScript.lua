@@ -25,21 +25,21 @@ end
 
 function StartGame(moonHandle)
 
-	local stock = GetStock(moonHandle)
+	local stock = Stock(moonHandle)
 
-	local fs = GetFoundations(moonHandle)
+	local fs = Foundations(moonHandle)
 	for _, f in ipairs(fs) do
 		SetLabel(moonHandle, f, "")
 	end
 
-	local rs = GetReserves(moonHandle)
+	local rs = Reserves(moonHandle)
 	for _, r in ipairs(rs) do
 		MoveCard(moonHandle, stock, r)
 		MoveCard(moonHandle, stock, r)
 		MoveCard(moonHandle, stock, r)
 	end
 
-	local ts = GetTableaux(moonHandle)
+	local ts = Tableaux(moonHandle)
 	for _, t in ipairs(ts) do
 		MoveCard(moonHandle, stock, t)
 	end
@@ -50,7 +50,7 @@ function StartGame(moonHandle)
 end
 
 function AfterMove(moonHandle)
-	local fs = GetFoundations(moonHandle)
+	local fs = Foundations(moonHandle)
 	if Label(moonHandle, fs[1]) == "" then
 		local ord = 0
 		for _, f in ipairs(fs) do
@@ -84,7 +84,7 @@ function TailAppendError(moonHandle, dst, tail)
 			end
 		elseif Category(moonHandle, dst) == "Tableau" then
 			local rescards = 0
-			for _, r in ipairs(GetReserves(moonHandle)) do
+			for _, r in ipairs(Reserves(moonHandle)) do
 				rescards = rescards + Len(moonHandle, r)
 			end
 			if rescards > 0 then
@@ -98,6 +98,22 @@ function TailAppendError(moonHandle, dst, tail)
 		return CompareEmpty(moonHandle, dst, tail)
 	end
 	return CompareAppend(moonHandle, dst, tail)
+end
+
+function PileTapped(moonHandle, pile)
+	if Category(moonHandle, pile) == "Stock" then
+		local recycles = Recycles(moonHandle)
+		if recycles > 0 then
+			local stock = Stock(moonHandle)
+			local waste = Waste(moonHandle)
+			while Len(moonHandle, waste) > 0 do
+				MoveCard(moonHandle, waste, stock)
+			end
+			SetRecycles(moonHandle,  recycles - 1)
+		else
+			Toast(moonHandle, "No more recycles")
+		end
+	end
 end
 
 function Wikipedia(moonHandle)
