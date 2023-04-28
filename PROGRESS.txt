@@ -1,5 +1,9 @@
 PROGRESS
 
+2023-04-27
+Lua scripting
+build variantGroups from script directory tree
+
 2023-04-24
 Eagle Wing
 pile.maxLen

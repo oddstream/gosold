@@ -78,7 +78,7 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 		if err := b.L.DoString(`print(_VERSION)`); err != nil {
 			panic(err)
 		}
-		registerMoonFunctions(b.L)
+		registerMoonFunctions(b.L, b.script)
 		if err := b.L.DoFile(script.Fname()); err != nil {
 			panic(err)
 		}

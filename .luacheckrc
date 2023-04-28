@@ -8,11 +8,12 @@ globals = {
 	"PileTapped",
 	"Complete",
 	"Wikipedia",
+	"CardColors",
 
 	"NewCell", "Cells",
 	"NewFoundation", "Foundations",
 	"NewDiscard", "Discards",
-	"NewReserve", "Reserves",
+	"NewReserve", "Reserve", "Reserves",
 	"NewStock", "Stock",
 	"NewTableau", "Tableaux",
 	"NewWaste", "Wastes", "Waste",
@@ -28,17 +29,22 @@ globals = {
 	"Ordinal",
 	"Owner",
 	"Peek",
+	"Push",
 	"Recycles",
 	"SetCompareFunction",
 	"SetLabel",
 	"SetRecycles",
 	"Toast",
+	"Extract",
+	"FlipDown",
 
 	"FAN_RIGHT", "FAN_RIGHT3",
 	"FAN_DOWN", "FAN_DOWN3",
 
 	"MOVE_ANY",
-	"MOVE_ONE", "MOVE_ONE_PLUS",
+	"MOVE_ONE", "MOVE_ONE_PLUS", "MOVE_ONE_OR_ALL",
+
+	"CLUB", "DIAMOND", "HEART", "SPADE",
 }
 
 std = "lua51"

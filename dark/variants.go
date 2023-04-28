@@ -92,15 +92,15 @@ var variants = map[string]scripter{
 		recycles: 32767,
 		variant:  "selective",
 	},
-	"Storehouse": &Canfield{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-			cardColors: 4,
-		},
-		draw:     1,
-		recycles: 2,
-		variant:  "storehouse",
-	},
+	// "Storehouse": &Canfield{
+	// 	scriptBase: scriptBase{
+	// 		wikipedia:  "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
+	// 		cardColors: 4,
+	// 	},
+	// 	draw:     1,
+	// 	recycles: 2,
+	// 	variant:  "storehouse",
+	// },
 	"Chameleon": &Chameleon{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Chameleon_(solitaire)",
@@ -454,7 +454,7 @@ var variants = map[string]scripter{
 var variantGroups = map[string][]string{
 	// "> All" added dynamically by func init()
 	// don't have any group that comes alphabetically before "> All"
-	"> Canfields":     {"Canfield", "Chameleon", "Eagle Wing", "Rainbow Canfield", "Selective Canfield", "Storehouse", "Duchess", "American Toad"},
+	"> Canfields":     {"Canfield", "Chameleon", "Eagle Wing", "Rainbow Canfield", "Selective Canfield", "American Toad"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
 	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},
@@ -468,14 +468,15 @@ var variantGroups = map[string][]string{
 	"> Yukons":        {"Yukon", "Yukon Cells"},
 }
 
-type scriptInfo struct {
-	path, name, group string
-}
-
 // init is used to assemble the "> All" alpha-sorted group of variants
 func init() {
-	// look in the scripts folder for *.lua files
+	// look in the scripts folder tree (depth one only) for *.lua files
+	// turn subfolder names as group names
 	{
+		type scriptInfo struct {
+			path, name, group string
+		}
+
 		var files []scriptInfo
 
 		err := filepath.Walk("./scripts", func(path string, info os.FileInfo, err error) error {
@@ -506,7 +507,7 @@ func init() {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println(files)
+			// fmt.Println(files)
 			for _, sinfo := range files {
 				variants[sinfo.name] = &MoonGame{scriptBase: scriptBase{fname: sinfo.path}}
 				if sinfo.group != "" {
@@ -522,6 +523,8 @@ func init() {
 			}
 		}
 
+		// alternatives to filepath.Walk
+		//
 		// files, err := filepath.Glob("./scripts/*.lua")
 		// if err != nil {
 		// 	log.Println(err) // "open scripts: no such file or directory"
