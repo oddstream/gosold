@@ -222,7 +222,39 @@ func (self *MoonGame) CardColors() int {
 	return colors
 }
 
+func (self *MoonGame) Packs() int {
+	var packs int
+
+	glob := self.baize.L.GetGlobal("Packs") // glob == lua.LNil if it doesn't exist
+	if fn, ok := glob.(*lua.LFunction); ok {
+		err := self.baize.L.CallByParam(lua.P{
+			Fn:      fn,
+			NRet:    1,
+			Protect: true,
+		})
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			packs = self.baize.L.CheckInt(1)
+			self.baize.L.Pop(1)
+		}
+	} else {
+		packs = self.scriptBase.Packs()
+	}
+	return packs
+}
+
 // functions called by Lua to do DARK things
+
+func moonDefaultTailTapped(L *lua.LState) int {
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udTail := L.CheckUserData(1)
+		if tail, ok := udTail.Value.([]*Card); ok {
+			moonGame.scriptBase.TailTapped(tail)
+		}
+	}
+	return 0
+}
 
 // moonPileList returns a Lua list of piles of a given category
 func _moonPiles(L *lua.LState, category string) int {
@@ -750,6 +782,7 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"Owner", moonOwner},
 
 		// Other
+		{"DefaultTailTapped", moonDefaultTailTapped},
 		{"CompareEmpty", moonCompareEmpty},
 		{"CompareAppend", moonCompareAppend},
 		{"CompareMove", moonCompareMove},

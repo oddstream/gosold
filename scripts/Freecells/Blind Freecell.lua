@@ -1,4 +1,4 @@
--- FreecellScript
+-- Blind Freecell
 
 function BuildPiles()
 	NewStock(-5, -5)
@@ -19,33 +19,28 @@ function BuildPiles()
 end
 
 function StartGame()
-
-	-- do
-	-- 	local cells = Cells()
-	-- 	print("cells", cells)
-	-- 	for i, c in ipairs(cells) do
-	-- 		print("cell", i, c)
-	-- 	end
-	-- end
-
 	-- 4 tabs [0 .. 3] with 7 cards
 	-- 4 tabs [4 .. 7] with 6 cards
 	local stock = Stock()
 	local tabs = Tableaux()
 	for i = 1, 4 do
 		for _ = 1, 7 do
-			MoveCard(stock, tabs[i])
+			local c = MoveCard(stock, tabs[i])
+			FlipDown(c)
 		end
 	end
 	for i = 5, 8 do
 		for _ = 1, 6 do
-			MoveCard(stock, tabs[i])
+			local c = MoveCard(stock, tabs[i])
+			FlipDown(c)
 		end
+	end
+	for _, t in ipairs(tabs) do
+		local c = Peek(t)
+		FlipUp(c)
 	end
 end
 
 function Wikipedia()
 	return "https://en.wikipedia.org/wiki/FreeCell"
 end
-
--- print("Lua FreecellScript loaded")

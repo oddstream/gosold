@@ -23,19 +23,6 @@ var variants = map[string]scripter{
 			packs:      2,
 		},
 	},
-	"American Toad": &Toad{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/American_Toad_(solitaire)",
-			cardColors: 4,
-			packs:      2,
-		},
-	},
-	"Australian": &Australian{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Australian_Patience",
-			cardColors: 4,
-		},
-	},
 	"Baker's Dozen": &BakersDozen{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)",
@@ -55,14 +42,6 @@ var variants = map[string]scripter{
 			cardColors: 4,
 		},
 	},
-	"Blind Freecell": &Freecell{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/FreeCell",
-			cardColors: 2,
-		},
-		tabCompareFunc: dyad.compare_DownAltColor,
-		blind:          true,
-	},
 	"Blockade": &Blockade{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Blockade_(solitaire)",
@@ -70,52 +49,11 @@ var variants = map[string]scripter{
 			packs:      2,
 		},
 	},
-	"Canfield": &Canfield{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-		},
-		draw:     3,
-		recycles: 32767,
-	},
-	"Rainbow Canfield": &Canfield{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-		},
-		draw:     1,
-		recycles: 2,
-	},
-	"Selective Canfield": &Canfield{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-		},
-		draw:     3,
-		recycles: 32767,
-		variant:  "selective",
-	},
-	// "Storehouse": &Canfield{
-	// 	scriptBase: scriptBase{
-	// 		wikipedia:  "https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-	// 		cardColors: 4,
-	// 	},
-	// 	draw:     1,
-	// 	recycles: 2,
-	// 	variant:  "storehouse",
-	// },
-	"Chameleon": &Chameleon{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Chameleon_(solitaire)",
-		},
-	},
 	"Colorado": &Colorado{
 		scriptBase: scriptBase{
 			packs: 2,
 		},
 	},
-	// "Duchess": &Duchess{
-	// 	scriptBase: scriptBase{
-	// 		wikipedia: "https://en.wikipedia.org/wiki/Duchess_(solitaire)",
-	// 	},
-	// },
 	"Eagle Wing": &EagleWing{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Eagle_Wing",
@@ -454,15 +392,15 @@ var variants = map[string]scripter{
 var variantGroups = map[string][]string{
 	// "> All" added dynamically by func init()
 	// don't have any group that comes alphabetically before "> All"
-	"> Canfields":     {"Canfield", "Chameleon", "Eagle Wing", "Rainbow Canfield", "Selective Canfield", "American Toad"},
+	"> Canfields":     {"Eagle Wing"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
 	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},
 	"> Forty Thieves": {"Forty Thieves", "Number Ten", "Red and Black", "Indian", "Rank and File", "Sixty Thieves", "Josephine", "Limited", "Forty and Eight", "Lucas", "Busy Aces", "Maria", "Streets"},
-	"> Freecells":     {"Baker's Game", "Blind Freecell", "Freecell", "Freecell Easy", "Eight Off", "Seahaven Towers"},
+	"> Freecells":     {"Baker's Game", "Freecell", "Freecell Easy", "Eight Off", "Seahaven Towers"},
 	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three", "Thoughtful", "Whitehead"},
 	"> People":        {"Agnes Bernauer", "Duchess", "Josephine", "Maria", "Simple Simon", "Baker's Game"},
-	"> Places":        {"Australian", "Bisley", "Colorado", "Yukon", "Klondike", "Usk", "Usk Relaxed"},
+	"> Places":        {"Bisley", "Colorado", "Yukon", "Klondike", "Usk", "Usk Relaxed"},
 	"> Puzzlers":      {"Bisley", "Usk", "Mrs Mop", "Penguin", "Simple Simon", "Baker's Dozen"},
 	"> Spiders":       {"Spider One Suit", "Spider Two Suits", "Spider Four Suits", "Scorpion", "Spiderette"},
 	"> Yukons":        {"Yukon", "Yukon Cells"},

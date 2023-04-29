@@ -1,4 +1,6 @@
--- Storehouse
+-- Rainbow
+
+local ordToChar = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
 
 local function populateEmptyWasteFromStock()
 	local stock = Stock()
@@ -37,8 +39,8 @@ function BuildPiles()
 
 	for x = 3, 6 do
 		local t = NewTableau(x, 1, FAN_DOWN, MOVE_ONE_OR_ALL)
-		SetCompareFunction(t, "Append", "DownSuitWrap")
-		SetCompareFunction(t, "Move", "DownSuitWrap")
+		SetCompareFunction(t, "Append", "DownWrap")
+		SetCompareFunction(t, "Move", "DownWrap")
 	end
 
 end
@@ -46,34 +48,27 @@ end
 function StartGame()
 
 	local stock = Stock()
-	local founds = Foundations()
-
-	local c
-	c = Extract(stock, 0, 2, CLUB)
-	Push(founds[1], c)
-	c = Extract(stock, 0, 2, DIAMOND)
-	Push(founds[2], c)
-	c = Extract(stock, 0, 2, HEART)
-	Push(founds[3], c)
-	c = Extract(stock, 0, 2, SPADE)
-	Push(founds[4], c)
-
-	for _, f in ipairs(founds) do
-		SetLabel(f, "2")	-- cosmetic; foundations will never be empty
-	end
 
 	local r = Reserve()
 	for _ = 1, 12 do
-		c = MoveCard(stock, r)
+		local c = MoveCard(stock, r)
 		FlipDown(c)
 	end
 	MoveCard(stock, r)	-- final card face up
+
+	local fs = Foundations()
+	local card = MoveCard(stock, fs[1])
+	local ord = Ordinal(card)
+	for _, f in ipairs(fs) do
+		SetLabel(f, ordToChar[ord])
+	end
 
 	for _, t in ipairs(Tableaux()) do
 		MoveCard(stock, t)
 	end
 
-	SetRecycles(2)
+	SetRecycles(0)
+
 	populateEmptyWasteFromStock()
 end
 

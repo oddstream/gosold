@@ -9,6 +9,7 @@ globals = {
 	"Complete",
 	"Wikipedia",
 	"CardColors",
+	"Packs",
 
 	"NewCell", "Cells",
 	"NewFoundation", "Foundations",
@@ -36,8 +37,10 @@ globals = {
 	"SetRecycles",
 	"Toast",
 	"Extract",
-	"FlipDown",
+	"FlipDown", "FlipUp",
+	"DefaultTailTapped",
 
+	"FAN_NONE",
 	"FAN_RIGHT", "FAN_RIGHT3",
 	"FAN_DOWN", "FAN_DOWN3",
 

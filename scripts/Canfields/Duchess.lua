@@ -1,5 +1,21 @@
 -- Duchess
 
+local ordToChar = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
+
+local function recycleWasteToStock()
+	local recycles = Recycles()
+	if recycles > 0 then
+		local stock = Stock()
+		local waste = Waste()
+		while Len(waste) > 0 do
+			MoveCard(waste, stock)
+		end
+		SetRecycles(recycles - 1)
+	else
+		Toast("No more recycles")
+	end
+end
+
 function BuildPiles()
 
 	NewStock(1, 1)
@@ -63,9 +79,8 @@ function AfterMove()
 		if ord == 0 then
 			Toast("Move a Reserve card to a Foundation")
 		else
-			local U = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
 			for _, f in ipairs(fs) do
-				SetLabel(f, U[ord])
+				SetLabel(f, ordToChar[ord])
 			end
 		end
 	end
@@ -102,17 +117,7 @@ end
 
 function PileTapped(pile)
 	if Category(pile) == "Stock" then
-		local recycles = Recycles()
-		if recycles > 0 then
-			local stock = Stock()
-			local waste = Waste()
-			while Len(waste) > 0 do
-				MoveCard(waste, stock)
-			end
-			SetRecycles( recycles - 1)
-		else
-			Toast("No more recycles")
-		end
+		recycleWasteToStock()
 	end
 end
 
