@@ -48,10 +48,10 @@ function AfterMove()
 	populateEmptyWasteFromStock()
 end
 
-function TailMoveError(tail)
-	-- override default (which tests if tail is conformant)
-	return true, ""
-end
+-- function TailMoveError(tail)
+-- 	-- override default (which tests if tail is conformant)
+-- 	return true, ""
+-- end
 
 -- default TailAppendError
 -- default TailTapped

@@ -60,9 +60,9 @@ func (self *Bisley) StartGame() {
 	self.baize.setRecycles(0)
 }
 
-func (*Bisley) TailMoveError(tail []*Card) (bool, error) {
-	return true, nil
-}
+// func (*Bisley) TailMoveError(tail []*Card) (bool, error) {
+// 	return true, nil
+// }
 
 // default TailAppendError
 

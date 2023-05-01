@@ -54,9 +54,9 @@ func (self *Yukon) StartGame() {
 	}
 }
 
-func (*Yukon) TailMoveError([]*Card) (bool, error) {
-	return true, nil
-}
+// func (*Yukon) TailMoveError([]*Card) (bool, error) {
+// 	return true, nil
+// }
 
 // default TailAppendError
 

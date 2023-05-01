@@ -691,6 +691,17 @@ func moonReverse(L *lua.LState) int {
 	return 0
 }
 
+func moonSetBoundary(L *lua.LState) int {
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udPile := L.CheckUserData(1)
+		if pile, ok := udPile.Value.(*Pile); ok {
+			idx := L.CheckInt(2)
+			pile.boundary = idx
+		}
+	}
+	return 0
+}
+
 func moonSetRecycles(L *lua.LState) int {
 	if moonGame := getMoonGame(L); moonGame != nil {
 		n := L.CheckInt(1)
@@ -835,6 +846,7 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"Bury", moonBury},
 		{"Disinter", moonDisinter},
 		{"Reverse", moonReverse},
+		{"SetBoundary", moonSetBoundary},
 
 		// Card
 		{"FlipDown", moonFlipDown},

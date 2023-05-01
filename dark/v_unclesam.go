@@ -93,10 +93,10 @@ func (self *UncleSam) AfterMove() {
 	}
 }
 
-func (*UncleSam) TailMoveError(tail []*Card) (bool, error) {
-	// attempt to move more than one card will be caught before this
-	return true, nil
-}
+// func (*UncleSam) TailMoveError(tail []*Card) (bool, error) {
+// 	// attempt to move more than one card will be caught before this
+// 	return true, nil
+// }
 
 func (self *UncleSam) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst == self.Waste() {

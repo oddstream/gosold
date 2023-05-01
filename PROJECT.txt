@@ -11,7 +11,8 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] Walk scripts directory tree
+[ ] Safe collect triggered when card colors = 4? (Australian)
+[x] Walk scripts directory tree
 		scripts/Canfields/Duchess.lua
 			add/verify "> Canfields" to variantGroups
 			add "Duchess" to that group

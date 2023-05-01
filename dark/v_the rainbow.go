@@ -102,9 +102,9 @@ func (self *TheRainbow) AfterMove() {
 	as an eight, upon which you may pack a seven"
 */
 
-func (*TheRainbow) TailMoveError(tail []*Card) (bool, error) {
-	return true, nil
-}
+// func (*TheRainbow) TailMoveError(tail []*Card) (bool, error) {
+// 	return true, nil
+// }
 
 func (self *TheRainbow) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 

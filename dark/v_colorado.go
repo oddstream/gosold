@@ -62,9 +62,9 @@ func (self *Colorado) AfterMove() {
 	}
 }
 
-func (*Colorado) TailMoveError(tail []*Card) (bool, error) {
-	return true, nil
-}
+// func (*Colorado) TailMoveError(tail []*Card) (bool, error) {
+// 	return true, nil
+// }
 
 func (self *Colorado) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {

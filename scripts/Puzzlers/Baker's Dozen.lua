@@ -2,6 +2,7 @@
 
 function BuildPiles()
 	NewStock(-5,-5)
+
 	for x = 0, 6 do
 		local t = NewTableau(x, 0, FAN_DOWN, MOVE_ONE)
 		SetCompareFunction(t, "Append", "Down")
@@ -12,19 +13,20 @@ function BuildPiles()
 		SetCompareFunction(t, "Append", "Down")
 		SetLabel(t, "x")
 	end
+	local ts = Tableaux()
+	SetBoundary(ts[1], 8)
+	SetBoundary(ts[2], 9)
+	SetBoundary(ts[3], 10)
+	SetBoundary(ts[4], 11)
+	SetBoundary(ts[5], 12)
+	SetBoundary(ts[6], 13)
+	SetBoundary(ts[7], 13)
+
 	for y = 0, 3 do
 		local f = NewFoundation(8, y)
 		SetCompareFunction(f, "Append", "UpSuit")
 		SetLabel(f, "A")
 	end
---[[
-	for x := 0; x < 6; x++ {
-		// stock is pile index 0
-		// tableaux are piles index 1 .. 13
-		self.tableaux[x].boundary = 1 + x + 7
-	}
-	self.tableaux[6].boundary = 1 + 12
-]]
 end
 
 function StartGame()

@@ -59,9 +59,9 @@ func (self *Alhambra) StartGame() {
 	self.baize.setRecycles(2)
 }
 
-func (*Alhambra) TailMoveError(tail []*Card) (bool, error) {
-	return true, nil
-}
+// func (*Alhambra) TailMoveError(tail []*Card) (bool, error) {
+// 	return true, nil
+// }
 
 // default TailAppendError
 

@@ -34,6 +34,7 @@ globals = {
 	"Recycles",
 	"SetCompareFunction",
 	"SetLabel",
+	"SetBoundary",
 	"SetRecycles",
 	"Toast",
 	"Extract", "Bury", "Disinter",

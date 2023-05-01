@@ -665,7 +665,7 @@ func (b *Baize) calcPowerMoves(pDraggingTo *Pile) int {
 // DoingSafeCollect returns true (if we are doing safe collect)
 // and the safe ordinal to collect next
 func (b *Baize) doingSafeCollect() (bool, int) {
-	if !b.script.SafeCollect() {
+	if b.script.CardColors() != 2 {
 		return false, 0
 	}
 	var fs []*Pile = b.script.Foundations()

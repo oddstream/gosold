@@ -32,7 +32,6 @@ type scripter interface {
 	Complete() bool
 	Wikipedia() string
 	CardColors() int
-	SafeCollect() bool
 	Packs() int
 	Suits() int
 
@@ -187,10 +186,6 @@ func (sb scriptBase) CardColors() int {
 	} else {
 		return sb.cardColors
 	}
-}
-
-func (sb scriptBase) SafeCollect() bool {
-	return sb.CardColors() == 2
 }
 
 func (sb scriptBase) Packs() int {

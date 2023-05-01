@@ -43,9 +43,9 @@ func (self *Scorpion) StartGame() {
 	self.baize.setRecycles(0)
 }
 
-func (*Scorpion) TailMoveError(tail []*Card) (bool, error) {
-	return true, nil
-}
+// func (*Scorpion) TailMoveError(tail []*Card) (bool, error) {
+// 	return true, nil
+// }
 
 // default TailAppendError
 
