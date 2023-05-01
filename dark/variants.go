@@ -10,31 +10,12 @@ import (
 )
 
 var variants = map[string]scripter{
-	"Agnes Bernauer": &Agnes{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Agnes_(solitaire)",
-			cardColors: 2,
-		},
-	},
 	"Alhambra": &Alhambra{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Alhambra_(solitaire)",
 			cardColors: 4,
 			packs:      2,
 		},
-	},
-	"Baker's Dozen": &BakersDozen{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)",
-			cardColors: 1,
-		},
-	},
-	"Baker's Game": &Freecell{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Baker%27s_Game",
-			cardColors: 4,
-		},
-		tabCompareFunc: dyad.compare_DownSuit,
 	},
 	"Bisley": &Bisley{
 		scriptBase: scriptBase{
@@ -101,24 +82,10 @@ var variants = map[string]scripter{
 		founds:   []int{4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},             // 12
 		tabs:     []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, // 16
 	},
-	"Eight Off": &EightOff{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Eight_Off",
-			cardColors: 4,
-		},
-	},
 	"Freecell": &Freecell{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/FreeCell",
 		},
-		tabCompareFunc: dyad.compare_DownAltColor,
-	},
-	"Freecell Easy": &Freecell{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/FreeCell",
-		},
-		tabCompareFunc: dyad.compare_DownAltColor,
-		easy:           true,
 	},
 	"Forty Thieves": &FortyThieves{
 		scriptBase: scriptBase{
@@ -264,21 +231,6 @@ var variants = map[string]scripter{
 		tabs:        []int{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14},
 		cardsPerTab: 5,
 	},
-	"Mrs Mop": &MrsMop{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Mrs._Mop",
-			cardColors: 4,
-			packs:      2,
-		},
-	},
-	"Mrs Mop Easy": &MrsMop{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Mrs._Mop",
-			cardColors: 4,
-			packs:      2,
-		},
-		easy: true,
-	},
 	"Penguin": &Penguin{
 		scriptBase: scriptBase{
 			wikipedia:  "https://www.parlettgames.uk/patience/penguin.html",
@@ -288,18 +240,6 @@ var variants = map[string]scripter{
 	"Scorpion": &Scorpion{
 		scriptBase: scriptBase{
 			wikipedia:  "https://en.wikipedia.org/wiki/Scorpion_(solitaire)",
-			cardColors: 4,
-		},
-	},
-	"Seahaven Towers": &Seahaven{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Seahaven_Towers",
-			cardColors: 4,
-		},
-	},
-	"Simple Simon": &SimpleSimon{
-		scriptBase: scriptBase{
-			wikipedia:  "https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)",
 			cardColors: 4,
 		},
 	},
@@ -365,17 +305,6 @@ var variants = map[string]scripter{
 			packs:      2,
 		},
 	},
-	"Usk": &Usk{
-		scriptBase: scriptBase{
-			wikipedia: "https://politaire.com/help/usk",
-		},
-		tableauLabel: "K",
-	},
-	"Usk Relaxed": &Usk{
-		scriptBase: scriptBase{
-			wikipedia: "https://politaire.com/help/usk",
-		},
-	},
 	"Yukon": &Yukon{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Yukon_(solitaire)",
@@ -395,13 +324,13 @@ var variantGroups = map[string][]string{
 	"> Canfields":     {"Eagle Wing"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
-	"> Harder":        {"Baker's Dozen", "Easthaven", "Forty Thieves", "Spider Four Suits", "Usk"},
+	"> Harder":        {"Easthaven", "Forty Thieves", "Spider Four Suits"},
 	"> Forty Thieves": {"Forty Thieves", "Number Ten", "Red and Black", "Indian", "Rank and File", "Sixty Thieves", "Josephine", "Limited", "Forty and Eight", "Lucas", "Busy Aces", "Maria", "Streets"},
-	"> Freecells":     {"Baker's Game", "Freecell", "Freecell Easy", "Eight Off", "Seahaven Towers"},
+	"> Freecells":     {"Freecell"},
 	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three", "Thoughtful", "Whitehead"},
-	"> People":        {"Agnes Bernauer", "Duchess", "Josephine", "Maria", "Simple Simon", "Baker's Game"},
-	"> Places":        {"Bisley", "Colorado", "Yukon", "Klondike", "Usk", "Usk Relaxed"},
-	"> Puzzlers":      {"Bisley", "Usk", "Mrs Mop", "Penguin", "Simple Simon", "Baker's Dozen"},
+	"> People":        {"Duchess", "Josephine", "Maria", "Baker's Game"},
+	"> Places":        {"Bisley", "Colorado", "Yukon", "Klondike"},
+	"> Puzzlers":      {"Bisley", "Penguin"},
 	"> Spiders":       {"Spider One Suit", "Spider Two Suits", "Spider Four Suits", "Scorpion", "Spiderette"},
 	"> Yukons":        {"Yukon", "Yukon Cells"},
 }

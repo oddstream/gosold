@@ -298,14 +298,28 @@ func moonNewCell(L *lua.LState) int {
 		moonGame.cells = append(moonGame.cells, pile)
 	}
 	L.Push(&lua.LUserData{Value: pile})
-	// udPile := L.NewUserData()
-	// udPile.Value = pile
-	// L.Push(udPile)
 	return 1
 }
 
 func moonCells(L *lua.LState) int {
 	return _moonPiles(L, "Cells")
+}
+
+func moonNewDiscard(L *lua.LState) int {
+	var pile *Pile
+	if moonGame := getMoonGame(L); moonGame != nil {
+		x := L.ToNumber(1)
+		y := L.ToNumber(2)
+		baize := moonGame.baize
+		pile = baize.NewDiscard(PileSlot{X: float32(x), Y: float32(y), Deg: 0})
+		moonGame.discards = append(moonGame.discards, pile)
+	}
+	L.Push(&lua.LUserData{Value: pile})
+	return 1
+}
+
+func moonDiscards(L *lua.LState) int {
+	return _moonPiles(L, "Discards")
 }
 
 func moonNewFoundation(L *lua.LState) int {
@@ -429,6 +443,19 @@ func moonMoveCard(L *lua.LState) int {
 				card := moveCard(src, dst)
 				L.Push(&lua.LUserData{Value: card})
 				return 1
+			}
+		}
+	}
+	return 0
+}
+
+func moonMoveTail(L *lua.LState) int {
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udCard := L.CheckUserData(1)
+		if card, ok := udCard.Value.(*Card); ok {
+			udDst := L.CheckUserData(2)
+			if dst, ok := udDst.Value.(*Pile); ok {
+				moveTail(card, dst)
 			}
 		}
 	}
@@ -632,6 +659,38 @@ func moonExtract(L *lua.LState) int {
 	return 1
 }
 
+func moonBury(L *lua.LState) int {
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udPile := L.CheckUserData(1)
+		if pile, ok := udPile.Value.(*Pile); ok {
+			ord := L.CheckInt(2)
+			pile.buryCards(ord)
+		}
+	}
+	return 0
+}
+
+func moonDisinter(L *lua.LState) int {
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udPile := L.CheckUserData(1)
+		if pile, ok := udPile.Value.(*Pile); ok {
+			ord := L.CheckInt(2)
+			pile.disinterCards(ord)
+		}
+	}
+	return 0
+}
+
+func moonReverse(L *lua.LState) int {
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udPile := L.CheckUserData(1)
+		if pile, ok := udPile.Value.(*Pile); ok {
+			pile.reverseCards()
+		}
+	}
+	return 0
+}
+
 func moonSetRecycles(L *lua.LState) int {
 	if moonGame := getMoonGame(L); moonGame != nil {
 		n := L.CheckInt(1)
@@ -744,8 +803,8 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		// Pile creation
 		{"NewCell", moonNewCell},
 		{"Cells", moonCells},
-		// {"NewDiscard", moonNewDiscard},
-		// {"Discards", moonDiscards},
+		{"NewDiscard", moonNewDiscard},
+		{"Discards", moonDiscards},
 		{"NewFoundation", moonNewFoundation},
 		{"Foundations", moonFoundations},
 		{"NewReserve", moonNewReserve},
@@ -760,7 +819,6 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"Wastes", moonWastes},
 
 		// Baize
-		{"MoveCard", moonMoveCard},
 		{"Recycles", moonRecycles},
 		{"SetRecycles", moonSetRecycles},
 
@@ -774,6 +832,9 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"SetCompareFunction", moonSetCompareFunction},
 		{"SetLabel", moonSetLabel},
 		{"Extract", moonExtract},
+		{"Bury", moonBury},
+		{"Disinter", moonDisinter},
+		{"Reverse", moonReverse},
 
 		// Card
 		{"FlipDown", moonFlipDown},
@@ -782,6 +843,8 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"Owner", moonOwner},
 
 		// Other
+		{"MoveCard", moonMoveCard},
+		{"MoveTail", moonMoveTail},
 		{"DefaultTailTapped", moonDefaultTailTapped},
 		{"CompareEmpty", moonCompareEmpty},
 		{"CompareAppend", moonCompareAppend},

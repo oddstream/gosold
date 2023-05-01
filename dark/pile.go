@@ -297,7 +297,7 @@ func (self *Pile) reverseCards() {
 	}
 }
 
-// buryCards moves cards with the specified ordinal to the beginning of the pile
+// buryCards moves cards with the specified ordinal to the beginning/bottom of the pile
 func (self *Pile) buryCards(ordinal int) {
 	tmp := make([]*Card, 0, cap(self.cards))
 	for _, c := range self.cards {
@@ -307,6 +307,25 @@ func (self *Pile) buryCards(ordinal int) {
 	}
 	for _, c := range self.cards {
 		if c.Ordinal() != ordinal {
+			tmp = append(tmp, c)
+		}
+	}
+	self.cards = self.cards[:0]
+	for i := 0; i < len(tmp); i++ {
+		self.push(tmp[i])
+	}
+}
+
+// disinterCards moves cards with the specified ordinal to the end/top of the pile
+func (self *Pile) disinterCards(ordinal int) {
+	tmp := make([]*Card, 0, cap(self.cards))
+	for _, c := range self.cards {
+		if c.Ordinal() != ordinal {
+			tmp = append(tmp, c)
+		}
+	}
+	for _, c := range self.cards {
+		if c.Ordinal() == ordinal {
 			tmp = append(tmp, c)
 		}
 	}

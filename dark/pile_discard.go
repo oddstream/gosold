@@ -11,7 +11,7 @@ type Discard struct {
 	pile *Pile
 }
 
-func (b *Baize) NewDiscard(slot PileSlot, fanType FanType) *Pile {
+func (b *Baize) NewDiscard(slot PileSlot) *Pile {
 	pile := b.newPile("Discard", slot, FAN_NONE, MOVE_NONE)
 	pile.vtable = &Discard{pile: pile}
 	pile.appendFrom = "Tableau"

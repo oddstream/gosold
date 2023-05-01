@@ -16,7 +16,7 @@ func (self *Spider) BuildPiles() {
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
 	for x := 2; x < 10; x++ {
-		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
+		d := self.baize.NewDiscard(newPileSlot(x, 0))
 		self.discards = append(self.discards, d)
 	}
 
@@ -83,7 +83,3 @@ func (self *Spider) TailTapped(tail []*Card) {
 }
 
 // func (*Spider) PileTapped(*Pile) {}
-
-func (self *Spider) Complete() bool {
-	return self.SpiderComplete()
-}

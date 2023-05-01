@@ -36,7 +36,7 @@ globals = {
 	"SetLabel",
 	"SetRecycles",
 	"Toast",
-	"Extract",
+	"Extract", "Bury", "Disinter",
 	"FlipDown", "FlipUp",
 	"DefaultTailTapped",
 

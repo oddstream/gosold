@@ -16,7 +16,7 @@ func (self *Spiderette) BuildPiles() {
 	self.stock = self.baize.NewStock(newPileSlot(0, 0))
 
 	for x := 3; x < 7; x++ {
-		d := self.baize.NewDiscard(newPileSlot(x, 0), FAN_NONE)
+		d := self.baize.NewDiscard(newPileSlot(x, 0))
 		self.discards = append(self.discards, d)
 	}
 
@@ -77,7 +77,3 @@ func (self *Spiderette) TailTapped(tail []*Card) {
 }
 
 // func (*Spiderette) PileTapped(*Pile) {}
-
-func (self *Spiderette) Complete() bool {
-	return self.SpiderComplete()
-}

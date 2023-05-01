@@ -143,33 +143,29 @@ func (sb scriptBase) Wastes() []*Pile {
 	return sb.wastes
 }
 
-// Complete - default is number of cards in Foundations == total number of cards.
-//
-// In Bisley, there may be <13 cards in a Foundation.
-// This will need overriding for any variants with Discard piles.
-// Could also do this by checking if any pile other than a Foundation is not empty.
 func (sb scriptBase) Complete() bool {
-	var n = 0
-	for _, f := range sb.foundations {
-		n += len(f.cards)
-	}
-	return n == sb.baize.numberOfCards()
-}
-
-func (sb scriptBase) SpiderComplete() bool {
-	for _, tab := range sb.tableaux {
-		switch len(tab.cards) {
-		case 0:
-			// that's fine
-		case 13:
-			if !tab.vtable.conformant() {
+	if len(sb.discards) > 0 {
+		for _, tab := range sb.tableaux {
+			switch len(tab.cards) {
+			case 0:
+				// that's fine
+			case 13:
+				if !tab.vtable.conformant() {
+					return false
+				}
+			default:
 				return false
 			}
-		default:
-			return false
 		}
+		return true
+	} else {
+		// In Bisley, there may be <13 cards in a Foundation
+		var n = 0
+		for _, f := range sb.foundations {
+			n += len(f.cards)
+		}
+		return n == sb.baize.numberOfCards()
 	}
-	return true
 }
 
 func (sb scriptBase) Wikipedia() string {
@@ -181,6 +177,11 @@ func (sb scriptBase) Wikipedia() string {
 }
 
 func (sb scriptBase) CardColors() int {
+	// TODO look at the first tableau's appendCmp2/moveComp2
+	// Color, AltColor := 2
+	// Suit, OtherSuit, := 4
+	// what if there are no tableau piles? (eg Colorado) (default to 2, I guess)
+	// could make a few cards and throw them at appendCmp2, to get 1, 2 or 4
 	if sb.cardColors == 0 { // uninitialized default
 		return 2
 	} else {
