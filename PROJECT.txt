@@ -11,7 +11,9 @@ and lerps the difference between old and new.
 
 TODO
 ====
-[ ] Safe collect triggered when card colors = 4? (Australian)
+[ ] Load a Lua library after creating a new state and registering moon functions
+	scripts/~library.lua
+[x] Safe collect triggered when card colors = 4? (Australian)
 [x] Walk scripts directory tree
 		scripts/Canfields/Duchess.lua
 			add/verify "> Canfields" to variantGroups

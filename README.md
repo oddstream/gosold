@@ -1,10 +1,10 @@
 # Minimal Polymorphic Solitaire in Go
 
-Towards a polymorphic solitaire engine in [Go](https://golang.org/)+[Ebiten](https://ebiten.org/), with help from [fogleman/gg](https://github.com/fogleman/gg) (both of which are highly recommended), with game variants run by (user supplied) scripts.
+Towards a polymorphic solitaire engine in [Go](https://golang.org/)+[Ebiten](https://ebiten.org/), with help from [fogleman/gg](https://github.com/fogleman/gg) (both of which are highly recommended), with game variants run by (user supplied) Lua scripts.
 
 ![Screenshot](https://github.com/oddstream/gosold/blob/83a2f0204bc2006ccffbcc8035e5a7306418b2d6/screenshots/Klondike.png)
 
-It's tested on Linux, Windows and in a web browser. If you have go installed, you should be able to run it on Linux or Windows by cloning this repo and then `go run .` in the cloned directory. Or, install it using `go install github.com/oddstream/gosol@latest`.
+It's tested on Linux, Windows and in a web browser. If you have go installed, you should be able to run it on Linux or Windows by cloning this repo and then `go run .` in the cloned directory. Or, install it using `go install github.com/oddstream/gosold@latest`.
 
 There is a live playable WASM version [here](https://oddstream.games/gosol/gosol.html) (sorry about the large initial download).
 
@@ -48,6 +48,20 @@ Some will never make it here because they are just poor games:
 
 ![Screenshot](https://github.com/oddstream/gosold/blob/84179963d81c4b36cee39bb6e55449dff4fce17c/screenshots/Simple%20Simon.png)
 
+## Creating or modifying variants using scripts
+
+Lua scripts for game variants are stored in a directory called `scripts`.
+
+Each script must define two mandatory functions, `BuildPiles` and `StartGame`, and then, optionally, others including: `AfterMove`, `TailMoveError`, `TailAppendError`, `TailTapped`, `PileTapped`. These functions are called by the gosold program.
+
+The script can then call functions which are provided by the gosold program, for example `NewStock`, `MoveCard`, `SetRecycles`.
+
+You do not need Lua to be installed to run the scripts; a Lua virtual machine is embedded within the gosold program. The scripts use Lua 5.1.
+
+TODO a worked example of Klondike
+
+TODO API reference
+
 ## Other features
 
 * Permissive card moves. If you want to move a card from here to there, go ahead and do it. If that move is not allowed by the current rules, the game will put the cards back *and explain why that move is not allowed*.
@@ -63,6 +77,8 @@ Some will never make it here because they are just poor games:
 * Automatic saving of game in progress.
 * A dragable baize; if cards spill out of view to the bottom or right of the screen, just drag the baize to move them into view.
 * A 'discard' pile type so that Spideresque games can be implemented as they are described in the textbooks (other software reuses Foundation piles).
+* A 'robot' that will automatically play obvious good moves.
+* Create new variants by writing small Lua scripts.
 
 ## Deliberate minimalism
 
@@ -161,7 +177,7 @@ The number of cards you can move is calculated from the number of empty piles an
 
 #### Colorful cards
 
-Depending on the variant, enabling this draws the cards in four colors, rather than the usual black and red.
+Depending on the variant, enabling this draws the cards in one or four colors, rather than the usual black and red.
 
 #### Mirror baize
 
@@ -177,7 +193,7 @@ Enabling this will cause cards to be moved to the Foundation piles after every m
 
 #### Safe collect
 
-In games like Klondike that build tableau cards in alternating colors, you can sometimes get into trouble by moving cards to the foundations too soon. With this option turned on, the titlebar collect button will only move cards to the foundation piles when it is safe to do so.
+In games like Klondike that build tableau cards in alternating colors, you can sometimes get into trouble by moving cards to the foundations too soon. With this option turned on, autocollect and the titlebar collect button will only move cards to the foundation piles when it is safe to do so.
 
 ### Is the game rigged?
 
@@ -265,7 +281,7 @@ Moving completed sets of cards to a discard is optional, and is usally done to c
 
 ### Waste
 
-A waste pile can store any number of cards, all face up. You can only move one card at a time to a waste pile, and that card usually comes from the stock pile. There is usually one waste pile (exception: Colorado)
+A waste pile can store any number of cards, all face up. You can only move one card at a time to a waste pile, and that card usually comes from the stock pile. There is usually one waste pile (exception: Colorado).
 
 In some games (like Klondike) cards in the waste pile can be recycled back to the stock pile, by tapping on an empty stock pile. The game may restrict the number of times this can happen.
 
@@ -281,8 +297,9 @@ Only one card at a time may be moved from a reserve, and cards can never be move
 
 ## TODO
 
+* Jokers.
+* Stripped decks (removed earlier because it wasn't being used).
 * Reduce the size of the executable (using [UPX](https://upx.github.io/)?) and WASM files.
-* Scripted game variants, possibly using [GopherLua](https://github.com/yuin/gopher-lua), or a Tcl-style little language.
 * ~~The LÖVE+Lua version contains several things that are implemented better, so I'm in the process of copying the designs back to this version.~~
 * ~~Get it working on Android (agggh! help!).~~
 * ~~I'd like it to have an inter-user high scores table, but the Google Play games services interface and setup is inpenetrable to me at the moment.~~
@@ -299,11 +316,11 @@ Third, there was a version in Go, using the Ebiten game engine, with help from g
 
 Fourth, there is a version in C that uses the Raylib game engine and uses Lua to script the game variants. The design was good, but has problems with scaling cards.
 
-Fifth, there was a seond version in Go, using the Ebiten game engine, with help from gg/fogleman. The design is way better than the original attempt in Go, allows the option for scripting games, and has sharp graphics.
+Fifth, there was a second version in Go, using the Ebiten game engine, with help from gg/fogleman. The design is way better than the original attempt in Go, allows the option for scripting games, and has sharp graphics.
 
 Sixth, there was a complete rewrite in Lua + the LÖVE game engine. It replaced the second version, runs on Android/Linux/Windows, and is available in the Google Play Store. It's similar to the Go version, and the two get together to swap features and design ideas.
 
-Seventh, there is this version, again in Go + Ebiten. This time, the code is split into front end (display of piles and cards, interaction with mouse/pointer) and back end (implementation of variant rules). I've done this so I can play at creating a polymorphic solver.
+Seventh, there is this version, again in Go + Ebiten. This time, the code is split into front end (display of piles and cards, interaction with mouse/pointer) and back end (implementation of variant rules). I've done this so I can play at creating a polymorphic solver. This version also uses a Lua VM (written in Go) to run script files that define the behaviour of each variant.
 
 ## Acknowledgements
 

@@ -294,11 +294,11 @@ var variants = map[string]scripter{
 		},
 		variant: "Easthaven",
 	},
-	"Whitehead": &Whitehead{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
-		},
-	},
+	// "Whitehead": &Whitehead{
+	// 	scriptBase: scriptBase{
+	// 		wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
+	// 	},
+	// },
 	"Uncle Sam": &UncleSam{
 		scriptBase: scriptBase{
 			cardColors: 2,
@@ -327,7 +327,7 @@ var variantGroups = map[string][]string{
 	"> Harder":        {"Easthaven", "Forty Thieves", "Spider Four Suits"},
 	"> Forty Thieves": {"Forty Thieves", "Number Ten", "Red and Black", "Indian", "Rank and File", "Sixty Thieves", "Josephine", "Limited", "Forty and Eight", "Lucas", "Busy Aces", "Maria", "Streets"},
 	"> Freecells":     {"Freecell"},
-	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three", "Thoughtful", "Whitehead"},
+	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three", "Thoughtful"},
 	"> People":        {"Duchess", "Josephine", "Maria", "Baker's Game"},
 	"> Places":        {"Bisley", "Colorado", "Yukon", "Klondike"},
 	"> Puzzlers":      {"Bisley", "Penguin"},

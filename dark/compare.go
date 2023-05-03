@@ -134,19 +134,21 @@ func (dy dyad) compare_OtherSuit() (bool, error) {
 // library of compare functions made from simple compares
 
 func (dy dyad) compare_DownColor() (bool, error) {
-	ok, err := dy.compare_Color()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_Down()
+	// ok, err := dy.compare_Color()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_Down()
+	return dy.chainCall(dyad.compare_Color, dyad.compare_Down)
 }
 
 func (dy dyad) compare_DownAltColor() (bool, error) {
-	ok, err := dy.compare_AltColor()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_Down()
+	// ok, err := dy.compare_AltColor()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_Down()
+	return dy.chainCall(dyad.compare_AltColor, dyad.compare_Down)
 }
 
 // compare_DownColorWrap not used
@@ -159,76 +161,85 @@ func (dy dyad) compare_DownAltColor() (bool, error) {
 // }
 
 func (dy dyad) compare_DownAltColorWrap() (bool, error) {
-	ok, err := dy.compare_AltColor()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_DownWrap()
+	// ok, err := dy.compare_AltColor()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_DownWrap()
+	return dy.chainCall(dyad.compare_AltColor, dyad.compare_DownWrap)
 }
 
 func (dy dyad) compare_UpAltColor() (bool, error) {
-	ok, err := dy.compare_AltColor()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_Up()
+	// ok, err := dy.compare_AltColor()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_Up()
+	return dy.chainCall(dyad.compare_AltColor, dyad.compare_Up)
 }
 
 func (dy dyad) compare_UpSuit() (bool, error) {
-	ok, err := dy.compare_Suit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_Up()
+	// ok, err := dy.compare_Suit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_Up()
+	return dy.chainCall(dyad.compare_Suit, dyad.compare_Up)
 }
 
 func (dy dyad) compare_DownSuit() (bool, error) {
-	ok, err := dy.compare_Suit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_Down()
+	// ok, err := dy.compare_Suit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_Down()
+	return dy.chainCall(dyad.compare_Suit, dyad.compare_Down)
 }
 
 func (dy dyad) compare_UpOrDownSuit() (bool, error) {
-	ok, err := dy.compare_Suit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_UpOrDown()
+	// ok, err := dy.compare_Suit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_UpOrDown()
+	return dy.chainCall(dyad.compare_Suit, dyad.compare_UpOrDown)
 }
 
 func (dy dyad) compare_UpOrDownSuitWrap() (bool, error) {
-	ok, err := dy.compare_Suit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_UpOrDownWrap()
+	// ok, err := dy.compare_Suit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_UpOrDownWrap()
+	return dy.chainCall(dyad.compare_Suit, dyad.compare_UpOrDownWrap)
 }
 
 // compare_DownOtherSuit not used
 func (dy dyad) compare_DownOtherSuit() (bool, error) {
-	ok, err := dy.compare_OtherSuit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_Down()
+	// ok, err := dy.compare_OtherSuit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_Down()
+	return dy.chainCall(dyad.compare_OtherSuit, dyad.compare_Down)
 }
 
 func (dy dyad) compare_UpSuitWrap() (bool, error) {
-	ok, err := dy.compare_Suit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_UpWrap()
+	// ok, err := dy.compare_Suit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_UpWrap()
+	return dy.chainCall(dyad.compare_Suit, dyad.compare_UpWrap)
 }
 
 func (dy dyad) compare_DownSuitWrap() (bool, error) {
-	ok, err := dy.compare_Suit()
-	if !ok {
-		return ok, err
-	}
-	return dy.compare_DownWrap()
+	// ok, err := dy.compare_Suit()
+	// if !ok {
+	// 	return ok, err
+	// }
+	// return dy.compare_DownWrap()
+	return dy.chainCall(dyad.compare_Suit, dyad.compare_DownWrap)
 }
 
 // chainCall

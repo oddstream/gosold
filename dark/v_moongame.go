@@ -97,18 +97,11 @@ func (self *MoonGame) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 
 	glob := self.baize.L.GetGlobal("TailAppendError") // glob == lua.LNil if it doesn't exist
 	if fn, ok := glob.(*lua.LFunction); ok {
-		// udMoonGame := self.baize.L.NewUserData()
-		// udMoonGame.Value = self
-		// udPile := self.baize.L.NewUserData()
-		// udPile.Value = dst
-		// udTail := self.baize.L.NewUserData()
-		// udTail.Value = tail
 		err := self.baize.L.CallByParam(lua.P{
 			Fn:      fn,
 			NRet:    2,
 			Protect: true,
 		}, &lua.LUserData{Value: dst}, &lua.LUserData{Value: tail})
-		// }, udMoonGame, udPile, udTail)
 		if err != nil {
 			fmt.Println(err)
 		} else {
@@ -858,9 +851,9 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"MoveCard", moonMoveCard},
 		{"MoveTail", moonMoveTail},
 		{"DefaultTailTapped", moonDefaultTailTapped},
-		{"CompareEmpty", moonCompareEmpty},
-		{"CompareAppend", moonCompareAppend},
-		{"CompareMove", moonCompareMove},
+		// {"CompareEmpty", moonCompareEmpty},
+		// {"CompareAppend", moonCompareAppend},
+		// {"CompareMove", moonCompareMove},
 		{"Toast", moonToast},
 	}
 	for _, f := range funcs {
