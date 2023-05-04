@@ -90,7 +90,10 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	// BuildPiles() must not create or move any cards
 	// so fill and shuffle Stock here
 	{
-		stock := b.script.Stock()
+		var stock *Pile
+		if stock = b.script.Stock(); stock == nil {
+			panic("No stock")
+		}
 		stock.fill(b.script.Packs(), b.script.Suits())
 		// TODO add jokers here
 		stock.shuffle()

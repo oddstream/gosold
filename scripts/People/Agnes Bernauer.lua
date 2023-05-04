@@ -51,9 +51,7 @@ function StartGame()
 end
 
 function TailTapped(tail)
-	local card = First(tail)
-	local owner = Owner(card)
-	if Category(owner) == "Stock" and Len(tail) == 1 then
+	if Category(Owner(First(tail))) == "Stock" then
 		local stock = Stock()
 		for _, r in ipairs(Reserves()) do
 			MoveCard(stock, r)

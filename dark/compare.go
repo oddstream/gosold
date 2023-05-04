@@ -246,8 +246,6 @@ func (dy dyad) compare_DownSuitWrap() (bool, error) {
 //
 // Call using dyad method expressions
 // eg chainCall(dyad.compare_UpOrDown, dyad.compare_Suit)
-//
-// TODO think of something else for unsortedPairs(*Pile)
 func (dy dyad) chainCall(fns ...func(dyad) (bool, error)) (ok bool, err error) {
 	for _, fn := range fns {
 		if ok, err = fn(dy); err != nil {

@@ -239,6 +239,29 @@ func (self *MoonGame) Packs() int {
 
 // functions called by Lua to do DARK things
 
+func moonDefaultTailAppendError(L *lua.LState) int {
+	var returnOk bool = true
+	var returnErr error
+
+	if moonGame := getMoonGame(L); moonGame != nil {
+		udDst := L.CheckUserData(1)
+		if dst, ok := udDst.Value.(*Pile); ok {
+			udTail := L.CheckUserData(2)
+			if tail, ok := udTail.Value.([]*Card); ok {
+				returnOk, returnErr = moonGame.scriptBase.TailAppendError(dst, tail)
+			}
+		}
+	}
+
+	L.Push(lua.LBool(returnOk))
+	if returnErr == nil {
+		L.Push(lua.LString(""))
+	} else {
+		L.Push(lua.LString(returnErr.Error()))
+	}
+	return 2 // bool, error string
+}
+
 func moonDefaultTailTapped(L *lua.LState) int {
 	if moonGame := getMoonGame(L); moonGame != nil {
 		udTail := L.CheckUserData(1)
@@ -596,7 +619,6 @@ func moonSetCompareFunction(L *lua.LState) int {
 		if pile, ok := udPile.Value.(*Pile); ok {
 			typ := L.CheckString(2)
 			fn := L.CheckString(3)
-			// TODO type check typ and fn
 			switch typ {
 			case "Append":
 				if pile.appendCmp2, ok = moonCompareFunctions[string(fn)]; !ok {
@@ -712,6 +734,8 @@ func moonRecycles(L *lua.LState) int {
 	return 1
 }
 
+// moonCompareEmpty
+// deprecated
 func moonCompareEmpty(L *lua.LState) int {
 	var result bool
 	var err error
@@ -737,6 +761,8 @@ func moonCompareEmpty(L *lua.LState) int {
 	return 2 // bool, error string
 }
 
+// moonCompareAppend
+// deprecated
 func moonCompareAppend(L *lua.LState) int {
 	var result bool
 	var err error
@@ -762,6 +788,8 @@ func moonCompareAppend(L *lua.LState) int {
 	return 2 // bool, error string
 }
 
+// moonCompareMove
+// deprecated
 func moonCompareMove(L *lua.LState) int {
 	var result bool
 	var err error
@@ -850,10 +878,11 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		// Other
 		{"MoveCard", moonMoveCard},
 		{"MoveTail", moonMoveTail},
+		{"DefaultTailAppendError", moonDefaultTailAppendError},
 		{"DefaultTailTapped", moonDefaultTailTapped},
-		// {"CompareEmpty", moonCompareEmpty},
-		// {"CompareAppend", moonCompareAppend},
-		// {"CompareMove", moonCompareMove},
+		{"CompareEmpty", moonCompareEmpty},   // deprecated, retire
+		{"CompareAppend", moonCompareAppend}, // deprecated, retire
+		{"CompareMove", moonCompareMove},     // deprecated, retire
 		{"Toast", moonToast},
 	}
 	for _, f := range funcs {

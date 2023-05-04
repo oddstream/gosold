@@ -20,9 +20,6 @@ globals = {
 	"NewWaste", "Wastes", "Waste",
 
 	"Category",
-	"CompareAppend",
-	"CompareEmpty",
-	"CompareMove",
 	"First",
 	"Label",
 	"Len",
@@ -39,7 +36,7 @@ globals = {
 	"Toast",
 	"Extract", "Bury", "Disinter",
 	"FlipDown", "FlipUp",
-	"DefaultTailTapped",
+	"DefaultTailAppendError", "DefaultTailTapped",
 
 	"FAN_NONE",
 	"FAN_RIGHT", "FAN_RIGHT3",

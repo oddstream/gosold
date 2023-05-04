@@ -262,7 +262,7 @@ func (c *card) update() {
 
 	if c.actualDeg != c.targetDeg {
 		// caveat: assumes slot.Deg values are multiples of 5 (15, 30, 45, 60, 75, 90)
-		// TODO could put a lerp here
+		// could put a lerp here
 		if c.targetDeg < c.actualDeg {
 			c.actualDeg -= 5
 		} else {

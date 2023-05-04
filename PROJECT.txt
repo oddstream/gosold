@@ -11,6 +11,7 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[ ] DefaultTailAppendError()
 [ ] Load a Lua library after creating a new state and registering moon functions
 	scripts/~library.lua
 [x] Safe collect triggered when card colors = 4? (Australian)

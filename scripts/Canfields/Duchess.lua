@@ -110,9 +110,10 @@ function TailAppendError(dst, tail)
 				end
 			end
 		end
-		return CompareEmpty(dst, tail)
+		-- return CompareEmpty(dst, tail)
 	end
-	return CompareAppend(dst, tail)
+	-- return CompareAppend(dst, tail)
+	return DefaultTailAppendError(dst, tail)
 end
 
 function PileTapped(pile)

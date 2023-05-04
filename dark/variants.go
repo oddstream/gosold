@@ -54,14 +54,14 @@ var variants = map[string]scripter{
 		draw:     3,
 		recycles: 2,
 	},
-	"Thoughtful": &Klondike{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
-		},
-		draw:       1,
-		recycles:   2,
-		thoughtful: true,
-	},
+	// "Thoughtful": &Klondike{
+	// 	scriptBase: scriptBase{
+	// 		wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
+	// 	},
+	// 	draw:       1,
+	// 	recycles:   2,
+	// 	thoughtful: true,
+	// },
 	"Gargantua": &Klondike{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Gargantua_(card_game)",
@@ -288,12 +288,12 @@ var variants = map[string]scripter{
 		},
 		variant: "American",
 	},
-	"Easthaven": &Westcliff{
-		scriptBase: scriptBase{
-			wikipedia: "https://en.wikipedia.org/wiki/Westcliff_(card_game)",
-		},
-		variant: "Easthaven",
-	},
+	// "Easthaven": &Westcliff{
+	// 	scriptBase: scriptBase{
+	// 		wikipedia: "https://en.wikipedia.org/wiki/Westcliff_(card_game)",
+	// 	},
+	// 	variant: "Easthaven",
+	// },
 	// "Whitehead": &Whitehead{
 	// 	scriptBase: scriptBase{
 	// 		wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
@@ -324,10 +324,10 @@ var variantGroups = map[string][]string{
 	"> Canfields":     {"Eagle Wing"},
 	"> Easier":        {"American Toad", "American Westcliff", "Blockade", "Classic Westcliff", "Lucas", "Spider One Suit", "Usk Relaxed"},
 	"> Hapgood":       {"Light and Shadow", "The Rainbow", "Uncle Sam"},
-	"> Harder":        {"Easthaven", "Forty Thieves", "Spider Four Suits"},
+	"> Harder":        {"Forty Thieves", "Spider Four Suits"},
 	"> Forty Thieves": {"Forty Thieves", "Number Ten", "Red and Black", "Indian", "Rank and File", "Sixty Thieves", "Josephine", "Limited", "Forty and Eight", "Lucas", "Busy Aces", "Maria", "Streets"},
 	"> Freecells":     {"Freecell"},
-	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three", "Thoughtful"},
+	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three"},
 	"> People":        {"Duchess", "Josephine", "Maria", "Baker's Game"},
 	"> Places":        {"Bisley", "Colorado", "Yukon", "Klondike"},
 	"> Puzzlers":      {"Bisley", "Penguin"},

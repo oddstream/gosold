@@ -11,7 +11,6 @@ type Klondike struct {
 	scriptBase
 	founds, tabs   []int
 	draw, recycles int
-	thoughtful     bool
 }
 
 func (self *Klondike) BuildPiles() {
@@ -52,9 +51,6 @@ func (self *Klondike) StartGame() {
 			if card == nil {
 				log.Print("No card")
 				break
-			}
-			if !self.thoughtful {
-				card.flipDown()
 			}
 		}
 		dealDown++

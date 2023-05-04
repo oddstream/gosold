@@ -98,9 +98,7 @@ end
 	-- pointless rule, since tableaux move rule is MOVE_ONE_OR_ALL
 
 function TailTapped(tail)
-	local card = First(tail)
-	local pile = Owner(card)
-	if Category(pile) == "Stock" then
+	if Category(Owner(First(tail))) == "Stock" then
 		MoveCard(Stock(), Waste())
 		MoveCard(Stock(), Waste())
 		MoveCard(Stock(), Waste())
