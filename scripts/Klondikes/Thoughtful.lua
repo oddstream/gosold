@@ -34,6 +34,7 @@ function BuildPiles()
 		local t = NewTableau(x, 1, FAN_DOWN, MOVE_ANY)
 		SetCompareFunction(t, "Append", "DownAltColor")
 		SetCompareFunction(t, "Move", "DownAltColor")
+		SetLabel(t, "K")
 	end
 end
 

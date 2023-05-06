@@ -54,14 +54,6 @@ var variants = map[string]scripter{
 		draw:     3,
 		recycles: 2,
 	},
-	// "Thoughtful": &Klondike{
-	// 	scriptBase: scriptBase{
-	// 		wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
-	// 	},
-	// 	draw:       1,
-	// 	recycles:   2,
-	// 	thoughtful: true,
-	// },
 	"Gargantua": &Klondike{
 		scriptBase: scriptBase{
 			wikipedia: "https://en.wikipedia.org/wiki/Gargantua_(card_game)",
@@ -288,17 +280,6 @@ var variants = map[string]scripter{
 		},
 		variant: "American",
 	},
-	// "Easthaven": &Westcliff{
-	// 	scriptBase: scriptBase{
-	// 		wikipedia: "https://en.wikipedia.org/wiki/Westcliff_(card_game)",
-	// 	},
-	// 	variant: "Easthaven",
-	// },
-	// "Whitehead": &Whitehead{
-	// 	scriptBase: scriptBase{
-	// 		wikipedia: "https://en.wikipedia.org/wiki/Klondike_(solitaire)",
-	// 	},
-	// },
 	"Uncle Sam": &UncleSam{
 		scriptBase: scriptBase{
 			cardColors: 2,
@@ -328,7 +309,7 @@ var variantGroups = map[string][]string{
 	"> Forty Thieves": {"Forty Thieves", "Number Ten", "Red and Black", "Indian", "Rank and File", "Sixty Thieves", "Josephine", "Limited", "Forty and Eight", "Lucas", "Busy Aces", "Maria", "Streets"},
 	"> Freecells":     {"Freecell"},
 	"> Klondikes":     {"Gargantua", "Triple Klondike", "Klondike", "Klondike Draw Three"},
-	"> People":        {"Duchess", "Josephine", "Maria", "Baker's Game"},
+	"> People":        {"Josephine", "Maria"},
 	"> Places":        {"Bisley", "Colorado", "Yukon", "Klondike"},
 	"> Puzzlers":      {"Bisley", "Penguin"},
 	"> Spiders":       {"Spider One Suit", "Spider Two Suits", "Spider Four Suits", "Scorpion", "Spiderette"},
@@ -339,7 +320,7 @@ var variantGroups = map[string][]string{
 func init() {
 	// look in the scripts folder tree (depth one only) for *.lua files
 	// turn subfolder names as group names
-	{
+	if runtime.GOARCH != "wasm" {
 		type scriptInfo struct {
 			path, name, group string
 		}

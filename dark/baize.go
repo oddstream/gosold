@@ -6,6 +6,7 @@ import (
 	"errors"
 	"hash/crc32"
 	"log"
+	"runtime"
 	"sort"
 
 	lua "github.com/yuin/gopher-lua"
@@ -71,7 +72,7 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	// 	}
 	// }
 
-	if script.Fname() != "" {
+	if runtime.GOARCH != "wasm" && script.Fname() != "" {
 		if b.L = lua.NewState(); b.L == nil {
 			log.Fatal("Cannot create new GopherLua state")
 		}
@@ -115,7 +116,7 @@ func (b *Baize) Close() {
 		b.save()
 	}
 
-	if b.L != nil {
+	if runtime.GOARCH != "wasm" && b.L != nil {
 		b.L.Close()
 	}
 }

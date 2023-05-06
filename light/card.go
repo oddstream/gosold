@@ -349,7 +349,7 @@ func (c *card) draw(screen *ebiten.Image) {
 		// because this made tapping look a little messy
 	}
 
-	if c.pile.baize.game.settings.ShowMovableCards {
+	if c.pile.baize.game.settings.ShowMovableCards && !c.spinning() {
 		if c.pile.darkPile.IsStock() {
 			// card will be prone because Stock
 			// nb this will color all the stock cards, not just the top card
