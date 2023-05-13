@@ -124,6 +124,8 @@ func NewGame() *Game {
 			} else {
 				if g.baize.darkBaize.Robot() > 0 {
 					sound.Play("Shove")
+				} else {
+					sound.Play("Glass")
 				}
 			}
 		},

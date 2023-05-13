@@ -124,7 +124,7 @@ func (p *pile) hidden() bool {
 
 // createPlaceHolder for this pile, depending on category. Sets pile.img field.
 func (p *pile) createPlaceholder() {
-	if p.hidden() {
+	if p.hidden() || p.darkPile.Label() == "X" {
 		return
 	}
 	// BEWARE the card fonts may not yet be loaded

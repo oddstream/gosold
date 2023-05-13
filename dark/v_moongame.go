@@ -735,7 +735,8 @@ func moonRecycles(L *lua.LState) int {
 }
 
 // moonCompareEmpty
-// deprecated
+//
+// Deprecated: replaced by DefaultTailAppendError
 func moonCompareEmpty(L *lua.LState) int {
 	var result bool
 	var err error
@@ -762,7 +763,8 @@ func moonCompareEmpty(L *lua.LState) int {
 }
 
 // moonCompareAppend
-// deprecated
+//
+// Deprecated: replaced by DefaultTailAppendError
 func moonCompareAppend(L *lua.LState) int {
 	var result bool
 	var err error
@@ -789,7 +791,8 @@ func moonCompareAppend(L *lua.LState) int {
 }
 
 // moonCompareMove
-// deprecated
+//
+// Deprecated: replaced by DefaultTailAppendError
 func moonCompareMove(L *lua.LState) int {
 	var result bool
 	var err error
@@ -880,9 +883,9 @@ func registerMoonFunctions(L *lua.LState, script scripter) {
 		{"MoveTail", moonMoveTail},
 		{"DefaultTailAppendError", moonDefaultTailAppendError},
 		{"DefaultTailTapped", moonDefaultTailTapped},
-		{"CompareEmpty", moonCompareEmpty},   // deprecated, retire
-		{"CompareAppend", moonCompareAppend}, // deprecated, retire
-		{"CompareMove", moonCompareMove},     // deprecated, retire
+		{"CompareEmpty", moonCompareEmpty},
+		{"CompareAppend", moonCompareAppend},
+		{"CompareMove", moonCompareMove},
 		{"Toast", moonToast},
 	}
 	for _, f := range funcs {

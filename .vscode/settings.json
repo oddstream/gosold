@@ -1,6 +1,9 @@
 {
-	// "editor.fontFamily": "Droid Sans Mono",
-	"editor.fontFamily": "Hack",	// better DejaVu Sans Mono
+	"editor.fontFamily": "Droid Sans Mono",
+	// "editor.fontFamily": "Liberation Mono",
+	// "editor.fontFamily": "Hack",	// bolder DejaVu Sans Mono
+	// "editor.fontFamily": "Consolas",
+	// "editor.fontFamily": "Anonymous Pro",
 	// "editor.fontFamily": "DejaVu Sans Mono",
 	// "editor.fontFamily": "JetBrains Mono",
 	// "editor.fontFamily": "Fira Code Retina",

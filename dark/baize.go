@@ -248,6 +248,9 @@ func (b *Baize) RestartDeal() (bool, error) {
 	if b.Complete() {
 		return false, errors.New("Cannot restart a completed game") // otherwise the stats can be cooked
 	}
+	if !(len(b.undoStack) > 1) {
+		return false, errors.New("Game is already at the start")
+	}
 	var sav *savableBaize
 	var ok bool
 	for len(b.undoStack) > 0 {
@@ -734,6 +737,9 @@ func (b *Baize) findAllMovableTails() [][]*Card {
 
 func (b *Baize) findTargetsForAllMovableTails(tails [][]*Card) {
 
+	// pointlessMove := func(src, dst *Pile, tail []*Card) {
+	// }
+
 	for _, tail := range tails {
 		// we already know this tail is movable, both at pile-type and script level
 		var targets []tapTarget = []tapTarget{}
@@ -819,6 +825,7 @@ func (b *Baize) findTargetsForAllMovableTails(tails [][]*Card) {
 	}
 }
 
+// countMoves sets Baize .moves & .fmoves
 func (b *Baize) countMoves() {
 	b.moves, b.fmoves = 0, 0
 

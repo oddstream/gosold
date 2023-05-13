@@ -274,13 +274,21 @@ func (self *Pile) push(c *Card) {
 
 // prev returns *Card that is before specified card in the pile
 // or nil if there is no card before it
-func (self *Pile) prev(c *Card) *Card {
-	for i, d := range self.cards {
-		if c == d && i > 0 {
-			return self.cards[i-1]
+func (self *Pile) prev(cNext *Card) *Card {
+	// for i, d := range self.cards {
+	// 	if c == d && i > 0 {
+	// 		return self.cards[i-1]
+	// 	}
+	// }
+	// return nil
+	var cPrev *Card
+	for _, cNext = range self.cards {
+		if cPrev == cNext {
+			return cPrev
 		}
+		cPrev = cNext
 	}
-	return nil
+	return cPrev
 }
 
 func (self *Pile) flipUpExposedCard() {

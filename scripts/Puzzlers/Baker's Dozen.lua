@@ -6,12 +6,12 @@ function BuildPiles()
 	for x = 0, 6 do
 		local t = NewTableau(x, 0, FAN_DOWN, MOVE_ONE)
 		SetCompareFunction(t, "Append", "Down")
-		SetLabel(t, "x")
+		SetLabel(t, "X")
 	end
 	for x = 0, 5 do
 		local t = NewTableau(x + 0.5, 3, FAN_DOWN, MOVE_ONE)
 		SetCompareFunction(t, "Append", "Down")
-		SetLabel(t, "x")
+		SetLabel(t, "X")
 	end
 	local ts = Tableaux()
 	SetBoundary(ts[1], 8)

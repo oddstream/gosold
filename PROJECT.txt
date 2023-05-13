@@ -11,6 +11,7 @@ and lerps the difference between old and new.
 
 TODO
 ====
+[x] do not draw [x] piles
 [ ] Now you ask: is it going to work on WASM?
 [x] DefaultTailAppendError()
 [ ] Load a Lua library after creating a new state and registering moon functions
