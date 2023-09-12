@@ -46,20 +46,6 @@ Some will never make it here because they are just poor games:
 
 ![Screenshot](https://github.com/oddstream/gosold/blob/84179963d81c4b36cee39bb6e55449dff4fce17c/screenshots/Simple%20Simon.png)
 
-## Creating or modifying variants using scripts
-
-Lua scripts for game variants are stored in a directory called `scripts`.
-
-Each script must define two mandatory functions, `BuildPiles` and `StartGame`, and then, optionally, others including: `AfterMove`, `TailMoveError`, `TailAppendError`, `TailTapped`, `PileTapped`. These functions are called by the gosold program.
-
-The script can then call functions which are provided by the gosold program, for example `NewStock`, `MoveCard`, `SetRecycles`.
-
-You do not need Lua to be installed to run the scripts; a Lua virtual machine is embedded within the gosold program. The scripts use Lua 5.1.
-
-TODO a worked example of Klondike
-
-TODO API reference
-
 ## Other features
 
 * Permissive card moves. If you want to move a card from here to there, go ahead and do it. If that move is not allowed by the current rules, the game will put the cards back *and explain why that move is not allowed*.
@@ -292,6 +278,66 @@ A cell is either empty, or it can contain one card of any type. Cell cards are a
 A reserve pile contains a series of cards, usually all face down with only the top card face up and available for play to a foundation, tableau or cell pile.
 
 Only one card at a time may be moved from a reserve, and cards can never be moved to a reserve pile.
+
+## Creating or modifying variants using scripts
+
+Lua scripts for game variants are stored in a directory called `scripts`.
+
+Each script must define two mandatory functions, `BuildPiles` and `StartGame`, and then, optionally, others including: `AfterMove`, `TailMoveError`, `TailAppendError`, `TailTapped`, `PileTapped`. These functions are called by the gosold program.
+
+The script can then call functions which are provided by the gosold program, for example `NewStock`, `MoveCard`, `SetRecycles`.
+
+You do not need Lua to be installed to run the scripts; a Lua virtual machine is embedded within the gosold program. The scripts use Lua 5.1.
+
+For example, here is the Lua script used to drive the game Simple Simon:
+
+```lua
+-- Simple Simon
+
+function BuildPiles()
+	NewStock(-5, -5)
+	for x = 3, 6 do
+		NewDiscard(x, 0)
+	end
+	for x = 0, 9 do
+		local t = NewTableau(x, 1, FAN_DOWN, MOVE_ANY)
+		SetCompareFunction(t, "Append", "Down")
+		SetCompareFunction(t, "Move", "DownSuit")
+	end
+end
+
+function StartGame()
+	-- 3 piles of 8 cards each
+	local stock = Stock()
+	local tx = Tableaux()
+	for i = 1, 3 do
+		local t = tx[i]
+		for _ = 1, 8 do
+			MoveCard(stock, t)
+		end
+	end
+	local deal = 7
+	for i = 4, 10 do
+		local t = tx[i]
+		for _ = 1, deal do
+			MoveCard(stock, t)
+		end
+		deal = deal - 1
+	end
+end
+
+function Wikipedia()
+	return "https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)"
+end
+
+function CardColors()
+	return 4
+end
+```
+
+TODO a worked example of Klondike
+
+TODO API reference
 
 ## TODO
 
