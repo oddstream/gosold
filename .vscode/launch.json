@@ -10,9 +10,9 @@
         "request": "launch",
         "mode": "debug",
         "program": "${workspaceFolder}",
-        "args": ["-debug", "-noload", "-nosave", "-boxes"],
+        // "args": ["-debug", "-noload", "-nosave", "-boxes"],
         // "args": ["-debug", "-cpuprofile=gosold.prof"],
-        // "args": ["-debug", "-boxes"],
+        "args": ["-debug", "-boxes"],
         // "args": [],
         // can't do this
         // The flags specified in buildFlags and env.GOFLAGS are passed to the Go compiler when building your program for debugging.

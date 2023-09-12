@@ -8,8 +8,6 @@ It's tested on Linux, Windows and in a web browser. If you have go installed, yo
 
 There is a live playable WASM version [here](https://oddstream.games/gosol/gosol.html) (sorry about the large initial download).
 
-It's created because I *have* to write software, and for my own personal enjoyment. It's skewed toward puzzle-type games, because they're the ones I mostly play. It's definitely not for profit and will never contain ads.
-
 ## Variants
 
 It currently knows how to play:

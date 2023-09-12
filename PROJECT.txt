@@ -13,6 +13,9 @@ TODO
 ====
 [x] do not draw [x] piles
 [ ] Now you ask: is it going to work on WASM?
+	No, because we load scripts from files
+	A WASM version would need the scripts as //go:embed and then loaded as strings
+
 [x] DefaultTailAppendError()
 [ ] Load a Lua library after creating a new state and registering moon functions
 	scripts/~library.lua

@@ -335,18 +335,12 @@ func init() {
 
 			if !info.IsDir() && filepath.Ext(path) == ".lua" {
 				var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
-				var splits []string
-				if runtime.GOOS == "windows" {
-					splits = strings.Split(path, "\\")
-				} else {
-					splits = strings.Split(path, "/")
-				}
+				var splits []string = strings.Split(path, string(os.PathSeparator))
 				// [scripts Duchess.lua]
 				// [scripts Canfields Duchess.lua]
 				if len(splits) == 3 {
 					sinfo.group = "> " + splits[1]
 				}
-				// fmt.Println(splits)
 				files = append(files, sinfo)
 			}
 			return nil
