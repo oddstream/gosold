@@ -58,8 +58,7 @@ func main() {
 		ebiten.RestoreWindow()
 	}
 	{
-		x, y := ebiten.ScreenSizeInFullscreen()
-		n := util.Max(x, y)
+		n := util.Max(ebiten.ScreenSizeInFullscreen())
 		ebiten.SetWindowSize(n/2, n/2)
 	}
 	ebiten.SetWindowIcon(light.WindowIcons())
@@ -74,6 +73,6 @@ func main() {
 	// but we don't come here if ExitRequested has been set
 	// (and Game.Update() returned an error)
 	// which another thing I don't understand
-	log.Println("main exit")
+	// log.Println("main exit")Game.Exit
 	g.ExitGame()
 }

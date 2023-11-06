@@ -1,7 +1,9 @@
 package dark
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -316,71 +318,86 @@ var variantGroups = map[string][]string{
 	"> Yukons":        {"Yukon", "Yukon Cells"},
 }
 
+// nb the scripts directory has to be a child of this directory (dark)
+//
+//go:embed scripts
+var embeddedScriptFiles embed.FS
+
 // init is used to assemble the "> All" alpha-sorted group of variants
 func init() {
 	// look in the scripts folder tree (depth one only) for *.lua files
 	// turn subfolder names as group names
-	if runtime.GOARCH != "wasm" {
-		type scriptInfo struct {
-			path, name, group string
-		}
+	if runtime.GOARCH == "wasm" {
+		return
+	}
 
-		var files []scriptInfo
+	type scriptInfo struct {
+		path, name, group string
+	}
 
-		err := filepath.Walk("./scripts", func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				fmt.Println(err)
-				return nil
-			}
+	var files []scriptInfo
 
-			if !info.IsDir() && filepath.Ext(path) == ".lua" {
-				var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
-				var splits []string = strings.Split(path, string(os.PathSeparator))
-				// [scripts Duchess.lua]
-				// [scripts Canfields Duchess.lua]
-				if len(splits) == 3 {
-					sinfo.group = "> " + splits[1]
-				}
-				files = append(files, sinfo)
-			}
-			return nil
-		})
-
+	err := fs.WalkDir(embeddedScriptFiles, "scripts", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			fmt.Println(err)
-		} else {
-			// fmt.Println(files)
-			for _, sinfo := range files {
-				variants[sinfo.name] = &MoonGame{scriptBase: scriptBase{fname: sinfo.path}}
-				if sinfo.group != "" {
-					if _, ok := variantGroups[sinfo.group]; !ok {
-						variantGroups[sinfo.group] = []string{sinfo.name}
-					} else {
-						// You can't change values associated with keys in a map, you can only reassign values
-						gameNames := variantGroups[sinfo.group]
-						gameNames = append(gameNames, sinfo.name)
-						variantGroups[sinfo.group] = gameNames
-					}
+			return err
+		}
+		// println(path)
+		// Lua files with apostrophe in filename (eg Baker's Game, Baker's Dozen) not being listed
+		if !d.IsDir() && filepath.Ext(path) == ".lua" {
+			var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
+			var splits []string = strings.Split(path, string(os.PathSeparator))
+			// scripts/Duchess.lua := [scripts Duchess.lua]
+			// scripts/Canfields/Duchess.lua := [scripts Canfields Duchess.lua]
+			if len(splits) == 3 {
+				sinfo.group = "> " + splits[1]
+			}
+			files = append(files, sinfo)
+		}
+		return nil
+	})
+
+	// for _, info := range files {
+	// 	println(info.path, info.name, info.group)
+	// }
+
+	// err := filepath.Walk("./scripts", func(path string, info os.FileInfo, err error) error {
+	// 	if err != nil {
+	// 		return err
+	// 	}
+
+	// 	if !info.IsDir() && filepath.Ext(path) == ".lua" {
+	// 		var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
+	// 		var splits []string = strings.Split(path, string(os.PathSeparator))
+	// 		// [scripts Duchess.lua]
+	// 		// [scripts Canfields Duchess.lua]
+	// 		if len(splits) == 3 {
+	// 			sinfo.group = "> " + splits[1]
+	// 		}
+	// 		files = append(files, sinfo)
+	// 	}
+	// 	return nil
+	// })
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// fmt.Println(files)
+		for _, sinfo := range files {
+			script, _ := embeddedScriptFiles.ReadFile(sinfo.path)
+			variants[sinfo.name] = &MoonGame{scriptBase: scriptBase{script: string(script)}}
+			if sinfo.group != "" {
+				if _, ok := variantGroups[sinfo.group]; !ok {
+					// group not seen before
+					variantGroups[sinfo.group] = []string{sinfo.name}
+				} else {
+					// existing group
+					// you can't change values associated with keys in a map, you can only reassign values
+					gameNames := variantGroups[sinfo.group]
+					gameNames = append(gameNames, sinfo.name)
+					variantGroups[sinfo.group] = gameNames
 				}
 			}
 		}
-
-		// alternatives to filepath.Walk
-		//
-		// files, err := filepath.Glob("./scripts/*.lua")
-		// if err != nil {
-		// 	log.Println(err) // "open scripts: no such file or directory"
-		// } else {
-		// 	fmt.Println(files) // [scripts/FreecellScript.lua]
-		// }
-		// entries, err := os.ReadDir("scripts")
-		// if err != nil {
-		// 	log.Println(err) // "open scripts: no such file or directory"
-		// } else {
-		// 	for _, e := range entries {
-		// 		println(e.Name())
-		// 	}
-		// }
 	}
 
 	var vnames []string = make([]string, 0, len(variants))

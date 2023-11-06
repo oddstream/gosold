@@ -1,18 +1,28 @@
 {
-	"editor.fontFamily": "CommitMono",
+	// https://www.programmingfonts.org/
+	"editor.fontFamily": "Roboto Mono",
+	// "editor.fontFamily": "CommitMono", // https://commitmono.com/
+	// "editor.fontFamily": "Hack",	// like DejaVu Sans Mono
+	// "editor.fontFamily": "Source Code Pro",
+	// "editor.fontFamily": "Intel One Mono",
+	// "editor.fontFamily": "Bitstream Vera Sans Mono",
 	// "editor.fontFamily": "Droid Sans Mono",
-	// "editor.fontFamily": "Liberation Mono", // lighter Droid Sans Mono
-	// "editor.fontFamily": "Hack",	// better DejaVu Sans Mono
-	// "editor.fontFamily": "Consolas",
-	// "editor.fontFamily": "Anonymous Pro",	// narrower and lighter
 	// "editor.fontFamily": "DejaVu Sans Mono",
+	// "editor.fontFamily": "Fantasque Sans Mono",	//https://github.com/belluzj/fantasque-sans/
+	// "editor.fontFamily": "Comic Mono", // https://dtinth.github.io/comic-mono-font/
+	// "editor.fontFamily": "Comic Shanns",
+	// "editor.fontFamily": "Liberation Mono", // lighter Droid Sans Mono
+	// "editor.fontFamily": "Consolas",
 	// "editor.fontFamily": "JetBrains Mono",
+	// "editor.fontFamily": "Anonymous Pro",	// narrower and lighter
 	// "editor.fontFamily": "Fira Code Retina", // ligatures
 	// "editor.fontFamily": "Fira Code",
 	// "editor.fontFamily": "Ubuntu Mono",	// too small
 	// "editor.fontFamily": "Inconsolata",	// too small
 	// "editor.fontFamily": "Go Mono",	// too serifed
-	// "editor.fontFamily": "Cascadia Code",	// too fat
+	// "editor.fontFamily": "Noto Mono",
+	// "editor.fontFamily": "Victor Mono",
+	// "editor.fontFamily": "Cascadia Code",
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
 		{
@@ -22,5 +32,15 @@
 			}
 		}
 		]
+	},
+	// use Ctrl+Space to trigger suggestions
+	"editor.quickSuggestions": { "other": "off", "comments": "off", "strings": "off" },
+	// "editor.rulers": [80,100,120]
+	"editor.cursorBlinking": "smooth",
+	"editor.cursorSmoothCaretAnimation": "off",
+	"workbench.tree.indent": 15,
+	"workbench.tree.renderIndentGuides": "always",
+	"workbench.colorCustomizations": {
+		"tree.indentGuidesStroke": "#ffffff"
 	}
 }

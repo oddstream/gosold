@@ -72,15 +72,17 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 	// 	}
 	// }
 
-	if runtime.GOARCH != "wasm" && script.Fname() != "" {
-		if b.L = lua.NewState(); b.L == nil {
-			log.Fatal("Cannot create new GopherLua state")
-		}
-		if err := b.L.DoString(`print(_VERSION)`); err != nil {
-			panic(err)
-		}
+	if b.L = lua.NewState(); b.L == nil {
+		log.Fatal("Cannot create new GopherLua state")
+	}
+	// if err := b.L.DoString(`print(_VERSION)`); err != nil {
+	// 	panic(err)
+	// }
+
+	// a builtin (Go-implemented) variant will have no script
+	if textOfScript := script.Script(); textOfScript != "" {
 		registerMoonFunctions(b.L, b.script)
-		if err := b.L.DoFile(script.Fname()); err != nil {
+		if err := b.L.DoString(textOfScript); err != nil {
 			panic(err)
 		}
 	}
@@ -111,7 +113,7 @@ func (d *dark) NewBaize(variant string, fnNotify func(BaizeEvent, any)) (*Baize,
 
 func (b *Baize) Close() {
 	// runtime.SetFinalizer() is weird and deprecated by Dave Cheney
-	log.Println("Closing", b.variant, "baize")
+	// log.Println("Closing", b.variant, "baize")
 	if !NoSave {
 		b.save()
 	}

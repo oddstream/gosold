@@ -281,13 +281,13 @@ Only one card at a time may be moved from a reserve, and cards can never be move
 
 ## Creating or modifying variants using scripts
 
-Lua scripts for game variants are stored in a directory called `scripts`.
+Lua scripts for game variants are embedded into the `gosold` executable when it is built.
 
-Each script must define two mandatory functions, `BuildPiles` and `StartGame`, and then, optionally, others including: `AfterMove`, `TailMoveError`, `TailAppendError`, `TailTapped`, `PileTapped`. These functions are called by the gosold program.
+Each script must define two mandatory functions, `BuildPiles` and `StartGame`, and then, optionally, others including: `AfterMove`, `TailMoveError`, `TailAppendError`, `TailTapped`, `PileTapped`. These functions are called by the `gosold` program.
 
-The script can then call functions which are provided by the gosold program, for example `NewStock`, `MoveCard`, `SetRecycles`.
+The script can then call functions which are provided by the `gosold` program, for example `NewStock`, `MoveCard`, `SetRecycles`.
 
-You do not need Lua to be installed to run the scripts; a Lua virtual machine is embedded within the gosold program. The scripts use Lua 5.1.
+You do not need Lua to be installed to run the scripts; a Lua virtual machine is embedded within the `gosold` program. The scripts use Lua 5.1.
 
 For example, here is the Lua script used to drive the game Simple Simon:
 

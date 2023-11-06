@@ -16,9 +16,9 @@ var (
 	// GosolVersionMajor is the integer version number
 	GosoldVersionMajor int = 6
 	// CsolVersionMinor is the integer version number
-	GosoldVersionMinor int = 2
+	GosoldVersionMinor int = 3
 	// CSolVersionDate is the ISO 8601 date of bumping the version number
-	GosolVersionDate string = "2023-03-09"
+	GosolVersionDate string = "2023-11-06"
 	// CardWidth of cards, start with a silly value to force a rescale/refan
 	CardWidth int = 9
 	// CardHeight of cards, start with a silly value to force a rescale/refan
@@ -175,7 +175,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) ExitGame() {
-	log.Println("Game.ExitGame")
+	// log.Println("Game.ExitGame")
 	g.baize.darkBaize.Close()
 	// g.baize.darkBaize.Save()
 	g.settings.save()

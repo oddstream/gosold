@@ -4,7 +4,6 @@ package dark
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -69,7 +68,7 @@ func loadBytesFromFile(jsonFname string, leaveNoTrace bool) ([]byte, int, error)
 		if err != nil {
 			log.Fatal(err, " closing ", pathName)
 		}
-		log.Println("loaded", pathName)
+		// log.Println("loaded", pathName)
 		if leaveNoTrace {
 			os.Remove(pathName)
 		}
@@ -106,7 +105,7 @@ func saveBytesToFile(bytes []byte, jsonFname string) {
 		log.Fatal(err)
 	}
 
-	log.Println("saved", pathName)
+	// log.Println("saved", pathName)
 }
 
 // Load statistics for all variants from JSON to an already-created Statistics object
@@ -153,7 +152,7 @@ func (b *Baize) load() {
 		log.Fatal("saved undo stack is not ok")
 	}
 	b.replaceUndoStack(undoStack)
-	b.fnNotify(MessageEvent, fmt.Sprintf("Loaded a saved game of %s", b.variant))
+	// b.fnNotify(MessageEvent, fmt.Sprintf("Loaded a saved game of %s", b.variant))
 }
 
 // Save the entire undo stack to file
@@ -165,11 +164,11 @@ func (b *Baize) save() {
 	// 	return
 	// }
 
-	bytes, err := json.MarshalIndent(b.undoStack, "", "\t")
+	_, err := json.MarshalIndent(b.undoStack, "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	saveBytesToFile(bytes, "saved."+b.variant+".json")
+	// saveBytesToFile(bytes, "saved."+b.variant+".json")
 	// nb don't toast here; ebiten may have shut down
 }

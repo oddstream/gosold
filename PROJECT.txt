@@ -9,13 +9,21 @@ DARK knows nothing of ebiten or gg
 LIGHT is really stupid. It's passed an entire baize of cards,
 and lerps the difference between old and new.
 
+Cannot have WASM version because scripts/*.lua need to be loaded
+
 TODO
 ====
-[x] do not draw [x] piles
-[ ] Now you ask: is it going to work on WASM?
-	No, because we load scripts from files
-	A WASM version would need the scripts as //go:embed and then loaded as strings
+[ ] fail better when no scripts directory
+[ ] embed scripts/*.lua in executable
+https://pkg.go.dev/embed
+//go:embed static
+var embededFiles embed.FS
+...
+fsys, err := fs.Sub(embededFiles, "static")
+"when you include a directory, it won’t include files that start with . or _, but if you use a wildcard, like dir/*, it will include all files that match, even if they start with . or _. "
+"using //go:embed dir/* is almost always a mistake. Use //go:embed dir or //go:embed dir/*.ext as needed instead. For security reasons, Go also won’t follow symbolic links or go up a directory when embedding."
 
+[x] do not draw [x] piles
 [x] DefaultTailAppendError()
 [ ] Load a Lua library after creating a new state and registering moon functions
 	scripts/~library.lua

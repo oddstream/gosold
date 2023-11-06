@@ -366,7 +366,7 @@ func LoadBytesFromFile(fname string, leaveNoTrace bool) ([]byte, int, error) {
 		if err != nil {
 			log.Fatal(err, " closing ", fullpath)
 		}
-		log.Println("loaded", fullpath)
+		// log.Println("loaded", fullpath)
 		if leaveNoTrace {
 			os.Remove(fullpath)
 		}
@@ -403,7 +403,7 @@ func SaveBytesToFile(bytes []byte, fname string) {
 		log.Fatal(err)
 	}
 
-	log.Println("saved", fullpath)
+	// log.Println("saved", fullpath)
 }
 
 func Contains[T comparable](elems []T, v T) bool {
