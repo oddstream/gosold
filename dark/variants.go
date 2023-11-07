@@ -319,6 +319,11 @@ var variantGroups = map[string][]string{
 }
 
 // nb the scripts directory has to be a child of this directory (dark)
+// nb 'scripts' is a glob-like pattern
+// Patterns may not contain ‘.’ or ‘..’ or empty path elements, nor may they begin or end with a slash
+// Files with names beginning with ‘.’ or ‘_’ are excluded
+// Patterns must not match files whose names include the special punctuation characters " * < > ? ` ' | / \ and :
+// See https://pkg.go.dev/embed
 //
 //go:embed scripts
 var embeddedScriptFiles embed.FS
@@ -342,9 +347,18 @@ func init() {
 			return err
 		}
 		// println(path)
+
+		// path will be like:
+		// scripts
+		// scripts/Canfields
+		// scripts/Canfields/American Toad.lua
+
 		// Lua files with apostrophe in filename (eg Baker's Game, Baker's Dozen) not being listed
+		// can't even use &apos; and html.UnescapeString()
 		if !d.IsDir() && filepath.Ext(path) == ".lua" {
-			var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
+			name := strings.TrimSuffix(filepath.Base(path), ".lua")
+			// name = html.UnescapeString(name)
+			var sinfo scriptInfo = scriptInfo{path: path, name: name}
 			var splits []string = strings.Split(path, string(os.PathSeparator))
 			// scripts/Duchess.lua := [scripts Duchess.lua]
 			// scripts/Canfields/Duchess.lua := [scripts Canfields Duchess.lua]
@@ -359,24 +373,6 @@ func init() {
 	// for _, info := range files {
 	// 	println(info.path, info.name, info.group)
 	// }
-
-	// err := filepath.Walk("./scripts", func(path string, info os.FileInfo, err error) error {
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	if !info.IsDir() && filepath.Ext(path) == ".lua" {
-	// 		var sinfo scriptInfo = scriptInfo{path: path, name: strings.TrimSuffix(filepath.Base(path), ".lua")}
-	// 		var splits []string = strings.Split(path, string(os.PathSeparator))
-	// 		// [scripts Duchess.lua]
-	// 		// [scripts Canfields Duchess.lua]
-	// 		if len(splits) == 3 {
-	// 			sinfo.group = "> " + splits[1]
-	// 		}
-	// 		files = append(files, sinfo)
-	// 	}
-	// 	return nil
-	// })
 
 	if err != nil {
 		fmt.Println(err)
