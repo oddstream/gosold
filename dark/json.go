@@ -164,11 +164,11 @@ func (b *Baize) save() {
 	// 	return
 	// }
 
-	_, err := json.MarshalIndent(b.undoStack, "", "\t")
+	bytes, err := json.MarshalIndent(b.undoStack, "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// saveBytesToFile(bytes, "saved."+b.variant+".json")
+	saveBytesToFile(bytes, "saved."+b.variant+".json")
 	// nb don't toast here; ebiten may have shut down
 }

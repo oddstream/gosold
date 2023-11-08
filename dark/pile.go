@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"time"
 
 	"oddstream.games/gosold/cardid"
 )
@@ -201,7 +200,7 @@ func (self *Pile) fill(packs, suits int) {
 // }
 
 func (self *Pile) shuffle() {
-	rand.Seed(time.Now().UTC().UnixNano())
+	// rand.Seed(time.Now().UTC().UnixNano()) deprecated from Go 1.20
 	rand.Shuffle(self.Len(), self.Swap)
 }
 

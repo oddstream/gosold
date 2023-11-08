@@ -123,6 +123,8 @@ func (b *Baize) Close() {
 	}
 }
 
+// setupPilesToCheck creates a list of piles that can be targets for movable tails;
+// it only needs to be called once after a baize is created
 func (b *Baize) setupPilesToCheck() {
 	b.pilesToCheck = []*Pile{}
 	b.pilesToCheck = append(b.pilesToCheck, b.script.Foundations()...)
@@ -737,6 +739,9 @@ func (b *Baize) findAllMovableTails() [][]*Card {
 	return tails
 }
 
+// findTargetsForAllMovableTails set tapTarget for each card in tails (a slice of card slices) [][]*Card
+// each card gets one tapTarget, judges to be the best of those available
+// (because you can only tap a card once, so there's no point having alternatives)
 func (b *Baize) findTargetsForAllMovableTails(tails [][]*Card) {
 
 	// pointlessMove := func(src, dst *Pile, tail []*Card) {
