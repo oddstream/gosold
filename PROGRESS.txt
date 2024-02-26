@@ -1,5 +1,8 @@
 PROGRESS
 
+2024-02-26
+missing flipDown() added to Klondike StartGame
+
 2023-05-01
 more Lua scripting
 retire ScriptBase.SafeCollect()

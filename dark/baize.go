@@ -706,11 +706,6 @@ func (b *Baize) foreachCard(fn func(*Card)) {
 	for _, c := range b.cardMap {
 		fn(c)
 	}
-	// for _, p := range b.piles {
-	// 	for _, c := range p.cards {
-	// 		fn(c)
-	// 	}
-	// }
 }
 
 func (b *Baize) findCard(cid cardid.CardID) *Card {
@@ -719,16 +714,10 @@ func (b *Baize) findCard(cid cardid.CardID) *Card {
 			return c
 		}
 	}
-	// for _, p := range b.piles {
-	// 	for _, c := range p.cards {
-	// 		if c.id == cid {
-	// 			return c
-	// 		}
-	// 	}
-	// }
 	return nil
 }
 
+// findAllMovableTails returns a list of all movable tails
 func (b *Baize) findAllMovableTails() [][]*Card {
 	var tails [][]*Card
 	for _, p := range b.piles {
@@ -860,18 +849,6 @@ func (b *Baize) countMoves() {
 			b.fmoves++
 		}
 	}
-	// for _, p := range b.piles {
-	// 	for _, c := range p.cards {
-	// 		if c.tapTarget.dst == nil {
-	// 			continue
-	// 		}
-	// 		b.moves++
-	// 		if _, ok := c.tapTarget.dst.vtable.(*Foundation); ok {
-	// 			b.fmoves++
-	// 		}
-	// 	}
-	// }
-
 }
 
 func (b *Baize) findTapTargets() {

@@ -52,6 +52,7 @@ func (self *Klondike) StartGame() {
 				log.Print("No card")
 				break
 			}
+			card.flipDown()
 		}
 		dealDown++
 		moveCard(self.stock, pile)
