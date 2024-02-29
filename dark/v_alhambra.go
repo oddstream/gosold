@@ -18,18 +18,18 @@ func (self *Alhambra) BuildPiles() {
 	// waste pile implemented as a tableau because cards may be built on it
 	t := self.baize.NewTableau(newPileSlot(1, 3), FAN_RIGHT3, MOVE_ONE)
 	self.tableaux = append(self.tableaux, t)
-	t.appendCmp2 = dyad.compare_UpOrDownSuitWrap
+	t.appendCmpFunc = dyad.compare_UpOrDownSuitWrap
 
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 	for x := 4; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_DownSuit
+		f.appendCmpFunc = dyad.compare_DownSuit
 		f.setLabel("K")
 	}
 

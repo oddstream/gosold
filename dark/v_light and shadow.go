@@ -25,8 +25,8 @@ func (self *LightAndShadow) BuildPiles() {
 		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		self.auxilliaries = append(self.auxilliaries, t)
-		t.appendCmp2 = dyad.compare_DownAltColor
-		t.moveCmp2 = dyad.compare_DownAltColor
+		t.appendCmpFunc = dyad.compare_DownAltColor
+		t.moveCmpFunc = dyad.compare_DownAltColor
 	}
 
 	for i := 0; i < 4; i++ {
@@ -38,15 +38,15 @@ func (self *LightAndShadow) BuildPiles() {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_NONE, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		self.rivals = append(self.rivals, t)
-		t.appendCmp2 = dyad.compare_DownAltColor
-		t.moveCmp2 = dyad.compare_DownAltColor
+		t.appendCmpFunc = dyad.compare_DownAltColor
+		t.moveCmpFunc = dyad.compare_DownAltColor
 	}
 
 	// foundations
 	for x := 0; x < 8; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 3))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpAltColor
+		f.appendCmpFunc = dyad.compare_UpAltColor
 		f.setLabel("A")
 	}
 
@@ -100,7 +100,7 @@ func (self *LightAndShadow) TailAppendError(dst *Pile, tail []*Card) (bool, erro
 	if dst.Empty() {
 		return compare_Empty(dst, tail)
 	}
-	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
+	return dst.appendCmpFunc(dyad{dst.peek(), tail[0]})
 
 	// TODO BUG can't tap a card in the rivals to send it to auxilliaries
 }

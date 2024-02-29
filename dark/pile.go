@@ -53,18 +53,18 @@ type PileSlot struct {
 // Pile is exported from this package because it's used to pass between light and dark.
 // LIGHT should see a Pile object as immutable, hence the unexported fields and getters.
 type Pile struct {
-	baize                *Baize
-	category             string   // needed by LIGHT when creating Pile Placeholder (switch)
-	label                string   // needed by LIGHT when creating Pile Placeholder
-	moveType             MoveType // needed by DARK, not visible to LIGHT
-	fanType              FanType  // needed by LIGHT when fanning cards
-	cards                []*Card
-	vtable               pileVtabler // needed by DARK, not visible to LIGHT
-	slot                 PileSlot    // needed by LIGHT when placing piles
-	boundary             int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
-	appendFrom           string      // can only append cards from this subtype (eg Waste > Stock)
-	appendCmp2, moveCmp2 dyadCmpFunc // only used by Foundation, Tableau piles
-	maxLen               int         // TODO Cell=1, Discard & Foundation=13?
+	baize                      *Baize
+	category                   string   // needed by LIGHT when creating Pile Placeholder (switch)
+	label                      string   // needed by LIGHT when creating Pile Placeholder
+	moveType                   MoveType // needed by DARK, not visible to LIGHT
+	fanType                    FanType  // needed by LIGHT when fanning cards
+	cards                      []*Card
+	vtable                     pileVtabler // needed by DARK, not visible to LIGHT
+	slot                       PileSlot    // needed by LIGHT when placing piles
+	boundary                   int         // needed by LIGHT, set by script.BuildPiles, 0 = no boundary pile
+	appendFrom                 string      // can only append cards from this subtype (eg Waste > Stock)
+	appendCmpFunc, moveCmpFunc dyadCmpFunc // only used by Foundation, Tableau piles
+	maxLen                     int         // TODO Cell=1, Discard & Foundation=13?
 }
 
 // Public functions, visible to LIGHT
@@ -156,13 +156,13 @@ func newHiddenPileSlot() PileSlot {
 
 func (b *Baize) newPile(category string, slot PileSlot, fanType FanType, moveType MoveType) *Pile {
 	var p *Pile = &Pile{
-		baize:      b,
-		category:   category,
-		fanType:    fanType,
-		moveType:   moveType,
-		slot:       slot,
-		appendCmp2: dyad.compare_Any,
-		moveCmp2:   dyad.compare_Any,
+		baize:         b,
+		category:      category,
+		fanType:       fanType,
+		moveType:      moveType,
+		slot:          slot,
+		appendCmpFunc: dyad.compare_Any,
+		moveCmpFunc:   dyad.compare_Any,
 	}
 	b.addPile(p)
 	return p

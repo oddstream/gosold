@@ -22,13 +22,13 @@ func (self *Colorado) BuildPiles() {
 	for x := 2; x < 6; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 	for x := 6; x < 10; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_DownSuit
+		f.appendCmpFunc = dyad.compare_DownSuit
 		f.setLabel("K")
 	}
 
@@ -74,7 +74,7 @@ func (self *Colorado) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if util.Contains(self.wastes, src) && util.Contains(self.wastes, dst) {
 		return false, errors.New("Cannot move cards between Waste piles")
 	}
-	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
+	return dst.appendCmpFunc(dyad{dst.peek(), tail[0]})
 }
 
 // default TailTapped

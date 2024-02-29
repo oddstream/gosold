@@ -15,7 +15,7 @@ func (self *Yukon) BuildPiles() {
 	for y := 0; y < 4; y++ {
 		f := self.baize.NewFoundation(newPileSlot(8, y))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -29,7 +29,7 @@ func (self *Yukon) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 0), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = dyad.compare_DownAltColor
+		t.appendCmpFunc = dyad.compare_DownAltColor
 		t.setLabel("K")
 	}
 }

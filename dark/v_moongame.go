@@ -621,11 +621,11 @@ func moonSetCompareFunction(L *lua.LState) int {
 			fn := L.CheckString(3)
 			switch typ {
 			case "Append":
-				if pile.appendCmp2, ok = moonCompareFunctions[string(fn)]; !ok {
+				if pile.appendCmpFunc, ok = moonCompareFunctions[string(fn)]; !ok {
 					fmt.Println("Unknown append compare function", string(fn))
 				}
 			case "Move":
-				if pile.moveCmp2, ok = moonCompareFunctions[string(fn)]; !ok {
+				if pile.moveCmpFunc, ok = moonCompareFunctions[string(fn)]; !ok {
 					fmt.Println("Unknown move compare function", string(fn))
 				}
 			default:
@@ -773,7 +773,7 @@ func moonCompareAppend(L *lua.LState) int {
 		if pile, ok := udPile.Value.(*Pile); ok {
 			udTail := L.CheckUserData(2)
 			if tail, ok := udTail.Value.([]*Card); ok {
-				result, err = pile.appendCmp2(dyad{pile.peek(), tail[0]})
+				result, err = pile.appendCmpFunc(dyad{pile.peek(), tail[0]})
 			} else {
 				fmt.Println("CompareAppend arg 3 is not a tail, got a", udTail.Type().String())
 			}
@@ -801,7 +801,7 @@ func moonCompareMove(L *lua.LState) int {
 		if pile, ok := udPile.Value.(*Pile); ok {
 			udTail := L.CheckUserData(2)
 			if tail, ok := udTail.Value.([]*Card); ok {
-				result, err = pile.moveCmp2(dyad{pile.peek(), tail[0]})
+				result, err = pile.moveCmpFunc(dyad{pile.peek(), tail[0]})
 			} else {
 				fmt.Println("CompareMove arg 3 is not a tail, got a", udTail.Type().String())
 			}

@@ -24,14 +24,14 @@ func (pen *Penguin) BuildPiles() {
 	for y := 0; y < 4; y++ {
 		f := pen.baize.NewFoundation(newPileSlot(8, y))
 		pen.foundations = append(pen.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuitWrap
+		f.appendCmpFunc = dyad.compare_UpSuitWrap
 	}
 
 	for x := 0; x < 7; x++ {
 		t := pen.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		pen.tableaux = append(pen.tableaux, t)
-		t.appendCmp2 = dyad.compare_DownSuitWrap
-		t.moveCmp2 = dyad.compare_DownSuitWrap
+		t.appendCmpFunc = dyad.compare_DownSuitWrap
+		t.moveCmpFunc = dyad.compare_DownSuitWrap
 	}
 }
 

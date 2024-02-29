@@ -79,14 +79,14 @@ func (sb scriptBase) AfterMove() {}
 
 func (sb scriptBase) TailMoveError(tail []*Card) (bool, error) {
 	var pile *Pile = tail[0].owner()
-	return tailConformant(tail, pile.moveCmp2)
+	return tailConformant(tail, pile.moveCmpFunc)
 }
 
 func (sb scriptBase) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst.Empty() {
 		return compare_Empty(dst, tail)
 	}
-	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
+	return dst.appendCmpFunc(dyad{dst.peek(), tail[0]})
 }
 
 func (sb scriptBase) TailTapped(tail []*Card) {
@@ -149,6 +149,10 @@ func (sb scriptBase) Complete() bool {
 			case 0:
 				// that's fine
 			case 13:
+				// TODO BUG this is currently wrong
+				// as the logic allows a pile of mixed suit cards
+				// to be complete (eg in Simple Simon, Spider Two Suits)
+				// (lsol does not have this problem)
 				if !tab.vtable.conformant() {
 					return false
 				}
@@ -176,16 +180,10 @@ func (sb scriptBase) Wikipedia() string {
 }
 
 func (sb scriptBase) CardColors() int {
-	// TODO look at the first tableau's appendCmp2/moveComp2
-	// Color, AltColor := 2
-	// Suit, OtherSuit, := 4
-	// what if there are no tableau piles? (eg Colorado) (default to 2, I guess)
-	// could make a few cards and throw them at appendCmp2, to get 1, 2 or 4
-	if sb.cardColors == 0 { // uninitialized default
+	if sb.cardColors == 0 {
 		return 2
-	} else {
-		return sb.cardColors
 	}
+	return sb.cardColors
 }
 
 func (sb scriptBase) Packs() int {

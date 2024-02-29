@@ -23,8 +23,8 @@ func (self *Spiderette) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = dyad.compare_Down
-		t.moveCmp2 = dyad.compare_DownSuit
+		t.appendCmpFunc = dyad.compare_Down
+		t.moveCmpFunc = dyad.compare_DownSuit
 	}
 }
 

@@ -38,15 +38,15 @@ func (self *FortyThieves) BuildPiles() {
 	for _, x := range self.founds {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
 	for _, x := range self.tabs {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, self.moveType)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = self.tabCompareFunc
-		t.moveCmp2 = self.tabCompareFunc
+		t.appendCmpFunc = self.tabCompareFunc
+		t.moveCmpFunc = self.tabCompareFunc
 	}
 }
 

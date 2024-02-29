@@ -19,7 +19,7 @@ func (self *Scorpion) BuildPiles() {
 	for x := 0; x < 7; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 1), FAN_DOWN, MOVE_ANY)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = dyad.compare_DownSuit
+		t.appendCmpFunc = dyad.compare_DownSuit
 		t.setLabel("K")
 	}
 }

@@ -50,14 +50,14 @@ func (self *TheRainbow) BuildPiles() {
 		t := self.baize.NewTableau(rs, FAN_NONE, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		self.rainbow = append(self.rainbow, t)
-		t.appendCmp2 = dyad.compare_Down
+		t.appendCmpFunc = dyad.compare_Down
 		// t.setLabel("X")
 	}
 
 	for x := float32(2.5); x < 6.0; x += 1.0 {
 		f := self.baize.NewFoundation(PileSlot{x, 2, 0})
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
@@ -66,7 +66,7 @@ func (self *TheRainbow) BuildPiles() {
 		t := self.baize.NewTableau(PileSlot{float32(x), 4.0, 0}, FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
 		self.tab = append(self.tab, t)
-		t.appendCmp2 = dyad.compare_Down
+		t.appendCmpFunc = dyad.compare_Down
 	}
 
 }
@@ -119,7 +119,7 @@ func (self *TheRainbow) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if util.Contains(self.rainbow, src) && util.Contains(self.rainbow, dst) {
 		return false, errors.New("Cannot move cards between rainbow piles")
 	}
-	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
+	return dst.appendCmpFunc(dyad{dst.peek(), tail[0]})
 }
 
 // default TailTapped

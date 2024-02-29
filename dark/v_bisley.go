@@ -18,21 +18,21 @@ func (self *Bisley) BuildPiles() {
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 0))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_DownSuit
+		f.appendCmpFunc = dyad.compare_DownSuit
 		f.setLabel("K")
 	}
 
 	for x := 0; x < 4; x++ {
 		f := self.baize.NewFoundation(newPileSlot(x, 1))
 		self.foundations = append(self.foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("A")
 	}
 
 	for x := 0; x < 13; x++ {
 		t := self.baize.NewTableau(newPileSlot(x, 2), FAN_DOWN, MOVE_ONE)
 		self.tableaux = append(self.tableaux, t)
-		t.appendCmp2 = dyad.compare_UpOrDownSuit
+		t.appendCmpFunc = dyad.compare_UpOrDownSuit
 		t.setLabel("X")
 	}
 }

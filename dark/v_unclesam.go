@@ -49,7 +49,7 @@ func (self *UncleSam) BuildPiles() {
 		f := self.baize.NewFoundation(slot)
 		self.foundations = append(self.foundations, f)
 		self.u_foundations = append(self.u_foundations, f)
-		f.appendCmp2 = dyad.compare_DownSuit
+		f.appendCmpFunc = dyad.compare_DownSuit
 		f.setLabel("6")
 	}
 
@@ -57,7 +57,7 @@ func (self *UncleSam) BuildPiles() {
 		f := self.baize.NewFoundation(slot)
 		self.foundations = append(self.foundations, f)
 		self.s_foundations = append(self.s_foundations, f)
-		f.appendCmp2 = dyad.compare_UpSuit
+		f.appendCmpFunc = dyad.compare_UpSuit
 		f.setLabel("7")
 	}
 
@@ -102,7 +102,7 @@ func (self *UncleSam) TailAppendError(dst *Pile, tail []*Card) (bool, error) {
 	if dst == self.Waste() {
 		return false, errors.New("Cannot move cards to the Waste")
 	}
-	return dst.appendCmp2(dyad{dst.peek(), tail[0]})
+	return dst.appendCmpFunc(dyad{dst.peek(), tail[0]})
 }
 
 func (self *UncleSam) TailTapped(tail []*Card) {
