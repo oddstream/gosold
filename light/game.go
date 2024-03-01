@@ -16,9 +16,9 @@ var (
 	// GosolVersionMajor is the integer version number
 	GosoldVersionMajor int = 6
 	// CsolVersionMinor is the integer version number
-	GosoldVersionMinor int = 3
+	GosoldVersionMinor int = 4
 	// CSolVersionDate is the ISO 8601 date of bumping the version number
-	GosolVersionDate string = "2023-11-06"
+	GosoldVersionDate string = "2024-02-29"
 	// CardWidth of cards, start with a silly value to force a rescale/refan
 	CardWidth int = 9
 	// CardHeight of cards, start with a silly value to force a rescale/refan
@@ -80,6 +80,12 @@ func NewGame() *Game {
 		ebiten.KeyF: func() { g.ui.ShowVariantPickerEx(g.darker.ListVariantGroups(), "ShowVariantPicker") },
 		ebiten.KeyC: func() { g.baize.collect() },
 		ebiten.KeyU: func() { g.baize.undo() },
+		ebiten.KeyV: func() {
+			g.ui.Toast("Complete", fmt.Sprintf("Version %d.%d %s",
+				GosoldVersionMajor,
+				GosoldVersionMinor,
+				GosoldVersionDate))
+		},
 		ebiten.KeyB: func() {
 			if ebiten.IsKeyPressed(ebiten.KeyControl) {
 				g.baize.loadPosition()
@@ -164,7 +170,7 @@ func NewGame() *Game {
 	}
 
 	if g.settings.LastVersionMajor != GosoldVersionMajor || g.settings.LastVersionMinor != GosoldVersionMinor {
-		g.ui.Toast("Glass", fmt.Sprintf("Upgraded from %d.%d to %d.%d",
+		g.ui.Toast("Complete", fmt.Sprintf("Upgraded from %d.%d to %d.%d",
 			g.settings.LastVersionMajor,
 			g.settings.LastVersionMinor,
 			GosoldVersionMajor,
