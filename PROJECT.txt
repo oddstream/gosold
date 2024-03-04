@@ -6,13 +6,17 @@ layout of variant is separate from the rules/script; the layout of piles is of n
 
 DARK knows nothing of ebiten or gg
 
-LIGHT is really stupid. It's passed an entire baize of cards,
-and lerps the difference between old and new.
+LIGHT is really stupid. It's passed an entire baize of cards, and lerps the difference between old and new.
 
 Cannot have WASM version because scripts/*.lua need to be loaded
 
 TODO
 ====
+
+Game timer/project hourglass
+----------------------------
+Statistics, average time?
+
 [ ] fail better when no scripts directory
 [ ] embed scripts/*.lua in executable
 https://pkg.go.dev/embed

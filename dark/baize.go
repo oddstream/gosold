@@ -35,6 +35,7 @@ type Baize struct {
 	bookmark  int // needed by LIGHT to grey out goto bookmark menu item
 	moves     int // count of all available card moves
 	fmoves    int // count of available moves to foundation
+	ticks     int // number of ticks since this game was started
 	undoStack []*savableBaize
 	fnNotify  func(BaizeEvent, any)
 	BaizeSettings
@@ -243,6 +244,7 @@ func (b *Baize) NewDeal() (bool, error) {
 
 	b.script.Stock().shuffle()
 	b.script.StartGame()
+	b.ticks = 0
 	b.undoPush()
 	b.afterChange()
 	return true, nil
@@ -299,6 +301,14 @@ func (b *Baize) SavePosition() (bool, error) {
 
 func (b *Baize) SetSettings(settings BaizeSettings) {
 	b.BaizeSettings = settings
+}
+
+func (b *Baize) IncTicks() {
+	b.ticks += 1
+}
+
+func (b *Baize) Ticks() int {
+	return b.ticks
 }
 
 // TailDragged called by client when a tail of cards has been dragged from one pile to another.
@@ -478,55 +488,6 @@ func (b *Baize) Collect() int {
 	return totalCardsMoved
 }
 
-func (b *Baize) RobotMoves() int {
-	var n int
-	for _, c := range b.cardMap {
-		// the top card of Stock might be flagged as movable
-		if c.tapTarget.weight > 1 && !c.Prone() {
-			n++
-		}
-	}
-	return n
-}
-
-// Robot
-func (b *Baize) Robot() int {
-
-	if b.RobotMoves() == 0 {
-		stock := b.script.Stock()
-		if !stock.Hidden() {
-			if stock.Len() > 0 {
-				c := stock.peek()
-				b.CardTapped(c.id)
-				return 1
-			} else {
-				if b.recycles > 0 {
-					b.PileTapped(stock)
-					return 1
-				}
-			}
-		}
-	}
-
-	var cardsMoved int
-	if b.fmoves > 0 {
-		// use Collect rather than CardTapped to honor SafeCollect
-		cardsMoved = b.Collect()
-	}
-	var w int16
-	for w = 4; w > 1; w-- {
-		for _, c := range b.cardMap {
-			if !c.Prone() {
-				if c.tapTarget.weight == w {
-					b.CardTapped(c.id)
-					cardsMoved++
-				}
-			}
-		}
-	}
-	return cardsMoved
-}
-
 func (b *Baize) Wikipedia() string {
 	return b.script.Wikipedia()
 }
@@ -635,7 +596,7 @@ func (b *Baize) afterUserMove() {
 	b.undoPush()
 	b.afterChange()
 	if b.Complete() {
-		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1)
+		b.dark.stats.recordWonGame(b.variant, len(b.undoStack)-1, b.ticks)
 		b.fnNotify(WonEvent, nil)
 	}
 }

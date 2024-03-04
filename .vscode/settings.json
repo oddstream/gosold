@@ -1,9 +1,11 @@
 {
 	// https://www.programmingfonts.org/
-	// "editor.fontFamily": "Roboto Mono",
+	"editor.fontFamily": "Roboto Mono",
 	// "editor.fontFamily": "CommitMono", // https://commitmono.com/
 	// "editor.fontFamily": "Hack",	// like DejaVu Sans Mono
 	// "editor.fontFamily": "Source Code Pro",
+	// "editor.fontFamily": "Fira Code Retina", // ligatures
+	// "editor.fontFamily": "Fira Code",
 	// "editor.fontFamily": "Intel One Mono",
 	// "editor.fontFamily": "Bitstream Vera Sans Mono",
 	// "editor.fontFamily": "Droid Sans Mono",
@@ -13,10 +15,7 @@
 	// "editor.fontFamily": "Comic Shanns",
 	// "editor.fontFamily": "Liberation Mono", // lighter Droid Sans Mono
 	// "editor.fontFamily": "Consolas",
-	"editor.fontFamily": "JetBrains Mono",
-	// "editor.fontFamily": "Anonymous Pro",	// narrower and lighter
-	// "editor.fontFamily": "Fira Code Retina", // ligatures
-	// "editor.fontFamily": "Fira Code",
+	// "editor.fontFamily": "JetBrains Mono",
 	// "editor.fontFamily": "Ubuntu Mono",	// too small
 	// "editor.fontFamily": "Inconsolata",	// too small
 	// "editor.fontFamily": "Go Mono",	// too serifed

@@ -1,5 +1,10 @@
 PROGRESS
 
+2024-03-04
+Added timer
+Removed Robot, Solver
+bump version to 6.5
+
 2024-02-29
 bug fix to games with discard piles
 added key v to report version

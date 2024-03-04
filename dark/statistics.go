@@ -3,6 +3,8 @@ package dark
 import (
 	"fmt"
 	"strings"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // Statistics is a container for the Statistics for all variants
@@ -20,6 +22,8 @@ type VariantStatistics struct {
 	// Won + Lost is total number of games played (won or abandoned)
 	// SumPercents is a record of games where % < 100
 	// average % is (sum of Percents) + (100 * Won) / (Won+Lost)
+	TimedGames, BestTime, WorstTime int `json:",omitempty"`
+	// BestTime and WorstTime only record won games
 }
 
 // Public functions ///////////////////////////////////////////////////////////
@@ -53,6 +57,18 @@ func (stats *VariantStatistics) averagePercent() int {
 }
 
 func (stats *VariantStatistics) strings(v string) []string {
+
+	fmtTime := func(ticks int) string {
+		secs := int(float64(ticks) / ebiten.ActualTPS())
+		m := secs / 60
+		s := secs % 60
+		if m == 0 {
+			return fmt.Sprintf("%d seconds", secs)
+		} else {
+			return fmt.Sprintf("%dm %ds", m, s)
+		}
+	}
+
 	strs := []string{}
 	if stats.Won+stats.Lost == 0 {
 		strs = append(strs, fmt.Sprintf("You have not played %s before", v))
@@ -85,6 +101,12 @@ func (stats *VariantStatistics) strings(v string) []string {
 			}
 			if stats.WorstStreak != 0 {
 				strs = append(strs, fmt.Sprintf("Worst streak: %d", stats.WorstStreak))
+			}
+			if stats.BestTime != 0 {
+				strs = append(strs, fmt.Sprintf("Best time: %s", fmtTime(stats.BestTime)))
+			}
+			if stats.WorstTime != 0 {
+				strs = append(strs, fmt.Sprintf("Worst time: %s", fmtTime(stats.WorstTime)))
 			}
 		}
 	}
@@ -123,7 +145,7 @@ func (s *Statistics) played(v string) int {
 	return vstats.Won + vstats.Lost
 }
 
-func (s *Statistics) recordWonGame(v string, moves int) string {
+func (s *Statistics) recordWonGame(v string, moves, ticks int) string {
 
 	vstats := s.findVariant(v)
 
@@ -147,6 +169,14 @@ func (s *Statistics) recordWonGame(v string, moves int) string {
 		vstats.WorstMoves = moves
 	}
 	vstats.SumMoves += moves
+
+	if ticks < vstats.BestTime || vstats.BestTime == 0 {
+		vstats.BestTime = ticks
+	}
+	if ticks > vstats.WorstTime {
+		vstats.WorstTime = ticks
+	}
+	vstats.TimedGames += 1
 
 	s.save()
 

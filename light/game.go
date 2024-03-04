@@ -16,9 +16,9 @@ var (
 	// GosolVersionMajor is the integer version number
 	GosoldVersionMajor int = 6
 	// CsolVersionMinor is the integer version number
-	GosoldVersionMinor int = 4
+	GosoldVersionMinor int = 5
 	// CSolVersionDate is the ISO 8601 date of bumping the version number
-	GosoldVersionDate string = "2024-02-29"
+	GosoldVersionDate string = "2024-03-04"
 	// CardWidth of cards, start with a silly value to force a rescale/refan
 	CardWidth int = 9
 	// CardHeight of cards, start with a silly value to force a rescale/refan
@@ -116,6 +116,9 @@ func NewGame() *Game {
 				g.ui.ToastInfo("Movable cards always highlighted")
 			}
 		},
+		ebiten.KeyT: func() {
+			g.settings.Timer = !g.settings.Timer
+		},
 		ebiten.KeyA: func() {
 			var AniSpeedSettings = []ui.FloatSetting{
 				{Title: "Fast", Var: &g.settings.AniSpeed, Value: 0.3},
@@ -123,17 +126,6 @@ func NewGame() *Game {
 				{Title: "Slow", Var: &g.settings.AniSpeed, Value: 0.9},
 			}
 			g.ui.ShowAniSpeedDrawer(&AniSpeedSettings)
-		},
-		ebiten.KeyQ: func() {
-			if ebiten.IsKeyPressed(ebiten.KeyControl) {
-				g.baize.darkBaize.Solve(6)
-			} else {
-				if g.baize.darkBaize.Robot() > 0 {
-					sound.Play("Shove")
-				} else {
-					sound.Play("Glass")
-				}
-			}
 		},
 		ebiten.KeyF1: func() {
 			g.baize.wikipedia()
@@ -159,6 +151,7 @@ func NewGame() *Game {
 						sound.SetVolume(g.settings.Volume)
 					}
 				}},
+				{Title: "Timer", Var: &g.settings.Timer, Update: func() { g.baize.updateStatusbar() }},
 				// {Title: "Mirror baize", Var: &g.settings.MirrorBaize, Update: func() {
 				// 	savedUndoStack := TheGame.Baize.undoStack
 				// 	TheGame.Baize.StartFreshGame()

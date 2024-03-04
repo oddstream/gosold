@@ -734,7 +734,22 @@ func (b *baize) updateToolbar() {
 func (b *baize) updateStatusbar() {
 	b.game.ui.SetStock(b.darkBaize.StockLen())
 	b.game.ui.SetWaste(b.darkBaize.WasteLen())
-	b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d", b.darkBaize.UndoStackSize()-1))
+	if b.game.settings.Timer {
+		var t int = b.game.baize.darkBaize.Ticks()
+		var atps = int(ebiten.ActualTPS())
+		if atps != 0 {
+			secs := t / atps
+			m := secs / 60
+			s := secs % 60
+			if m == 0 {
+				b.game.ui.SetMiddle(fmt.Sprintf("TIMER: %ds", s))
+			} else {
+				b.game.ui.SetMiddle(fmt.Sprintf("TIMER: %dm %ds", m, s))
+			}
+		}
+	} else {
+		b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d", b.darkBaize.UndoStackSize()-1))
+	}
 	percent, fpercent := b.darkBaize.PercentComplete()
 	if DebugMode {
 		b.game.ui.SetPercent2(fmt.Sprintf("%d%%/%d%%", percent, fpercent))
@@ -790,6 +805,13 @@ func (b *baize) update() error {
 	for k := ebiten.Key(0); k <= ebiten.KeyMax; k++ {
 		if inpututil.IsKeyJustReleased(k) {
 			b.game.execute(k)
+		}
+	}
+
+	// don't count ticks unless game is in foreground and first move has been made
+	if !ebiten.IsWindowMinimized() && ebiten.IsFocused() {
+		if b.darkBaize.UndoStackSize() > 1 {
+			b.darkBaize.IncTicks()
 		}
 	}
 

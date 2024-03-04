@@ -20,6 +20,7 @@ type savableBaize struct {
 	Piles    []*savablePile `json:",omitempty"`
 	Bookmark int            `json:",omitempty"`
 	Recycles int            `json:",omitempty"`
+	Ticks    int            `json:",omitempty"`
 }
 
 func (self *Pile) savable() *savablePile {
@@ -50,7 +51,7 @@ func (self *Pile) updateFromSavable(sp *savablePile) {
 }
 
 func (b *Baize) newSavableBaize() *savableBaize {
-	sb := &savableBaize{Bookmark: b.bookmark, Recycles: b.recycles}
+	sb := &savableBaize{Bookmark: b.bookmark, Recycles: b.recycles, Ticks: b.ticks}
 	for _, p := range b.piles {
 		sb.Piles = append(sb.Piles, p.savable())
 	}
@@ -114,4 +115,5 @@ func (b *Baize) updateFromSavable(sb *savableBaize) {
 	}
 	b.bookmark = sb.Bookmark
 	b.setRecycles(sb.Recycles)
+	b.ticks = sb.Ticks
 }
