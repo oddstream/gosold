@@ -23,21 +23,17 @@ type Baize struct {
 	pilesToCheck []*Pile
 	cardMap      map[cardid.CardID]*Card
 	L            *lua.LState
-
-	// members needed by solver
-	script   scripter
-	piles    []*Pile // needed by LIGHT to display piles and cards
-	recycles int     // needed by LIGHT to determine Stock rune
-	percent  int     // needed by LIGHT to display in status bar
-	fpercent int
-
-	// members that are needed by LIGHT
-	bookmark  int // needed by LIGHT to grey out goto bookmark menu item
-	moves     int // count of all available card moves
-	fmoves    int // count of available moves to foundation
-	ticks     int // number of ticks since this game was started
-	undoStack []*savableBaize
-	fnNotify  func(BaizeEvent, any)
+	script       scripter
+	piles        []*Pile // needed by LIGHT to display piles and cards
+	recycles     int     // needed by LIGHT to determine Stock rune
+	percent      int     // needed by LIGHT to display in status bar
+	fpercent     int
+	bookmark     int // needed by LIGHT to grey out goto bookmark menu item
+	moves        int // count of all available card moves
+	fmoves       int // count of available moves to foundation
+	ticks        int // number of ticks since this game was started
+	undoStack    []*savableBaize
+	fnNotify     func(BaizeEvent, any)
 	BaizeSettings
 }
 
@@ -296,6 +292,7 @@ func (b *Baize) SavePosition() (bool, error) {
 	sb := b.undoPeek()
 	sb.Bookmark = b.bookmark
 	sb.Recycles = b.recycles
+	sb.Ticks = b.ticks
 	return true, nil
 }
 
@@ -669,14 +666,17 @@ func (b *Baize) foreachCard(fn func(*Card)) {
 	}
 }
 
+/*
 func (b *Baize) findCard(cid cardid.CardID) *Card {
-	for _, c := range b.cardMap {
-		if c.id == cid {
-			return c
-		}
-	}
-	return nil
+	// for _, c := range b.cardMap {
+	// 	if c.id == cid {
+	// 		return c
+	// 	}
+	// }
+	// return nil
+	return b.cardMap[cid]
 }
+*/
 
 // findAllMovableTails returns a list of all movable tails
 func (b *Baize) findAllMovableTails() [][]*Card {

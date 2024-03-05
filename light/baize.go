@@ -515,21 +515,17 @@ func (b *baize) cancelTailDrag(tail []*card) {
 	b.applyToTail(tail, (*card).cancelDrag)
 }
 
+/*
 func (b *baize) findCard(cid cardid.CardID) *card {
-	for _, c := range b.cardMap {
-		if c.id == cid {
-			return c
-		}
-	}
-	// for _, p := range b.piles {
-	// 	for _, c := range p.cards {
-	// 		if c.id == cid {
-	// 			return c
-	// 		}
+	// for _, c := range b.cardMap {
+	// 	if c.id == cid {
+	// 		return c
 	// 	}
 	// }
-	return nil
+	// return nil
+	return b.cardMap[cid]
 }
+*/
 
 func (b *baize) strokeStart(v stroke.StrokeEvent) {
 	b.stroke = v.Stroke
@@ -580,7 +576,8 @@ func (b *baize) strokeMove(v stroke.StrokeEvent) {
 	case ui.Widgety:
 		obj.Parent().DragBy(v.Stroke.PositionDiff())
 	case cardid.CardID:
-		c := b.findCard(obj)
+		c := b.cardMap[obj]
+		// c := b.findCard(obj)
 		tail := c.pile.makeTail(c)
 		dx, dy := v.Stroke.PositionDiff()
 		b.dragTailBy(tail, dx, dy)
@@ -611,9 +608,6 @@ func (b *baize) strokeStop(v stroke.StrokeEvent) {
 		obj.StopDrag()
 	case ui.Widgety:
 		obj.Parent().StopDrag()
-	// case cardid.CardID:
-	// 	c := b.findCard(obj)
-	// 	tail := c.pile.makeTail(c)
 	case []*card:
 		tail := obj  // alias for readability
 		c := tail[0] // for readability
