@@ -86,13 +86,13 @@ func MapValue(value, fromMin, fromMax, toMin, toMax float64) float64 {
 }
 
 // Clamp a value between min and max values
-func Clamp(value, min, max float64) float64 {
-	return math.Min(math.Max(value, min), max)
+func Clamp(value, minimum, maximum float64) float64 {
+	return min(max(value, minimum), maximum)
 }
 
 // ClampInt a value between min and max values
-func ClampInt(value, min, max int) int {
-	return Min(Max(value, min), max)
+func ClampInt(value, minimum, maximum int) int {
+	return min(max(value, minimum), maximum)
 }
 
 // Abs returns the absolute value of x
@@ -101,22 +101,6 @@ func Abs(x int) int {
 		return -x
 	}
 	return x
-}
-
-// Max returns the largest of it's two int parameters
-func Max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// Min returns the smallest of it's two int parameters
-func Min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 // Pow returns x ** y

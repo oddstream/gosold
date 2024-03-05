@@ -11,7 +11,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"oddstream.games/gosold/dark"
 	light "oddstream.games/gosold/light"
-	"oddstream.games/gosold/util"
 )
 
 func main() {
@@ -58,7 +57,7 @@ func main() {
 		ebiten.RestoreWindow()
 	}
 	{
-		n := util.Max(ebiten.ScreenSizeInFullscreen())
+		n := max(ebiten.ScreenSizeInFullscreen())
 		ebiten.SetWindowSize(n/2, n/2)
 	}
 	ebiten.SetWindowIcon(light.WindowIcons())

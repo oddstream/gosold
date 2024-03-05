@@ -4,6 +4,8 @@ PROGRESS
 Added timer
 Removed Robot, Solver
 bump version to 6.5
+removed util.Min, util.Max
+removed light and dark findCard
 
 2024-02-29
 bug fix to games with discard piles

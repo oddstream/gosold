@@ -234,8 +234,8 @@ func (c *card) update() {
 			// if c.Ordinal() == 1 && c.Suit() == 1 {
 			// 	log.Printf("%v\t0.25=%v\t0.5=%v\t0.75=%v", ts, ts/0.25, ts/0.5, ts/0.75)
 			// }
-			c.pos.X = int(util.Smoothstep(float64(c.src.X), float64(c.dst.X), t))
-			c.pos.Y = int(util.Smoothstep(float64(c.src.Y), float64(c.dst.Y), t))
+			c.pos.X = int(util.Smootherstep(float64(c.src.X), float64(c.dst.X), t))
+			c.pos.Y = int(util.Smootherstep(float64(c.src.Y), float64(c.dst.Y), t))
 		} else {
 			c.lerpingFlag = false
 		}

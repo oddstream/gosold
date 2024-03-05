@@ -4,11 +4,11 @@
 	// "editor.fontFamily": "Roboto Mono",
 	// "editor.fontFamily": "Noto Mono",
 	// "editor.fontFamily": "CommitMono", // https://commitmono.com/
+	"editor.fontFamily": "Liberation Mono", // lighter Droid Sans Mono
 	// "editor.fontFamily": "Hack",	// like DejaVu Sans Mono
 	// "editor.fontFamily": "Source Code Pro",
 	// "editor.fontFamily": "Fira Code Retina", // ligatures
 	// "editor.fontFamily": "Fira Code",
-	"editor.fontFamily": "Liberation Mono", // lighter Droid Sans Mono
 	// "editor.fontFamily": "Bitstream Vera Sans Mono",
 	// "editor.fontFamily": "Intel One Mono",
 	// "editor.fontFamily": "Droid Sans Mono",
