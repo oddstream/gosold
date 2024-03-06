@@ -23,7 +23,6 @@ type Settings struct {
 	MirrorBaize                        bool
 	ShowMovableCards                   bool
 	AlwaysShowMovableCards             bool
-	Timer                              bool
 	CardRatio                          float64
 	AniSpeed                           float64
 	LastVersionMajor, LastVersionMinor int
@@ -52,7 +51,6 @@ func NewSettings() *Settings {
 		Volume:                 0.75,
 		ShowMovableCards:       true,
 		AlwaysShowMovableCards: true,
-		Timer:                  false,
 		// FixedCards:       false,
 		// FixedCardWidth:   90,
 		// FixedCardHeight:  122,

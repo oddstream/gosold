@@ -18,7 +18,7 @@ var (
 	// CsolVersionMinor is the integer version number
 	GosoldVersionMinor int = 5
 	// CSolVersionDate is the ISO 8601 date of bumping the version number
-	GosoldVersionDate string = "2024-03-05"
+	GosoldVersionDate string = "2024-03-06"
 	// CardWidth of cards, start with a silly value to force a rescale/refan
 	CardWidth int = 9
 	// CardHeight of cards, start with a silly value to force a rescale/refan
@@ -116,9 +116,6 @@ func NewGame() *Game {
 				g.ui.ToastInfo("Movable cards always highlighted")
 			}
 		},
-		ebiten.KeyT: func() {
-			g.settings.Timer = !g.settings.Timer
-		},
 		ebiten.KeyA: func() {
 			var AniSpeedSettings = []ui.FloatSetting{
 				{Title: "Fast", Var: &g.settings.AniSpeed, Value: 0.3},
@@ -151,7 +148,6 @@ func NewGame() *Game {
 						sound.SetVolume(g.settings.Volume)
 					}
 				}},
-				{Title: "Show timer", Var: &g.settings.Timer, Update: func() { g.baize.updateStatusbar() }},
 				// {Title: "Mirror baize", Var: &g.settings.MirrorBaize, Update: func() {
 				// 	savedUndoStack := TheGame.Baize.undoStack
 				// 	TheGame.Baize.StartFreshGame()

@@ -22,7 +22,7 @@ type VariantStatistics struct {
 	// Won + Lost is total number of games played (won or abandoned)
 	// SumPercents is a record of games where % < 100
 	// average % is (sum of Percents) + (100 * Won) / (Won+Lost)
-	TimedGames, BestTime, WorstTime int `json:",omitempty"`
+	BestTime, WorstTime int `json:",omitempty"`
 	// BestTime and WorstTime only record won games
 }
 
@@ -59,11 +59,15 @@ func (stats *VariantStatistics) averagePercent() int {
 func (stats *VariantStatistics) strings(v string) []string {
 
 	fmtTime := func(ticks int) string {
-		secs := int(float64(ticks) / ebiten.ActualTPS())
+		atps := ebiten.ActualTPS() // can be 0.0 at startup
+		if atps < 1.0 {
+			atps = 60.0
+		}
+		secs := int(float64(ticks) / atps)
 		m := secs / 60
 		s := secs % 60
 		if m == 0 {
-			return fmt.Sprintf("%d seconds", secs)
+			return fmt.Sprintf("%ds", secs)
 		} else {
 			return fmt.Sprintf("%dm %ds", m, s)
 		}
@@ -89,9 +93,16 @@ func (stats *VariantStatistics) strings(v string) []string {
 			strs = append(strs, fmt.Sprintf("Best percent: %d%%", stats.BestPercent))
 		} else {
 			// won at least one game
-			strs = append(strs, fmt.Sprintf("Best number of moves: %d", stats.BestMoves))
-			strs = append(strs, fmt.Sprintf("Worst number of moves: %d", stats.WorstMoves))
-			strs = append(strs, fmt.Sprintf("Average number of moves: %d", stats.SumMoves/stats.Won))
+			strs = append(strs, fmt.Sprintf("Best moves: %d", stats.BestMoves))
+			strs = append(strs, fmt.Sprintf("Worst moves: %d", stats.WorstMoves))
+			strs = append(strs, fmt.Sprintf("Average moves: %d", stats.SumMoves/stats.Won))
+
+			if stats.BestTime != 0 {
+				strs = append(strs, fmt.Sprintf("Best time: %s", fmtTime(stats.BestTime)))
+			}
+			if stats.WorstTime != 0 {
+				strs = append(strs, fmt.Sprintf("Worst time: %s", fmtTime(stats.WorstTime)))
+			}
 
 			if stats.CurrStreak != 0 {
 				strs = append(strs, fmt.Sprintf("Current streak: %d", stats.CurrStreak))
@@ -101,12 +112,6 @@ func (stats *VariantStatistics) strings(v string) []string {
 			}
 			if stats.WorstStreak != 0 {
 				strs = append(strs, fmt.Sprintf("Worst streak: %d", stats.WorstStreak))
-			}
-			if stats.BestTime != 0 {
-				strs = append(strs, fmt.Sprintf("Best time: %s", fmtTime(stats.BestTime)))
-			}
-			if stats.WorstTime != 0 {
-				strs = append(strs, fmt.Sprintf("Worst time: %s", fmtTime(stats.WorstTime)))
 			}
 		}
 	}
@@ -176,7 +181,6 @@ func (s *Statistics) recordWonGame(v string, moves, ticks int) string {
 	if ticks > vstats.WorstTime {
 		vstats.WorstTime = ticks
 	}
-	vstats.TimedGames += 1
 
 	s.save()
 

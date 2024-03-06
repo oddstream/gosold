@@ -726,24 +726,30 @@ func (b *baize) updateToolbar() {
 }
 
 func (b *baize) updateStatusbar() {
+
+	fmtTime := func(ticks int) string {
+		if ticks == 0 {
+			return "TIME: 0s"
+		}
+		atps := ebiten.ActualTPS() // can be 0.0 at startup
+		if atps < 1.0 {
+			atps = 60.0
+		}
+		secs := int(float64(ticks) / atps)
+		m := secs / 60
+		s := secs % 60
+		if m == 0 {
+			return fmt.Sprintf("TIME: %ds", secs)
+		} else {
+			return fmt.Sprintf("TIME: %dm %ds", m, s)
+		}
+	}
+
 	b.game.ui.SetStock(b.darkBaize.StockLen())
 	b.game.ui.SetWaste(b.darkBaize.WasteLen())
-	if b.game.settings.Timer {
-		var t int = b.game.baize.darkBaize.Ticks()
-		var atps = int(ebiten.ActualTPS())
-		if atps != 0 {
-			secs := t / atps
-			m := secs / 60
-			s := secs % 60
-			if m == 0 {
-				b.game.ui.SetMiddle(fmt.Sprintf("TIMER: %ds", s))
-			} else {
-				b.game.ui.SetMiddle(fmt.Sprintf("TIMER: %dm %ds", m, s))
-			}
-		}
-	} else {
-		b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d", b.darkBaize.UndoStackSize()-1))
-	}
+
+	b.game.ui.SetMiddle(fmt.Sprintf("MOVES: %d %s", b.darkBaize.UndoStackSize()-1, fmtTime(b.darkBaize.Ticks())))
+
 	percent, fpercent := b.darkBaize.PercentComplete()
 	if DebugMode {
 		b.game.ui.SetPercent2(fmt.Sprintf("%d%%/%d%%", percent, fpercent))

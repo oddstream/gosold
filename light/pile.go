@@ -218,9 +218,9 @@ func (p *pile) setBaizePos(pos image.Point) {
 // 	return p.pos
 // }
 
-func (p *pile) screenPos() image.Point {
-	return p.pos.Add(p.baize.dragOffset)
-}
+// func (p *pile) screenPos() image.Point {
+// 	return p.pos.Add(p.baize.dragOffset)
+// }
 
 func (p *pile) baizeRect() image.Rectangle {
 	var r image.Rectangle

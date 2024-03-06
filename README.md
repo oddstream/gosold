@@ -107,6 +107,7 @@ Either resize your browser/desktop window (if using scalable cards) or change th
 There's no ISO or ANSI or FIDE-like governing body for solitaire; so there's no standard set of rules.
 Other implementations vary in how they interpret each variant.
 For example, some variants of American Toad build the tableau down by suit, some by alternate color.
+
 So, rather than just making this stuff up, I've tried to find a well researched set of rules for each variant and stick to them, leaning heavily on Jan Wolter (RIP, and thanks for all the fish), David Parlett and Thomas Warfield. Where possible, I've implemented the games from the book "The Complete Book of Solitaire and Patience Games" by Albert Morehead and Geoffrey Mott-Smith.
 
 ### Keyboard shortcuts?
@@ -117,6 +118,7 @@ So, rather than just making this stuff up, I've tried to find a well researched 
 * N - new deal (resign current game, if started)
 * R - restart deal
 * U - undo
+* V - version information
 
 ### What about scores?
 
@@ -135,8 +137,11 @@ You can when playing with actual cards, too. Cheat if you like; I'm not your mot
 
 ### What about a timer?
 
-Nope, there isn't one of those. Too stressful.
-Solitaire is also called *patience*; it's hard to feel patient when you're pressured by a clock.
+There is a rudimentary game timer, which can be seen by selecting 'Show timer' in the Settings.
+The time elapsed for the current game is then shown in the middle of the status bar, replacing the number of moves.
+The timer pauses when the app is minimized or is not the focussed window.
+The Statistics show the best and worst time achived in completing a game - games that are not completed do not count.
+The elapsed time backtracks when using undo or go to bookmark.
 
 ### You can't move cards off a foundation pile
 
@@ -179,11 +184,16 @@ Enabling this will cause cards to be moved to the Foundation piles after every m
 
 In games like Klondike that build tableau cards in alternating colors, you can sometimes get into trouble by moving cards to the foundations too soon. With this option turned on, autocollect and the titlebar collect button will only move cards to the foundation piles when it is safe to do so.
 
+### Show timer
+
+Displays the time elapsed for the current game in the middle of the status bar, instead of the number of moves.
+Only updates when a move is made. Pauses when the app is minimized or is not currently focussed.
+
 ### Is the game rigged?
 
-No. The cards are shuffled randomly using a Fisher-Yates shuffle driven by a Park-Miller pseudo random number generator, which is in itself seeded by a random number. This mechanism was tested and analysed to make sure it produced an even distribution of shuffled cards.
+No. The cards are shuffled randomly using a Fisher-Yates shuffle driven by a Park-Miller pseudo random number generator, which is in itself seeded by a random number, which is itself seeded from the current time. This mechanism was tested and analysed to make sure it produced an even distribution of shuffled cards.
 
-There are 80658175170943878571660636856403766975289505440883277824000000000000 possible deals of a pack of 52 playing cards; you're probably more likely to grow wings than play the same game twice, or play the same game that anyone else ever has, or ever will.
+There are 80658175170943878571660636856403766975289505440883277824000000000000 possible deals of a pack of 52 playing cards; it's *very* unlikely that you will play the same game twice, or play the same game that anyone else ever has, or ever will.
 
 ### Any hints and tips?
 
